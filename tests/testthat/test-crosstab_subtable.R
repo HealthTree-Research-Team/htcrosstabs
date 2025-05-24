@@ -52,7 +52,14 @@ get_test_df <- function(data_type = "n", gr = FALSE, col_name = "data", group_na
 
 test_that("is_crosstab_sub() rejects an assortment of non-crosstab objects",{
     expect_false(is_crosstab_sub(get_test_df()))
-    expect_false(is_crosstab_sub(get))
+    expect_false(is_crosstab_sub(data.frame()))
+    expect_false(is_crosstab_sub(numeric()))
+    expect_false(is_crosstab_sub(1))
+    expect_false(is_crosstab_sub("a"))
+    expect_false(is_crosstab_sub(TRUE))
+    expect_false(is_crosstab_sub(character(0)))
+    expect_false(is_crosstab_sub(NA))
+    expect_false(is_crosstab_sub(NULL))
 })
 
 

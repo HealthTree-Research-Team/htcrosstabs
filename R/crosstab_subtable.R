@@ -2,6 +2,13 @@ CROSSTAB_SUB <- "crosstab_sub"
 CROSSTAB_SUB_MUL <- "crosstab_sub_mul"
 CROSSTAB_SUB_GR <- "crosstab_sub_gr"
 
+is_crosstab_sub <- function(obj, mul = F, gr = F) {
+    classes <- c("CROSSTAB_SUB")
+    if (mul) classes <- c(classes, "CROSSTAB_SUB_MUL")
+    if (gr)  classes <- c(classes, "CROSSTAB_SUB_GR")
+    all(inherits(obj, classes, which = T))
+}
+
 new_crosstab_sub <- function(data, field, levels) {
     stopifnot(is.data.frame(data))
     stopifnot(is.character(field))
@@ -70,14 +77,22 @@ new_crosstab_sub_mul_gr <- function(data, field, levels, group_by, group_levels)
             group_levels,
             output_table = data.frame()
         ),
-        class = c(CROSSTAB_SUB, CROSSTAB_SUB_MUL CROSSTAB_SUB_GR)
+        class = c(CROSSTAB_SUB, CROSSTAB_SUB_MUL, CROSSTAB_SUB_GR)
     )
 }
 
-is_crosstab_sub <- function(obj, mul = F, gr = F) {
-    classes <- c("CROSSTAB_SUB")
-    if (mul) classes <- c(classes, "CROSSTAB_SUB_MUL")
-    if (gr)  classes <- c(classes, "CROSSTAB_SUB_GR")
-    all(inherits(obj, classes, which = T))
+validate_crosstab_sub <- function(obj) {
+
 }
 
+validate_crosstab_sub_mul <- function(obj) {
+
+}
+
+validate_crosstab_sub_gr <- function(obj) {
+
+}
+
+validate_crosstab_sub_mul_gr <- function(obj) {
+
+}
