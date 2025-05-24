@@ -8,11 +8,13 @@ Authors@R: person(
     email = "alexb@healthtree.org",
     comment = NULL
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
+Description: A simple library for creating crosstabs in the way that HealthTree Foundation likes them. Built to handle numeric data, likert-like data, and categorical data (including multi-answer). Includes an option for grouping data into multiple output columns.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Imports: 
+    assertthat
+RoxygenNote: 7.3.2
