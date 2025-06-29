@@ -1,6 +1,6 @@
 Package: htcrosstabs
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Generate simple crosstabs (HealthTree Foundation)
 Version: 0.1.0
 Authors@R: person(
     "Alex", "Brown",
@@ -8,7 +8,10 @@ Authors@R: person(
     email = "alexb@healthtree.org",
     comment = NULL
   )
-Description: A simple library for creating crosstabs in the way that HealthTree Foundation likes them. Built to handle numeric data, likert-like data, and categorical data (including multi-answer). Includes an option for grouping data into multiple output columns.
+Description: Creating crosstabs in the way that HealthTree Foundation likes
+    them. Built to handle numeric data, likert-like data, and categorical data
+    (including multi-answer). Includes an option for grouping data into multiple
+    output columns.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
