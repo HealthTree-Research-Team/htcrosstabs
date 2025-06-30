@@ -54,3 +54,13 @@ levels <- function(obj) {
     else
         return(base::`levels<-`(obj, value))
 }
+
+default_likert_map <- function(fct) {
+    assert_that(is.factor(fct) | is.factorlist(fct), msg = "fct must be either a factor or list of factors")
+    assert_that(!is.null(levels(fct)), msg = "fct has no \"levels\" attribute")
+    lev <- levels(fct)
+    assert_that(length(lev) > 0, msg = "levels attribute has length 0")
+    vals <- (1:length(lev)) |> rev()
+    names(vals) <- lev
+    return(vals)
+}

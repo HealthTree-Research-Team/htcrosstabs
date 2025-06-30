@@ -38,7 +38,7 @@ add_group_col <- function(df, name = "cohort", value = "Response") {
     df
 }
 
-get_numeric_test_df <- function(col_name = "variable", group_name = "cohort", gr = FALSE, group_type = "c", nrows = 20, w_na = TRUE, seed = NULL) {
+get_numeric_test_df <- function(col_name = "variable", group_name = "cohort", gr = FALSE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
     if (!is.null(seed)) set.seed(seed)
     data_col <- sample(1:100, nrows, replace = TRUE)
     data_col <- spatter_missing(data_col, w_na)
@@ -55,7 +55,7 @@ get_numeric_test_df <- function(col_name = "variable", group_name = "cohort", gr
     df
 }
 
-get_categorical_test_df <- function(col_name = "variable", group_name = "cohort", gr = FALSE, group_type = "c", nrows = 20, w_na = TRUE, seed = NULL) {
+get_categorical_test_df <- function(col_name = "variable", group_name = "cohort", gr = FALSE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
     if (!is.null(seed)) set.seed(seed)
     data_col <- sample(categorical_levels, nrows, replace = TRUE)
     data_col <- spatter_missing(data_col, w_na)
@@ -72,7 +72,7 @@ get_categorical_test_df <- function(col_name = "variable", group_name = "cohort"
     df
 }
 
-get_likert_test_df <- function(col_name = "variable", group_name = "cohort", gr = FALSE, group_type = "c", nrows = 20, w_na = TRUE, seed = NULL) {
+get_likert_test_df <- function(col_name = "variable", group_name = "cohort", gr = FALSE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
     if (!is.null(seed)) set.seed(seed)
     data_col <- sample(likert_levels, nrows, replace = TRUE)
     data_col <- spatter_missing(data_col, w_na)
@@ -89,7 +89,7 @@ get_likert_test_df <- function(col_name = "variable", group_name = "cohort", gr 
     df
 }
 
-get_multianswer_test_df <- function(col_name = "variable", group_name = "cohort", gr = FALSE, group_type = "c", nrows = 20, w_na = TRUE, seed = NULL) {
+get_multianswer_test_df <- function(col_name = "variable", group_name = "cohort", gr = FALSE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
     if (!is.null(seed)) set.seed(seed)
 
     get_sample <- function() {
@@ -116,12 +116,12 @@ factorize_columns <- function(df, colnames = NULL) {
     if (is.null(colnames))
         colnames <- names(df)
 
-    stopifnot(all(names(df) %in% colnames))
+    stopifnot(all(colnames %in% names(df)))
 
     for (col in colnames) {
         if (is.list(df[[col]])) {
             df[[col]] <- lapply(df[[col]], function(x) factor(x))
-        } else if (is.character(df[[col]])) {
+        } else if (!is.numeric(df[[col]])) {
             df[[col]] <- factor(df[[col]])
         }
     }

@@ -1,6 +1,7 @@
+# IMPORTS ####
 #' @import assertthat
 
-# CONSTANTS
+# CONSTANTS ####
 CT_DATA_CLASS <- "crosstab_data"
 CT_DATA_CLASS_CAT <- "crosstab_data_cat"
 CT_DATA_CLASS_NUM <- "crosstab_data_num"
@@ -14,7 +15,7 @@ CT_DATA_CLASSES <- c(
     CT_DATA_CLASS_MULTI
 )
 
-# CONSTRUCTORS
+# CONSTRUCTORS ####
 new_crosstab_data <- function(df, var_col_name, cohort_col_name, cohort_levels, var_levels = NULL, var_mapping = NULL, subclass = NULL) {
     assert_that(is.data.frame(df))
     assert_that(is.character(var_col_name))
@@ -93,8 +94,10 @@ new_crosstab_data_multi <- function(df, var_col_name, var_levels, cohort_col_nam
     )
 }
 
-# VALIDATORS
-validate_crosstab_data_base <- function(ct_data) {
+# VALIDATORS ####
+#' @method validate_crosstab_data crosstab_data
+#' @noRd
+validate_crosstab_data.crosstab_data <- function(ct_data) {
     assert_that(inherits(ct_data, CT_DATA_CLASS))
     assert_that(ncol(ct_data) == 2, msg = "df must have 2 columns: one for variable and one for cohort")
 
@@ -112,8 +115,13 @@ validate_crosstab_data_base <- function(ct_data) {
         cohort_col_name
     ))
 
+    assert_that(!is.list(cohort(ct_data)), msg = sprintf(
+        "Cohort column \"%s\" can not be a list",
+        cohort_col_name
+    ))
     assert_that(is.factor(cohort(ct_data)), msg = sprintf(
-        "Cohort column \"%s\" must be a factor"
+        "Cohort column \"%s\" must be a factor",
+        cohort_col_name
     ))
     assert_that(has_attr(ct_data, "cohort_levels"))
     cohort_levels <- cohort_levels(ct_data)
@@ -125,8 +133,10 @@ validate_crosstab_data_base <- function(ct_data) {
     return(TRUE)
 }
 
-validate_crosstab_data_cat <- function(ct_data) {
-    validate_crosstab_data_base(ct_data)
+#' @method validate_crosstab_data crosstab_data_cat
+#' @noRd
+validate_crosstab_data.crosstab_data_cat <- function(ct_data) {
+    validate_crosstab_data.crosstab_data(ct_data)
 
     assert_that(inherits(ct_data, CT_DATA_CLASS_CAT))
     assert_that(is.factor(var(ct_data)), msg = "Categorical data must be a factor")
@@ -141,17 +151,22 @@ validate_crosstab_data_cat <- function(ct_data) {
     return(TRUE)
 }
 
-validate_crosstab_data_num <- function(ct_data) {
-    validate_crosstab_data_base(ct_data)
+#' @method validate_crosstab_data crosstab_data_num
+#' @noRd
+validate_crosstab_data.crosstab_data_num <- function(ct_data) {
+    validate_crosstab_data.crosstab_data(ct_data)
 
     assert_that(inherits(ct_data, CT_DATA_CLASS_NUM))
     assert_that(is.numeric(var(ct_data)), msg = "Data for this class must be numeric")
+    assert_that(is.null(var_levels(ct_data)))
 
     return(TRUE)
 }
 
-validate_crosstab_data_likert <- function(ct_data) {
-    validate_crosstab_data_base(ct_data)
+#' @method validate_crosstab_data crosstab_data_likert
+#' @noRd
+validate_crosstab_data.crosstab_data_likert <- function(ct_data) {
+    validate_crosstab_data.crosstab_data(ct_data)
 
     assert_that(inherits(ct_data, CT_DATA_CLASS_LIKERT))
     assert_that(is.factor(var(ct_data)), msg = "Likert data must be a factor")
@@ -178,29 +193,134 @@ validate_crosstab_data_likert <- function(ct_data) {
         all(var(ct_data) %in% c(names(var_mapping), NA)),
         msg = sprintf(
             "Detected unmapped values: %s",
-            paste(setdiff(var(ct_data), names(var_mapping), NA), collapse = ", ")
+            paste(setdiff(var(ct_data), c(names(var_mapping), NA)), collapse = ", ")
         )
     )
-
-    if (any(is.na(value))) warning("Certain values are mapped to NA")
 
     return(TRUE)
 }
 
-validate_crosstab_data_multi <- function(ct_data) {
-    validate_crosstab_data_base(ct_data)
+#' @method validate_crosstab_data crosstab_data_multi
+#' @noRd
+validate_crosstab_data.crosstab_data_multi <- function(ct_data) {
+    validate_crosstab_data.crosstab_data(ct_data)
 
     assert_that(inherits(ct_data, CT_DATA_CLASS_MULTI))
+    assert_that(is.factorlist(var(ct_data)), msg = "Variable column must be a list of factors (htcrosstabs::factor() can help)")
 
-    # assert_that(
-    #     is.list(var(ct_data)),
-    #
-    # )
+    assert_that(has_attr(ct_data, "var_levels"))
+    var_levels <- var_levels(ct_data)
+    assert_that(all(unlist(var(ct_data)) %in% c(var_levels, NA)), msg = sprintf(
+        "All values in %s must exist in var_levels",
+        var_name(ct_data)
+    ))
+
+    return(TRUE)
 }
 
-# HELPERS
+validate_crosstab_data <- function(ct_data) {
+    UseMethod("validate_crosstab_data", ct_data)
+}
 
-# GETTERS
+# HELPERS ####
+#' @export
+crosstab_data <- function(df, cohort_col_name = NULL, likert_map = NULL, default_cohort = "Response") {
+    assert_that(is.data.frame(df))
+
+    # If it isn't grouped, add grouping column
+    if (is.null(cohort_col_name)) {
+        assert_that(ncol(df) == 1, msg = sprintf(
+            "If cohort_col_name is left NULL df must only have 1 column for data - detected %d columns",
+            ncol(df)
+        ))
+
+        # Create a cohort column name that doesn't already exist
+        cohort_col_name = "cohort"
+        while (cohort_col_name %in% names(df))
+            cohort_col_name = paste0(cohort_col_name, "_autogenerated")
+
+        df[[cohort_col_name]] <- factor(default_cohort)
+    } else {
+        assert_that(ncol(df) == 2, msg = sprintf(
+            "If providing cohort_col_name df must have 2 columns: one for data and one for cohort"
+        ))
+        assert_that(cohort_col_name %in% names(df), msg = sprintf(
+            "Cohort column \"%s\" not found in df",
+            cohort_col_name
+        ))
+        assert_that(!is.list(df[[cohort_col_name]]), msg = "Cohort column cannot be a list")
+    }
+
+    var_col_name <- names(df)[names(df) != cohort_col_name]
+
+    # Warn if there are empty columns
+    empty_cols <- names(df)[sapply(df, function(x) all(is.na(x)))]
+    if (length(empty_cols) > 0) {
+        warning(sprintf(
+            "Empty columns may cause errors - detected empty columns: %s",
+            paste(empty_cols, collapse = ", ")
+        ))
+    }
+
+    if (!is.numeric(df[[var_col_name]])) {
+        if (!is.factor(df[[var_col_name]]) & !is.factorlist(df[[var_col_name]]))
+            warning(sprintf(
+                "Coercing variable column to %s",
+                if (is.list(df[[var_col_name]])) "factor list" else "factor"
+            ))
+        df[[var_col_name]] <- factor(df[[var_col_name]])
+    }
+
+    if (!is.factor(df[[cohort_col_name]]))
+        warning("Coercing cohort column to factor")
+    df[[cohort_col_name]] <- factor(df[[cohort_col_name]])
+
+    # Extract levels (bear in mind, if provided a
+    # numeric variable, var_levels will be NULL)
+    var_levels <- levels(df[[var_col_name]])
+    cohort_levels <- levels(df[[cohort_col_name]])
+
+    # Call the right constructor
+    if (is.list(df[[var_col_name]]))
+        ct_data <- new_crosstab_data_multi(
+            df = df,
+            var_col_name = var_col_name,
+            var_levels = var_levels,
+            cohort_col_name = cohort_col_name,
+            cohort_levels = cohort_levels
+        )
+    else if (is.numeric(df[[var_col_name]]))
+        ct_data <- new_crosstab_data_num(
+            df = df,
+            var_col_name = var_col_name,
+            cohort_col_name = cohort_col_name,
+            cohort_levels = cohort_levels
+        )
+    else if (!is.null(likert_map))
+        ct_data <- new_crosstab_data_likert(
+            df = df,
+            var_col_name = var_col_name,
+            var_levels = var_levels,
+            var_mapping = likert_map,
+            cohort_col_name = cohort_col_name,
+            cohort_levels = cohort_levels
+        )
+    else
+        ct_data <- new_crosstab_data_cat(
+            df = df,
+            var_col_name = var_col_name,
+            var_levels = var_levels,
+            cohort_col_name = cohort_col_name,
+            cohort_levels = cohort_levels
+        )
+
+    # Validate
+    validate_crosstab_data(ct_data)
+
+    return(ct_data)
+}
+
+# GETTERS ####
 var_name <- function(ct_data) {
     assert_that(inherits(ct_data, CT_DATA_CLASS))
     attr(ct_data, "var_col_name")
@@ -243,7 +363,7 @@ var_mapped <- function(ct_data) {
     var_mapping(ct_data)[var(ct_data)]
 }
 
-# SETTERS
+# SETTERS ####
 `var_name<-` <- function(ct_data, value) {
     assert_that(inherits(ct_data, CT_DATA_CLASS))
     names(ct_data)[names(ct_data) == var_name(ct_data)] <- value
@@ -316,7 +436,6 @@ var_mapped <- function(ct_data) {
         setequal(names(value), names(var_mapping(ct_data))),
         msg = "New mapping must contain same names as previous mapping"
     )
-    if (any(is.na(value))) warning("Certain values are mapped to NA")
     attr(ct_data, "var_mapping") <- value
     return(ct_data)
 }

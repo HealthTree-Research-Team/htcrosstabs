@@ -193,3 +193,15 @@ test_that("levels<- still applies base::levels() even if any item in list is not
     expect_false(is.factorlist(`levels<-`(bad, c("x", "y"))))
 })
 
+test_that("default_likert_map() works on proper input",{
+    fct <- factor(c("Agree", "Neither", "Disagree"))
+    map <- default_likert_map(fct)
+    ref <- c("Agree" = 3, "Neither" = 2, "Disagree" = 1)
+    expect_equal(map, ref)
+})
+
+test_that("default_likert_map() errors when given a non-factor object",{
+    expect_error(default_likert_map(c("Agree", "Neither", "Disagree")))
+    expect_error(default_likert_map(c(1, 2, 3)))
+    expect_error(default_likert_map(NA))
+})
