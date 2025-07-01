@@ -593,6 +593,18 @@ test_that("var_mapped() maps values correctly", {
     expect_equal(var_mapped(ct), mapping[df$var])
 })
 
+test_that("is_grouped() returns accurate values",{
+    df <- get_categorical_test_df(gr = T) |>
+        factorize_columns()
+    ct_data <- crosstab_data(df, "cohort")
+    expect_true(is_grouped(ct_data))
+
+    df <- get_categorical_test_df() |>
+        factorize_columns()
+    ct_data <- crosstab_data(df)
+    expect_false(is_grouped(ct_data))
+})
+
 # SETTERS ####
 test_that("var_name<- updates column name and attribute", {
     ct <- test_ct

@@ -3,4 +3,5 @@
 export(crosstab)
 export(crosstab_data)
 export(data)
+export(get_data)
 import(assertthat)

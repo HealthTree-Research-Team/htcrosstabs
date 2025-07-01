@@ -24,9 +24,12 @@ new_crosstab <- function(df, cohort_col_name = NULL, likert_map = NULL, default_
         default_cohort = default_cohort
     )
 
+    classes <- c(CT_CLASS, class(data.frame()))
+
     structure(
         data.frame(), # Output table
-        data = data   # crosstab_data
+        data = data,   # crosstab_data
+        class = classes
     )
 }
 
