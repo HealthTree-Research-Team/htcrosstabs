@@ -605,6 +605,13 @@ test_that("is_grouped() returns accurate values",{
     expect_false(is_grouped(ct_data))
 })
 
+test_that("get_raw_data() returns the grouped data without the \"all\" values",{
+    df <- get_categorical_test_df(gr = T) |>
+        factorize_columns()
+    ct_data <- crosstab_data(df, "cohort")
+    expect_false("All" %in% cohort(get_raw_data(ct_data)))
+})
+
 # SETTERS ####
 test_that("var_name<- updates column name and attribute", {
     ct <- test_ct

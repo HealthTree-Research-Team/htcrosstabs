@@ -17,7 +17,7 @@ CT_DATA_CLASSES <- c(
 CT_DATA_CLASS_GROUPED <- "crosstab_data_grouped"
 
 # CONSTRUCTORS ####
-new_crosstab_data <- function(df, var_col_name, cohort_col_name, cohort_levels, var_levels = NULL, var_mapping = NULL, subclass = NULL, grouped = F) {
+new_crosstab_data <- function(df, var_col_name, cohort_col_name, cohort_levels, var_levels = NULL, var_mapping = NULL, subclass = NULL, grouped = F, all_cohort_name = "All") {
     assert_that(is.data.frame(df))
     assert_that(is.character(var_col_name))
     assert_that(length(var_col_name) == 1, msg = "var_col_name must only have one value")
@@ -40,6 +40,8 @@ new_crosstab_data <- function(df, var_col_name, cohort_col_name, cohort_levels, 
 
     grouping_class <- if (grouped) CT_DATA_CLASS_GROUPED else NULL
 
+    all_cohort_name <- if (grouped) all_cohort_name else NULL
+
     classes <- c(subclass, grouping_class, CT_DATA_CLASS, class(df))
 
     structure(
@@ -48,12 +50,13 @@ new_crosstab_data <- function(df, var_col_name, cohort_col_name, cohort_levels, 
         var_levels = var_levels,
         cohort_col_name = cohort_col_name,
         cohort_levels = cohort_levels,
+        all_cohort_name = all_cohort_name,
         var_mapping = var_mapping,
         class = classes
     )
 }
 
-new_crosstab_data_cat <- function(df, var_col_name, var_levels, cohort_col_name, cohort_levels, grouped = F) {
+new_crosstab_data_cat <- function(df, var_col_name, var_levels, cohort_col_name, cohort_levels, grouped = F, all_cohort_name = "All") {
     new_crosstab_data(
         df = df,
         var_col_name = var_col_name,
@@ -61,22 +64,24 @@ new_crosstab_data_cat <- function(df, var_col_name, var_levels, cohort_col_name,
         cohort_col_name = cohort_col_name,
         cohort_levels = cohort_levels,
         subclass = CT_DATA_CLASS_CAT,
-        grouped = grouped
+        grouped = grouped,
+        all_cohort_name = all_cohort_name
     )
 }
 
-new_crosstab_data_num <- function(df, var_col_name, cohort_col_name, cohort_levels, grouped = F) {
+new_crosstab_data_num <- function(df, var_col_name, cohort_col_name, cohort_levels, grouped = F, all_cohort_name = "All") {
     new_crosstab_data(
         df = df,
         var_col_name = var_col_name,
         cohort_col_name = cohort_col_name,
         cohort_levels = cohort_levels,
         subclass = CT_DATA_CLASS_NUM,
-        grouped = grouped
+        grouped = grouped,
+        all_cohort_name = all_cohort_name
     )
 }
 
-new_crosstab_data_likert <- function(df, var_col_name, var_levels, var_mapping, cohort_col_name, cohort_levels, grouped = F) {
+new_crosstab_data_likert <- function(df, var_col_name, var_levels, var_mapping, cohort_col_name, cohort_levels, grouped = F, all_cohort_name = "All") {
     new_crosstab_data(
         df = df,
         var_col_name = var_col_name,
@@ -85,11 +90,12 @@ new_crosstab_data_likert <- function(df, var_col_name, var_levels, var_mapping, 
         cohort_col_name = cohort_col_name,
         cohort_levels = cohort_levels,
         subclass = CT_DATA_CLASS_LIKERT,
-        grouped = grouped
+        grouped = grouped,
+        all_cohort_name = all_cohort_name
     )
 }
 
-new_crosstab_data_multi <- function(df, var_col_name, var_levels, cohort_col_name, cohort_levels, grouped = F) {
+new_crosstab_data_multi <- function(df, var_col_name, var_levels, cohort_col_name, cohort_levels, grouped = F, all_cohort_name = "All") {
     new_crosstab_data(
         df = df,
         var_col_name = var_col_name,
@@ -97,13 +103,13 @@ new_crosstab_data_multi <- function(df, var_col_name, var_levels, cohort_col_nam
         cohort_col_name = cohort_col_name,
         cohort_levels = cohort_levels,
         subclass = CT_DATA_CLASS_MULTI,
-        grouped = grouped
+        grouped = grouped,
+        all_cohort_name = all_cohort_name
     )
 }
 
 # VALIDATORS ####
-#' @method validate_crosstab_data crosstab_data
-#' @noRd
+#' @export
 validate_crosstab_data.crosstab_data <- function(ct_data) {
     assert_that(inherits(ct_data, CT_DATA_CLASS))
     assert_that(ncol(ct_data) == 2, msg = "df must have 2 columns: one for variable and one for cohort")
@@ -121,6 +127,10 @@ validate_crosstab_data.crosstab_data <- function(ct_data) {
         "%s column not found in df",
         cohort_col_name
     ))
+
+    if (has_attr(ct_data, "all_cohort_name")) {
+        assert_that(is.character(all_cohort_name(ct_data)), msg = "Provided all_cohort_name must be a character")
+    }
 
     assert_that(!is.list(cohort(ct_data)), msg = sprintf(
         "Cohort column \"%s\" can not be a list",
@@ -140,8 +150,7 @@ validate_crosstab_data.crosstab_data <- function(ct_data) {
     return(TRUE)
 }
 
-#' @method validate_crosstab_data crosstab_data_cat
-#' @noRd
+#' @export
 validate_crosstab_data.crosstab_data_cat <- function(ct_data) {
     validate_crosstab_data.crosstab_data(ct_data)
 
@@ -158,20 +167,21 @@ validate_crosstab_data.crosstab_data_cat <- function(ct_data) {
     return(TRUE)
 }
 
-#' @method validate_crosstab_data crosstab_data_num
-#' @noRd
+#' @export
 validate_crosstab_data.crosstab_data_num <- function(ct_data) {
     validate_crosstab_data.crosstab_data(ct_data)
 
     assert_that(inherits(ct_data, CT_DATA_CLASS_NUM))
     assert_that(is.numeric(var(ct_data)), msg = "Data for this class must be numeric")
-    assert_that(is.null(var_levels(ct_data)))
+    assert_that(
+        !has_attr(ct_data, "var_levels"),
+        msg = "Numeric data should not have var_levels attribute"
+    )
 
     return(TRUE)
 }
 
-#' @method validate_crosstab_data crosstab_data_likert
-#' @noRd
+#' @export
 validate_crosstab_data.crosstab_data_likert <- function(ct_data) {
     validate_crosstab_data.crosstab_data(ct_data)
 
@@ -207,8 +217,7 @@ validate_crosstab_data.crosstab_data_likert <- function(ct_data) {
     return(TRUE)
 }
 
-#' @method validate_crosstab_data crosstab_data_multi
-#' @noRd
+#' @export
 validate_crosstab_data.crosstab_data_multi <- function(ct_data) {
     validate_crosstab_data.crosstab_data(ct_data)
 
@@ -231,7 +240,7 @@ validate_crosstab_data <- function(ct_data) {
 
 # HELPERS ####
 #' @export
-crosstab_data <- function(df, cohort_col_name = NULL, likert_map = NULL, default_cohort = "Response") {
+crosstab_data <- function(df, cohort_col_name = NULL, likert_map = NULL, default_cohort = "All", all_cohort_name = "All") {
     assert_that(is.data.frame(df))
 
     # If it isn't grouped, add grouping column
@@ -289,6 +298,19 @@ crosstab_data <- function(df, cohort_col_name = NULL, likert_map = NULL, default
     var_levels <- levels(df[[var_col_name]])
     cohort_levels <- levels(df[[cohort_col_name]])
 
+    # Add the "All" group if it's grouped
+    if (grouped) {
+        assert_that(
+            !(all_cohort_name %in% cohort_levels),
+            msg = "If \"All\" is already one of the cohort names, assign a different default \"All\" cohort name with all_cohort_name = [name]"
+        )
+        cohort_levels <- c(all_cohort_name, cohort_levels)
+        all_df <- df
+        all_df[[cohort_col_name]] <- all_cohort_name
+        df <- rbind(all_df, df)
+        df[[cohort_col_name]] <- factor(df[[cohort_col_name]])
+    }
+
     # Call the right constructor
     if (is.list(df[[var_col_name]]))
         ct_data <- new_crosstab_data_multi(
@@ -297,7 +319,8 @@ crosstab_data <- function(df, cohort_col_name = NULL, likert_map = NULL, default
             var_levels = var_levels,
             cohort_col_name = cohort_col_name,
             cohort_levels = cohort_levels,
-            grouped = grouped
+            grouped = grouped,
+            all_cohort_name = all_cohort_name
         )
     else if (is.numeric(df[[var_col_name]]))
         ct_data <- new_crosstab_data_num(
@@ -305,7 +328,8 @@ crosstab_data <- function(df, cohort_col_name = NULL, likert_map = NULL, default
             var_col_name = var_col_name,
             cohort_col_name = cohort_col_name,
             cohort_levels = cohort_levels,
-            grouped = grouped
+            grouped = grouped,
+            all_cohort_name = all_cohort_name
         )
     else if (!is.null(likert_map))
         ct_data <- new_crosstab_data_likert(
@@ -315,7 +339,8 @@ crosstab_data <- function(df, cohort_col_name = NULL, likert_map = NULL, default
             var_mapping = likert_map,
             cohort_col_name = cohort_col_name,
             cohort_levels = cohort_levels,
-            grouped = grouped
+            grouped = grouped,
+            all_cohort_name = all_cohort_name
         )
     else
         ct_data <- new_crosstab_data_cat(
@@ -324,7 +349,8 @@ crosstab_data <- function(df, cohort_col_name = NULL, likert_map = NULL, default
             var_levels = var_levels,
             cohort_col_name = cohort_col_name,
             cohort_levels = cohort_levels,
-            grouped = grouped
+            grouped = grouped,
+            all_cohort_name = all_cohort_name
         )
 
     # Validate
@@ -334,92 +360,112 @@ crosstab_data <- function(df, cohort_col_name = NULL, likert_map = NULL, default
 }
 
 # GETTERS ####
-var_name <- function(ct_data) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
+#' @export
+var_name.crosstab_data <- function(ct_data) {
     attr(ct_data, "var_col_name")
 }
 
-var <- function(ct_data) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
+#' @export
+var.crosstab_data <- function(ct_data) {
     ct_data[[var_name(ct_data)]]
 }
 
-var_levels <- function(ct_data) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
+#' @export
+var_levels.crosstab_data <- function(ct_data) {
+    assert_that(
+        !inherits(ct_data, CT_DATA_CLASS_NUM),
+        msg = sprintf(
+            "Can not call var_levels on object of type %s",
+            CT_DATA_CLASS_NUM
+        )
+    )
     attr(ct_data, "var_levels")
 }
 
-cohort_name <- function(ct_data) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
+#' @export
+cohort_name.crosstab_data <- function(ct_data) {
     attr(ct_data, "cohort_col_name")
 }
 
-cohort <- function(ct_data) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
+#' @export
+cohort.crosstab_data <- function(ct_data) {
     ct_data[[cohort_name(ct_data)]]
 }
 
-cohort_levels <- function(ct_data) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
+#' @export
+cohort_levels.crosstab_data <- function(ct_data) {
     attr(ct_data, "cohort_levels")
 }
 
-var_mapping <- function(ct_data) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
-    assert_that(inherits(ct_data, CT_DATA_CLASS_LIKERT))
+#' @export
+var_mapping.crosstab_data_likert <- function(ct_data) {
     attr(ct_data, "var_mapping")
 }
 
-var_mapped <- function(ct_data) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
-    assert_that(inherits(ct_data, CT_DATA_CLASS_LIKERT))
+#' @export
+var_mapped.crosstab_data_likert <- function(ct_data, all = T) {
+    if (!all) ct_data <- get_raw_data(ct_data)
     var_mapping(ct_data)[var(ct_data)]
 }
 
-is_grouped <- function(ct_data) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
-    inherits(ct_data, CT_DATA_CLASS_GROUPED)
-}
+#' @export
+data_mapped.crosstab_data_likert <- function(ct_data) {
+    mapped_ct_data <- ct_data
 
-###############################################
-# THESE ARE THE TEST FUNCTIONS WHICH DON'T WORK
-###############################################
+    # Manually create a numeric crosstab_data object
+    mapped_ct_data[[var_name(ct_data)]] <- var_mapped(ct_data)
+    attr(mapped_ct_data, "var_levels") <- NULL
+    attr(mapped_ct_data, "var_mapping") <- NULL
+    class(mapped_ct_data)[class(mapped_ct_data) == CT_DATA_CLASS_LIKERT] <- CT_DATA_CLASS_NUM
 
-#' @method get_data default
-#' @noRd
-get_data.default <- function(ct_data) {
-    print("default")
-}
+    # Double check you created a valid object
+    validate_crosstab_data(mapped_ct_data)
 
-#' @noRd
-#' @method get_data crosstab_data_grouped
-get_data.crosstab_data_grouped <- function(ct_data) {
-    print("grouped")
-}
-
-#' @method get_data crosstab_data_cat
-#' @noRd
-get_data.crosstab_data_cat <- function(ct_data) {
-    print("cat")
+    return(mapped_ct_data)
 }
 
 #' @export
-get_data <- function(ct_data) {
-    UseMethod("get_data", ct_data)
+is_grouped.crosstab_data <- function(ct_data) {
+    inherits(ct_data, CT_DATA_CLASS_GROUPED)
 }
 
-###############################################
+#' @export
+all_cohort_name.crosstab_data <- function(ct_data) {
+    attr(ct_data, "all_cohort_name")
+}
+
+#' @export
+get_raw_data.crosstab_data_grouped <- function(ct_data) {
+    assert_that(inherits(ct_data, CT_DATA_CLASS))
+    assert_that(has_attr(ct_data, "all_cohort_name"))
+
+    cohort_vals <- cohort(ct_data)
+    all_cohort <- all_cohort_name(ct_data)
+
+    keep <- !(cohort_vals %in% all_cohort)
+    result <- ct_data[keep, , drop = FALSE]
+    rownames(result) <- NULL
+
+    return(result)
+}
+
+#' @export
+get_raw_data.crosstab_data <- function(ct_data) {
+    assert_that(inherits(ct_data, CT_DATA_CLASS))
+
+    return(ct_data)
+}
 
 # SETTERS ####
-`var_name<-` <- function(ct_data, value) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
+#' @export
+`var_name<-.crosstab_data` <- function(ct_data, value) {
     names(ct_data)[names(ct_data) == var_name(ct_data)] <- value
     attr(ct_data, "var_col_name") <- value
     return(ct_data)
 }
 
-`var<-` <- function(ct_data, value) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
+#' @export
+`var<-.crosstab_data` <- function(ct_data, value) {
     assert_that(
         are_equal(
             typeof(ct_data[[var_name(ct_data)]]),
@@ -432,8 +478,8 @@ get_data <- function(ct_data) {
     return(ct_data)
 }
 
-`var_levels<-` <- function(ct_data, value) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
+#' @export
+`var_levels<-.crosstab_data` <- function(ct_data, value) {
     assert_that(!is.null(var_levels(ct_data)), msg = sprintf(
         "Can not set factor levels - data type: %s, data object class: %s",
         typeof(var(ct_data)),
@@ -446,33 +492,32 @@ get_data <- function(ct_data) {
     return(ct_data)
 }
 
-`cohort_name<-` <- function(ct_data, value) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
+#' @export
+`cohort_name<-.crosstab_data` <- function(ct_data, value) {
     names(ct_data)[names(ct_data) == cohort_name(ct_data)] <- value
     attr(ct_data, "cohort_col_name") <- value
     return(ct_data)
 }
 
-`cohort<-` <- function(ct_data, value) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
+#' @export
+`cohort<-.crosstab_data` <- function(ct_data, value) {
     assert_that(is.factor(value))
-    cohort_levels(ct_data) <- levels(value)
     ct_data[[cohort_name(ct_data)]] <- value
+    cohort_levels(ct_data) <- levels(value)
     return(ct_data)
 }
 
-`cohort_levels<-` <- function(ct_data, value) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
+#' @export
+`cohort_levels<-.crosstab_data` <- function(ct_data, value) {
     assert_that(!any(duplicated(value)), msg = "Detected repeated values - factor levels must be unique")
-    assert_that(setequal(cohort_levels(ct_data), value), msg = "Provided levels must contain the same set of values as cohort_levels")
+    assert_that(all(ct_data[[cohort_name(ct_data)]] %in% c(value, NA)), msg = "Detected values in cohort column not in new levels")
     levels(ct_data[[cohort_name(ct_data)]]) <- value
     attr(ct_data, "cohort_levels") <- value
     return(ct_data)
 }
 
-`var_mapping<-` <- function(ct_data, value) {
-    assert_that(inherits(ct_data, CT_DATA_CLASS))
-    assert_that(inherits(ct_data, CT_DATA_CLASS_LIKERT))
+#' @export
+`var_mapping<-.crosstab_data_likert` <- function(ct_data, value) {
     assert_that(
         is.numeric(value),
         !is.null(names(value)),
