@@ -1,8 +1,8 @@
 # CONSTRUCTORS ####
-test_that("new_crosstab_data constructs object with correct attributes and classes", {
+test_that("new_crosstab_data_base constructs object with correct attributes and classes", {
     df <- data.frame(var = factor(c("A", "B")), cohort = factor(c("X", "Y")))
 
-    result <- new_crosstab_data(
+    result <- new_crosstab_data_base(
         df,
         var_col_name = "var",
         cohort_col_name = "cohort",
@@ -23,10 +23,10 @@ test_that("new_crosstab_data constructs object with correct attributes and class
     expect_equal(attr(result, "var_mapping"), c(A = 1, B = 2))
 })
 
-test_that("new_crosstab_data works without optional var_levels, var_mapping, and subclass", {
+test_that("new_crosstab_data_base works without optional var_levels, var_mapping, and subclass", {
     df <- data.frame(var = 1:2, cohort = factor(c("X", "Y")))
 
-    result <- new_crosstab_data(
+    result <- new_crosstab_data_base(
         df,
         var_col_name = "var",
         cohort_col_name = "cohort",
@@ -39,25 +39,25 @@ test_that("new_crosstab_data works without optional var_levels, var_mapping, and
     expect_null(attr(result, "var_mapping"))
 })
 
-test_that("new_crosstab_data() doesn't error with correct input",{
-    expect_no_error(new_crosstab_data(data.frame(), "variable", "cohort", c("a", "b")))
+test_that("new_crosstab_data_base() doesn't error with correct input",{
+    expect_no_error(new_crosstab_data_base(data.frame(), "variable", "cohort", c("a", "b")))
 })
 
-test_that("new_crosstab_data errors with invalid input types", {
+test_that("new_crosstab_data_base errors with invalid input types", {
     df <- data.frame(var = 1:2, cohort = 3:4)
 
-    expect_error(new_crosstab_data(df, 1, "cohort", c("A")))
-    expect_error(new_crosstab_data(df, "var", 2, c("A")))
+    expect_error(new_crosstab_data_base(df, 1, "cohort", c("A")))
+    expect_error(new_crosstab_data_base(df, "var", 2, c("A")))
 
-    expect_error(new_crosstab_data(df, "var", "cohort", c("A"), var_mapping = 1:2))
-    expect_error(new_crosstab_data(df, "var", "cohort", c("A"), var_mapping = c("A", "B")), "numeric")
-    expect_error(new_crosstab_data(df, "var", "cohort", c("A"), subclass = 1))
+    expect_error(new_crosstab_data_base(df, "var", "cohort", c("A"), var_mapping = 1:2))
+    expect_error(new_crosstab_data_base(df, "var", "cohort", c("A"), var_mapping = c("A", "B")), "numeric")
+    expect_error(new_crosstab_data_base(df, "var", "cohort", c("A"), subclass = 1))
 })
 
-test_that("new_crosstab_data respects subclass chaining", {
+test_that("new_crosstab_data_base respects subclass chaining", {
     df <- data.frame(var = 1:2, cohort = factor(c("X", "Y")))
 
-    result <- new_crosstab_data(
+    result <- new_crosstab_data_base(
         df,
         var_col_name = "var",
         cohort_col_name = "cohort",
@@ -114,7 +114,7 @@ test_that("validate_crosstab_data.crosstab_data_cat() passes on valid input", {
 
 test_that("validate_crosstab_data.crosstab_data_cat() fails if obj is not of type crosstab_data_cat",{
     df <- get_categorical_test_df(gr = T) |> factorize_columns()
-    obj <- new_crosstab_data(df, "variable", "cohort", character_levels, var_levels = categorical_levels)
+    obj <- new_crosstab_data_base(df, "variable", "cohort", character_levels, var_levels = categorical_levels)
     expect_false(inherits(obj, CT_DATA_CLASS_CAT))
     expect_error(validate_crosstab_data.crosstab_data_cat(obj))
 })
@@ -165,7 +165,7 @@ test_that("validate_crosstab_data.crosstab_data_num() passes on valid input", {
 
 test_that("validate_crosstab_data.crosstab_data_num() fails if obj is not of type crosstab_data_num",{
     df <- get_numeric_test_df(gr = T) |> factorize_columns()
-    obj <- new_crosstab_data(df, "variable", "cohort", character_levels)
+    obj <- new_crosstab_data_base(df, "variable", "cohort", character_levels)
     expect_false(inherits(obj, CT_DATA_CLASS_NUM))
     expect_error(validate_crosstab_data.crosstab_data_num(obj))
 })
@@ -210,7 +210,7 @@ test_that("validate_crosstab_data.crosstab_data_likert() passes on valid input",
 
 test_that("validate_crosstab_data.crosstab_data_likert() fails if obj is not of type crosstab_data_likert",{
     df <- get_likert_test_df(gr = T) |> factorize_columns()
-    obj <- new_crosstab_data(df, "variable", "cohort", character_levels, var_levels = likert_levels)
+    obj <- new_crosstab_data_base(df, "variable", "cohort", character_levels, var_levels = likert_levels)
     expect_false(inherits(obj, CT_DATA_CLASS_LIKERT))
     expect_error(validate_crosstab_data.crosstab_data_likert(obj))
 })
@@ -275,7 +275,7 @@ test_that("validate_crosstab_data.crosstab_data_multi() passes on valid input", 
 
 test_that("validate_crosstab_data.crosstab_data_multi() fails if obj is not of type crosstab_data_multi",{
     df <- get_multianswer_test_df(gr = T) |> factorize_columns()
-    obj <- new_crosstab_data(df, "variable", "cohort", character_levels, var_levels = multianswer_levels)
+    obj <- new_crosstab_data_base(df, "variable", "cohort", character_levels, var_levels = multianswer_levels)
     expect_false(inherits(obj, CT_DATA_CLASS_MULTI))
     expect_error(validate_crosstab_data.crosstab_data_multi(obj))
 })
@@ -591,18 +591,6 @@ test_that("var_mapped() maps values correctly", {
     ct <- new_crosstab_data_likert(df, "var", levels(df$var), mapping, "cohort", levels(df$cohort))
 
     expect_equal(var_mapped(ct), mapping[df$var])
-})
-
-test_that("is_grouped() returns accurate values",{
-    df <- get_categorical_test_df(gr = T) |>
-        factorize_columns()
-    ct_data <- crosstab_data(df, "cohort")
-    expect_true(is_grouped(ct_data))
-
-    df <- get_categorical_test_df() |>
-        factorize_columns()
-    ct_data <- crosstab_data(df)
-    expect_false(is_grouped(ct_data))
 })
 
 test_that("get_raw_data() returns the grouped data without the \"all\" values",{

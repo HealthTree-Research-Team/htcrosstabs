@@ -40,21 +40,21 @@ var_mapped <- function(ct_data, all = T) {
 }
 
 #' @export
-data_mapped <- function(ct_data) {
-    UseMethod("data_mapped", ct_data)
-}
-
-#' @export
 is_grouped <- function(ct_data) {
     UseMethod("is_grouped", ct_data)
 }
 
 #' @export
-all_cohort_name <- function(ct_data) {
-    UseMethod("all_cohort_name", ct_data)
+combined_cohort_name <- function(ct_data) {
+    UseMethod("combined_cohort_name", ct_data)
 }
 
 #' @export
 get_raw_data <- function(ct_data) {
     UseMethod("get_raw_data", ct_data)
+}
+
+#' @export
+desc_name <- function(ct_data) {
+    UseMethod("desc_name", ct_data)
 }

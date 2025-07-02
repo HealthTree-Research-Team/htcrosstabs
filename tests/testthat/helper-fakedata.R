@@ -139,5 +139,8 @@ test_ct <- new_crosstab_data_cat(
     var_col_name = "var",
     var_levels = levels(test_df$var),
     cohort_col_name = "cohort",
-    cohort_levels = levels(test_df$cohort)
+    cohort_levels = levels(test_df$cohort),
+    grouped = T,
+    combined_cohort_name = "G1",
+    desc_col_name = "Description"
 )
