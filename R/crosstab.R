@@ -61,107 +61,107 @@ crosstab <- function(df, cohort_col_name = NULL, likert_map = NULL, combined_coh
 
 # GETTERS ####
 #' @export
-data <- function(ct) {
+get_data <- function(ct) {
     assert_crosstab(ct)
     assert_that(has_attr(ct, "data"))
     attr(ct, "data")
 }
 
 #' @export
-desc_name.crosstab <- function(ct) {
-    desc_name(data(ct))
+desc_name.crosstab <- function(ct_data) {
+    desc_name(get_data(ct_data))
 }
 
 #' @export
 var_name.crosstab <- function(ct_data) {
-    var_name(data(ct_data))
+    var_name(get_data(ct_data))
 }
 
 #' @export
 var.crosstab <- function(ct_data) {
-    var(data(ct_data))
+    var(get_data(ct_data))
 }
 
 #' @export
 var_levels.crosstab <- function(ct_data) {
-    var_levels(data(ct_data))
+    var_levels(get_data(ct_data))
 }
 
 #' @export
 cohort_name.crosstab <- function(ct_data) {
-    cohort_name(data(ct_data))
+    cohort_name(get_data(ct_data))
 }
 
 #' @export
 cohort.crosstab <- function(ct_data) {
-    cohort(data(ct_data))
+    cohort(get_data(ct_data))
 }
 
 #' @export
 cohort_levels.crosstab <- function(ct_data) {
-    cohort_levels(data(ct_data))
+    cohort_levels(get_data(ct_data))
 }
 
 #' @export
 var_mapping.crosstab <- function(ct_data) {
-    var_mapping(data(ct_data))
+    var_mapping(get_data(ct_data))
 }
 
 #' @export
 var_mapped.crosstab <- function(ct_data, all = T) {
-    var_mapped(data(ct_data))
+    var_mapped(get_data(ct_data))
 }
 
 #' @export
 combined_cohort_name.crosstab <- function(ct_data) {
-    combined_cohort_name(data(ct_data))
+    combined_cohort_name(get_data(ct_data))
 }
 
 #' @export
-get_raw_data.crosstab <- function(ct) {
-    get_raw_data(data(ct))
+get_raw_data.crosstab <- function(ct_data) {
+    get_raw_data(get_data(ct_data))
 }
 
 # SETTERS ####
 #' @export
-`data<-` <- function(ct, value) {
-    assert_crosstab(ct)
+`set_data<-` <- function(ct_data, value) {
+    assert_crosstab(ct_data)
     assert_crosstab_data(value)
-    attr(ct, "data") <- value
-    return(ct)
+    attr(ct_data, "data") <- value
+    return(ct_data)
 }
 
 #' @export
 `var_name<-.crosstab` <- function(ct_data, value) {
-    `var_name<-`(data(ct_data), value)
+    `var_name<-`(get_data(ct_data), value)
 }
 
 #' @export
 `var<-.crosstab` <- function(ct_data, value) {
-    `var<-`(data(ct_data), value)
+    `var<-`(get_data(ct_data), value)
 }
 
 #' @export
 `var_levels<-.crosstab` <- function(ct_data, value) {
-    `var_levels<-`(data(ct_data), value)
+    `var_levels<-`(get_data(ct_data), value)
 }
 
 #' @export
 `cohort_name<-.crosstab` <- function(ct_data, value) {
-    `cohort_name<-`(data(ct_data), value)
+    `cohort_name<-`(get_data(ct_data), value)
 }
 
 #' @export
 `cohort<-.crosstab` <- function(ct_data, value) {
-    `cohort<-`(data(ct_data), value)
+    `cohort<-`(get_data(ct_data), value)
 }
 
 #' @export
 `cohort_levels<-.crosstab` <- function(ct_data, value) {
-    `cohort_levels<-`(data(ct_data), value)
+    `cohort_levels<-`(get_data(ct_data), value)
 }
 
 #' @export
 `var_mapping<-.crosstab` <- function(ct_data, value) {
-    `var_mapping<-`(data(ct_data), value)
+    `var_mapping<-`(get_data(ct_data), value)
 }

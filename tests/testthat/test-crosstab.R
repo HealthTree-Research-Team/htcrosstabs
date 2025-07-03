@@ -93,28 +93,28 @@ test_that("data() returns the proper table",{
     df <- get_categorical_test_df(gr = T) |> factorize_columns()
     ct_data <- crosstab_data(df, "cohort")
     ct <- crosstab(df, "cohort")
-    expect_identical(data(ct), ct_data)
+    expect_identical(get_data(ct), ct_data)
 })
 
 test_that("data() errors when ct isn't a crosstab",{
-    expect_error(data(NULL))
-    expect_error(data(NA))
-    expect_error(data(TRUE))
-    expect_error(data(1))
-    expect_error(data(c(1, 2)))
-    expect_error(data("a"))
-    expect_error(data(c("a", "b")))
-    expect_error(data(list(a = c(1, 2, 3), b = c(4, 5, 6))))
-    expect_error(data(data.frame()))
+    expect_error(get_data(NULL))
+    expect_error(get_data(NA))
+    expect_error(get_data(TRUE))
+    expect_error(get_data(1))
+    expect_error(get_data(c(1, 2)))
+    expect_error(get_data("a"))
+    expect_error(get_data(c("a", "b")))
+    expect_error(get_data(list(a = c(1, 2, 3), b = c(4, 5, 6))))
+    expect_error(get_data(data.frame()))
 
     ct_data <- get_categorical_test_df() |>
         factorize_columns() |>
         crosstab_data()
-    expect_error(data(ct_data))
+    expect_error(get_data(ct_data))
 })
 
 # SETTERS ####
-test_that("data<- works when given correct data",{
+test_that("set_data<- works when given correct data",{
     ct <- get_categorical_test_df(gr = T) |>
         factorize_columns() |>
         crosstab("cohort")
@@ -122,38 +122,38 @@ test_that("data<- works when given correct data",{
         factorize_columns() |>
         crosstab_data("cohort")
 
-    data(ct) <- new_ct_data
-    expect_identical(data(ct), new_ct_data)
+    set_data(ct) <- new_ct_data
+    expect_identical(get_data(ct), new_ct_data)
 })
 
-test_that("data<- errors when ct isn't a crosstab",{
+test_that("set_data<- errors when ct isn't a crosstab",{
     ct_data <- get_categorical_test_df(gr = T) |>
         factorize_columns() |>
         crosstab_data("cohort")
-    expect_error(`data<-`(NULL, ct_data))
-    expect_error(`data<-`(NA, ct_data))
-    expect_error(`data<-`(TRUE, ct_data))
-    expect_error(`data<-`(1, ct_data))
-    expect_error(`data<-`(c(1, 2), ct_data))
-    expect_error(`data<-`("a", ct_data))
-    expect_error(`data<-`(c("a", "b"), ct_data))
-    expect_error(`data<-`(list(a = c(1, 2, 3), b = c(4, 5, 6)), ct_data))
-    expect_error(`data<-`(data.frame(), ct_data))
-    expect_error(`data<-`(ct_data, ct_data))
+    expect_error(`set_data<-`(NULL, ct_data))
+    expect_error(`set_data<-`(NA, ct_data))
+    expect_error(`set_data<-`(TRUE, ct_data))
+    expect_error(`set_data<-`(1, ct_data))
+    expect_error(`set_data<-`(c(1, 2), ct_data))
+    expect_error(`set_data<-`("a", ct_data))
+    expect_error(`set_data<-`(c("a", "b"), ct_data))
+    expect_error(`set_data<-`(list(a = c(1, 2, 3), b = c(4, 5, 6)), ct_data))
+    expect_error(`set_data<-`(data.frame(), ct_data))
+    expect_error(`set_data<-`(ct_data, ct_data))
 })
 
-test_that("data<- errors when value isn't a crosstab_data",{
+test_that("set_data<- errors when value isn't a crosstab_data",{
     ct <- get_categorical_test_df(gr = T) |>
         factorize_columns() |>
         crosstab("cohort")
-    expect_error(`data<-`(ct, NULL))
-    expect_error(`data<-`(ct, NA))
-    expect_error(`data<-`(ct, TRUE))
-    expect_error(`data<-`(ct, 1))
-    expect_error(`data<-`(ct, c(1, 2)))
-    expect_error(`data<-`(ct, "a"))
-    expect_error(`data<-`(ct, c("a", "b")))
-    expect_error(`data<-`(ct, list(a = c(1, 2, 3), b = c(4, 5, 6))))
-    expect_error(`data<-`(ct, data.frame()))
-    expect_error(`data<-`(ct, ct))
+    expect_error(`set_data<-`(ct, NULL))
+    expect_error(`set_data<-`(ct, NA))
+    expect_error(`set_data<-`(ct, TRUE))
+    expect_error(`set_data<-`(ct, 1))
+    expect_error(`set_data<-`(ct, c(1, 2)))
+    expect_error(`set_data<-`(ct, "a"))
+    expect_error(`set_data<-`(ct, c("a", "b")))
+    expect_error(`set_data<-`(ct, list(a = c(1, 2, 3), b = c(4, 5, 6))))
+    expect_error(`set_data<-`(ct, data.frame()))
+    expect_error(`set_data<-`(ct, ct))
 })

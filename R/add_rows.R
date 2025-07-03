@@ -3,12 +3,14 @@
 
 # CONSTANTS ####
 COMP_TOT_DESC <- "Complete / Total"
-MEAN_SD_DESC <- "Mean ± SD"
+MEAN_SD_DESC <- "Mean \u00b1 SD"
 MED_IQR_DESC <- "Med (Q1, Q3)"
 DEFAULT_OUT_COL <- "str"
 
 STR_DIF_SUFFIX <- "_auto"
 
+ROUND_MEAN_SD_TO <- 1
+ROUND_MED_IQR_TO <- 1
 ROUND_PERCENT_TO <- 0
 
 # UTILITIES ####
@@ -183,7 +185,7 @@ add_total_row <- function(ct) {
 }
 
 #' @export
-get_mean_sd_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL) {
+get_mean_sd_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL, round_to = ROUND_MEAN_SD_TO) {
     assert_crosstab(ct)
     assert_that(is.logical(wide))
     assert_that(is.character(long_out_col))
@@ -195,10 +197,10 @@ get_mean_sd_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL) {
     validate_cols(ct, long_out_col, wide)
 
     # Create the string column
-    mean_sds <- get_mean(ct, out_col_name = mean_col) |>
-        dplyr::full_join(get_sd(ct, out_col_name = sd_col), by = cohort_name(ct))
+    mean_sds <- get_mean(ct, round_to = round_to, out_col_name = mean_col) |>
+        dplyr::full_join(get_sd(ct, round_to = round_to, out_col_name = sd_col), by = cohort_name(ct))
     mean_sds[[long_out_col]] <- paste0(
-        mean_sds[[mean_col]], " ± ", mean_sds[[sd_col]]
+        mean_sds[[mean_col]], " \u00b1 ", mean_sds[[sd_col]]
     )
     mean_sds <- mean_sds[, c(cohort_name(ct), long_out_col), drop = FALSE]
 
@@ -212,17 +214,17 @@ get_mean_sd_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL) {
 }
 
 #' @export
-add_mean_sd_row <- function(ct) {
+add_mean_sd_row <- function(ct, round_to = ROUND_MEAN_SD_TO) {
     assert_crosstab(ct)
 
-    mean_sd_row <- get_mean_sd_row(ct, wide = T)
+    mean_sd_row <- get_mean_sd_row(ct, wide = T, round_to = round_to)
     ct <- add_rows(ct, mean_sd_row)
 
     return(ct)
 }
 
 #' @export
-get_med_iqr_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL) {
+get_med_iqr_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL, round_to = ROUND_MED_IQR_TO) {
     assert_crosstab(ct)
     assert_that(is.logical(wide))
     assert_that(is.character(long_out_col))
@@ -235,9 +237,9 @@ get_med_iqr_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL) {
     validate_cols(ct, long_out_col, wide)
 
     # Create the string column
-    med_iqrs <- get_med(ct, out_col_name = med_col) |>
-        dplyr::full_join(get_q1(ct, out_col_name = q1_col), by = cohort_name(ct)) |>
-        dplyr::full_join(get_q3(ct, out_col_name = q3_col), by = cohort_name(ct))
+    med_iqrs <- get_med(ct, round_to = round_to, out_col_name = med_col) |>
+        dplyr::full_join(get_q1(ct, round_to = round_to, out_col_name = q1_col), by = cohort_name(ct)) |>
+        dplyr::full_join(get_q3(ct, round_to = round_to, out_col_name = q3_col), by = cohort_name(ct))
     med_iqrs[[long_out_col]] <- paste0(
         med_iqrs[[med_col]], " (", med_iqrs[[q1_col]], ", ", med_iqrs[[q3_col]], ")"
     )
@@ -253,10 +255,10 @@ get_med_iqr_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL) {
 }
 
 #' @export
-add_med_iqr_row <- function(ct) {
+add_med_iqr_row <- function(ct, round_to = MED_IQR_DESC) {
     assert_crosstab(ct)
 
-    med_iqr_row <- get_med_iqr_row(ct, wide = T)
+    med_iqr_row <- get_med_iqr_row(ct, wide = T, round_to = round_to)
     ct <- add_rows(ct, med_iqr_row)
 
     return(ct)
@@ -291,10 +293,10 @@ get_count_rows <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL, round_t
 }
 
 #' @export
-add_count_rows <- function(ct) {
+add_count_rows <- function(ct, round_to = ROUND_PERCENT_TO) {
     assert_crosstab(ct)
 
-    count_rows <- get_count_rows(ct, wide = T)
+    count_rows <- get_count_rows(ct, wide = T, round_to = round_to)
     ct <- add_rows(ct, count_rows)
 
     return(ct)

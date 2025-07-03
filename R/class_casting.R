@@ -20,35 +20,35 @@ is.crosstab.data <- function(obj) {
 #' @export
 is.crosstab.categorical <- function(obj) {
     if (is.null(obj)) return(FALSE)
-    if (is.crosstab(obj)) obj <- data(obj)
+    if (is.crosstab(obj)) obj <- get_data(obj)
     return(inherits(obj, CT_DATA_CLASS_CAT))
 }
 
 #' @export
 is.crosstab.numeric <- function(obj) {
     if (is.null(obj)) return(FALSE)
-    if (is.crosstab(obj)) obj <- data(obj)
+    if (is.crosstab(obj)) obj <- get_data(obj)
     return(inherits(obj, CT_DATA_CLASS_NUM))
 }
 
 #' @export
 is.crosstab.likert <- function(obj) {
     if (is.null(obj)) return(FALSE)
-    if (is.crosstab(obj)) obj <- data(obj)
+    if (is.crosstab(obj)) obj <- get_data(obj)
     return(inherits(obj, CT_DATA_CLASS_LIKERT))
 }
 
 #' @export
 is.crosstab.multi <- function(obj) {
     if (is.null(obj)) return(FALSE)
-    if (is.crosstab(obj)) obj <- data(obj)
+    if (is.crosstab(obj)) obj <- get_data(obj)
     return(inherits(obj, CT_DATA_CLASS_MULTI))
 }
 
 #' @export
 is.crosstab.grouped <- function(obj) {
     if (is.null(obj)) return(FALSE)
-    if (is.crosstab(obj)) obj <- data(obj)
+    if (is.crosstab(obj)) obj <- get_data(obj)
     return(inherits(obj, CT_DATA_CLASS_GROUPED))
 }
 
@@ -95,9 +95,9 @@ as.crosstab.cat <- function(ct_data) {
 }
 
 #' @export
-as.crosstab.cat.crosstab <- function(ct) {
-    data(ct) <- as.crosstab.cat(data(ct))
-    return(ct)
+as.crosstab.cat.crosstab <- function(ct_data) {
+    set_data(ct_data) <- as.crosstab.cat(get_data(ct_data))
+    return(ct_data)
 }
 
 #' @export
@@ -107,11 +107,11 @@ as.crosstab.cat.crosstab_data_cat <- function(ct_data) {
 }
 
 #' @export
-as.crosstab.cat.crosstab_data_num <- function(ct_data, decreasing = F) {
+as.crosstab.cat.crosstab_data_num <- function(ct_data) {
     # Get the factor levels
     var_levels <- var(ct_data) |>
         unique() |>
-        sort(decreasing = decreasing)
+        sort()
 
     # Add the var_levels attribute
     attr(ct_data, "var_levels") <- var_levels
@@ -178,9 +178,9 @@ as.crosstab.num <- function(ct_data) {
 }
 
 #' @export
-as.crosstab.num.crosstab <- function(ct) {
-    data(ct) <- as.crosstab.num(data(ct))
-    return(ct)
+as.crosstab.num.crosstab <- function(ct_data) {
+    set_data(ct_data) <- as.crosstab.num(get_data(ct_data))
+    return(ct_data)
 }
 
 #' @export
@@ -248,9 +248,9 @@ as.crosstab.likert <- function(ct_data, likert_map = NULL) {
 }
 
 #' @export
-as.crosstab.likert.crosstab <- function(ct, likert_map = NULL) {
-    data(ct) <- as.crosstab.likert(data(ct), likert_map = likert_map)
-    return(ct)
+as.crosstab.likert.crosstab <- function(ct_data, likert_map = NULL) {
+    set_data(ct_data) <- as.crosstab.likert(get_data(ct_data), likert_map = likert_map)
+    return(ct_data)
 }
 
 #' @export
@@ -353,9 +353,9 @@ as.crosstab.multi <- function(ct_data) {
 }
 
 #' @export
-as.crosstab.multi.crosstab <- function(ct) {
-    data(ct) <- as.crosstab.multi(data(ct))
-    return(ct)
+as.crosstab.multi.crosstab <- function(ct_data) {
+    set_data(ct_data) <- as.crosstab.multi(get_data(ct_data))
+    return(ct_data)
 }
 
 #' @export
