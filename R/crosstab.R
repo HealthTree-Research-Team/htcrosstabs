@@ -1,21 +1,7 @@
-# IMPORTS ####
-#' @import assertthat
-
-# CONSTANTS ####
-CT_CLASS <- "crosstab"
 
 # CONSTRUCTORS ####
-new_crosstab <- function(df, cohort_col_name = NULL, likert_map = NULL, combined_cohort_name = "All", desc_col_name = "Description") {
-    assert_that(is.data.frame(df))
-    if (!is.null(cohort_col_name))
-        assert_that(is.character(cohort_col_name))
-    if (!is.null(likert_map))
-        assert_that(
-            is.numeric(likert_map),
-            !is.null(names(likert_map)),
-            msg = "likert_map must be a named vector of numeric values"
-        )
-    assert_that(is.character(combined_cohort_name))
+new_crosstab <- function(df, cohort_col_name, likert_map, combined_cohort_name, desc_col_name) {
+    validate_new_crosstab(df, cohort_col_name, likert_map, combined_cohort_name, desc_col_name)
 
     data <- crosstab_data(
         df = df,
@@ -25,23 +11,11 @@ new_crosstab <- function(df, cohort_col_name = NULL, likert_map = NULL, combined
         desc_col_name = desc_col_name
     )
 
-    classes <- c(CT_CLASS, class(data.frame()))
-
     structure(
         data.frame(), # Output table
         data = data,  # crosstab_data
-        class = classes
+        class = c(CT_CLASS, class(data.frame()))
     )
-}
-
-# VALIDATORS ####
-validate_crosstab <- function(ct) {
-    assert_crosstab(ct)
-    assert_that(has_attr(ct, "data"))
-    data <- attr(ct, "data")
-    validate_crosstab_data(data)
-
-    return(TRUE)
 }
 
 # HELPERS ####
@@ -62,8 +36,7 @@ crosstab <- function(df, cohort_col_name = NULL, likert_map = NULL, combined_coh
 # GETTERS ####
 #' @export
 get_data <- function(ct) {
-    assert_crosstab(ct)
-    assert_that(has_attr(ct, "data"))
+    validate_get_data(ct)
     attr(ct, "data")
 }
 
@@ -125,8 +98,7 @@ get_raw_data.crosstab <- function(ct_data) {
 # SETTERS ####
 #' @export
 `set_data<-` <- function(ct_data, value) {
-    assert_crosstab(ct_data)
-    assert_crosstab_data(value)
+    validate_set_data(ct_data, value)
     attr(ct_data, "data") <- value
     return(ct_data)
 }

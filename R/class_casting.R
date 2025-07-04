@@ -5,10 +5,8 @@
 #' @export
 is.crosstab <- function(obj, strict = T) {
     if (is.null(obj)) return(FALSE)
-    if (strict)
-        return(inherits(obj, CT_CLASS))
-    else
-        return(inherits(obj, c(CT_CLASS, CT_DATA_CLASS)))
+    if (strict) return(inherits(obj, CT_CLASS))
+    return(inherits(obj, c(CT_CLASS, CT_DATA_CLASS)))
 }
 
 #' @export
@@ -255,18 +253,7 @@ as.crosstab.likert.crosstab <- function(ct_data, likert_map = NULL) {
 
 #' @export
 as.crosstab.likert.crosstab_data_cat <- function(ct_data, likert_map = NULL) {
-    assert_that(
-        !is.null(likert_map),
-        msg = "likert_map is required to convert categorical to likert data"
-    )
-    assert_that(
-        all(var(ct_data) %in% c(names(likert_map), NA)),
-        msg = "Detected values in variable column that aren't in likert_map's names"
-    )
-    assert_that(
-        !any(duplicated(names(likert_map))),
-        msg = "When converting from categorical to likert, you can not have multiple values with the same name"
-    )
+    validate_as_crosstab_likert(ct_data, likert_map)
 
     # Add the var_mapping attribute
     attr(ct_data, "var_mapping") <- likert_map
@@ -282,18 +269,7 @@ as.crosstab.likert.crosstab_data_cat <- function(ct_data, likert_map = NULL) {
 
 #' @export
 as.crosstab.likert.crosstab_data_num <- function(ct_data, likert_map = NULL) {
-    assert_that(
-        !is.null(likert_map),
-        msg = "likert_map is required to convert numeric to likert data"
-    )
-    assert_that(
-        all(var(ct_data) %in% c(likert_map, NA)),
-        msg = "Detected values in variable column that aren't in likert_map"
-    )
-    assert_that(
-        !any(duplicated(likert_map)),
-        msg = "When converting from numeric to likert, you can not have multiple names mapped to the same value"
-    )
+    validate_as_crosstab_likert(ct_data, likert_map)
 
     # Map the numbers to their corresponding names in likert_map
     ct_data[[var_name(ct_data)]] <- names(likert_map)[match(var(ct_data), likert_map)]
@@ -321,18 +297,7 @@ as.crosstab.likert.crosstab_data_likert <- function(ct_data, likert_map = NULL) 
 
 #' @export
 as.crosstab.likert.crosstab_data_multi <- function(ct_data, likert_map = NULL) {
-    assert_that(
-        !is.null(likert_map),
-        msg = "likert_map is required to convert multianswer to likert data"
-    )
-    assert_that(
-        all(var(ct_data) %in% c(names(likert_map), NA)),
-        msg = "Detected values in variable column that aren't in likert_map's names"
-    )
-    assert_that(
-        !any(duplicated(names(likert_map))),
-        msg = "When converting from multianswer to likert, you can not have multiple values with the same name"
-    )
+    validate_as_crosstab_likert(ct_data, likert_map)
 
     # Unnest the values
     cat_data <- as.crosstab.cat(ct_data)

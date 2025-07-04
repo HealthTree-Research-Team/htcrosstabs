@@ -1,25 +1,8 @@
-# IMPORTS ####
-#' @import assertthat
-
-# CONSTANTS ####
-COMP_TOT_DESC <- "Complete / Total"
-MEAN_SD_DESC <- "Mean \u00b1 SD"
-MED_IQR_DESC <- "Med (Q1, Q3)"
-DEFAULT_OUT_COL <- "str"
-
-STR_DIF_SUFFIX <- "_auto"
-
-ROUND_MEAN_SD_TO <- 1
-ROUND_MED_IQR_TO <- 1
-ROUND_PERCENT_TO <- 0
 
 # UTILITIES ####
 #' @export
 add_rows <- function(ct, rows) {
-
-    # Sanity checks
-    assert_that(is.data.frame(rows))
-    assert_crosstab(ct)
+    validate_add_rows(ct, rows)
 
     # Combine rows (This also checks to make sure column names match)
     combined <- rbind(ct, rows)
@@ -86,70 +69,10 @@ to_long <- function(wide_df, description_col, cohorts_to, values_to) {
     return(long_df)
 }
 
-validate_to_wide <- function(long_df, description_col, cohort_col) {
-    assert_that(is.data.frame(long_df))
-    assert_that(is.character(description_col))
-    assert_that(is.character(cohort_col))
-    assert_that(
-        ncol(long_df) == 3,
-        msg = "long_df must have 3 columns: 1) description, 2) cohort, and 3) values"
-    )
-    assert_that(
-        description_col %in% names(long_df),
-        msg = "Description column name not found in long_df"
-    )
-    assert_that(
-        cohort_col %in% names(long_df),
-        msg = "Cohort column name not found in long_df"
-    )
-    assert_that(
-        is.factor(long_df[[cohort_col]]),
-        msg = "Cohort column must be a factor"
-    )
-}
-
-validate_to_long <- function(wide_df, description_col, cohorts_to, values_to) {
-    assert_that(is.data.frame(wide_df))
-    assert_that(is.character(description_col))
-    assert_that(is.character(cohorts_to))
-    assert_that(is.character(values_to))
-    assert_that(
-        description_col %in% names(wide_df),
-        msg = "Description column name not found in wide_df"
-    )
-    assert_that(
-        !any(duplicated(c(description_col, cohorts_to, values_to))),
-        msg = "description_col, cohorts_to, and values_to must all be unique"
-    )
-}
-
-get_non_matching <- function(str, dif_than) {
-    assert_that(is.character(str), is.character(dif_than))
-    while (str %in% dif_than)
-        str <- paste0(str, STR_DIF_SUFFIX)
-    return(str)
-}
-
-validate_cols <- function(ct, long_out_col, wide) {
-    if (wide) {
-        assert_that(
-            !(desc_name(ct) %in% c(cohort_levels(ct), var_name(ct))),
-            msg = "If wide = TRUE, desc_col_name must be different than cohort_levels and var_name. Specify a different desc_col_name when creating the original crosstab object."
-        )
-    } else {
-        assert_that(
-            !(desc_name(ct) %in% c(cohort_name(ct), var_name(ct), long_out_col)),
-            msg = "If wide = FALSE, description column must be different from cohort_col, var_name, and long_out_col. Specify a different long_out_col in this function or a different desc_col_name when creating the original crosstab object."
-        )
-    }
-}
-
 # ROWS ####
 #' @export
-get_total_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL) {
-    assert_crosstab(ct)
-    assert_that(is.logical(wide))
-    assert_that(is.character(long_out_col))
+get_total_row <- function(ct, wide = T, long_out_col = COMP_TOT_COL_NAME) {
+    validate_get_total_row(ct, wide, long_out_col)
 
     # Make sure there is no clash in the intermediate column names
     complete_col <- get_non_matching(COMP_COL_NAME, cohort_name(ct))
@@ -176,7 +99,7 @@ get_total_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL) {
 
 #' @export
 add_total_row <- function(ct) {
-    assert_crosstab(ct)
+    validate_add_total_row(ct)
 
     total_row <- get_total_row(ct, wide = T)
     ct <- add_rows(ct, total_row)
@@ -185,10 +108,8 @@ add_total_row <- function(ct) {
 }
 
 #' @export
-get_mean_sd_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL, round_to = ROUND_MEAN_SD_TO) {
-    assert_crosstab(ct)
-    assert_that(is.logical(wide))
-    assert_that(is.character(long_out_col))
+get_mean_sd_row <- function(ct, wide = T, long_out_col = MEAN_SD_COL_NAME, round_to = ROUND_MEAN_SD_TO) {
+    validate_get_mean_sd_row(ct, wide, long_out_col, round_to)
 
     # Make sure there is no clash in the intermediate column names
     mean_col <- get_non_matching(MEAN_COL_NAME, cohort_name(ct))
@@ -215,7 +136,7 @@ get_mean_sd_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL, round_
 
 #' @export
 add_mean_sd_row <- function(ct, round_to = ROUND_MEAN_SD_TO) {
-    assert_crosstab(ct)
+    validate_add_mean_sd_row(ct, round_to)
 
     mean_sd_row <- get_mean_sd_row(ct, wide = T, round_to = round_to)
     ct <- add_rows(ct, mean_sd_row)
@@ -224,10 +145,8 @@ add_mean_sd_row <- function(ct, round_to = ROUND_MEAN_SD_TO) {
 }
 
 #' @export
-get_med_iqr_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL, round_to = ROUND_MED_IQR_TO) {
-    assert_crosstab(ct)
-    assert_that(is.logical(wide))
-    assert_that(is.character(long_out_col))
+get_med_iqr_row <- function(ct, wide = T, long_out_col = MED_IQR_COL_NAME, round_to = ROUND_MED_IQR_TO) {
+    validate_get_med_iqr_row(ct, wide, long_out_col, round_to)
 
     # Make sure there is no clash in the intermediate column names
     med_col <- get_non_matching(MED_COL_NAME, cohort_name(ct))
@@ -256,7 +175,7 @@ get_med_iqr_row <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL, round_
 
 #' @export
 add_med_iqr_row <- function(ct, round_to = MED_IQR_DESC) {
-    assert_crosstab(ct)
+    validate_add_med_iqr_row(ct, round_to)
 
     med_iqr_row <- get_med_iqr_row(ct, wide = T, round_to = round_to)
     ct <- add_rows(ct, med_iqr_row)
@@ -265,10 +184,8 @@ add_med_iqr_row <- function(ct, round_to = MED_IQR_DESC) {
 }
 
 #' @export
-get_count_rows <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL, round_to = ROUND_PERCENT_TO) {
-    assert_crosstab(ct)
-    assert_that(is.logical(wide))
-    assert_that(is.character(long_out_col))
+get_count_rows <- function(ct, wide = T, long_out_col = COUNT_COL_NAME, round_to = ROUND_PERCENT_TO) {
+    validate_get_count_rows(ct, wide, long_out_col, round_to)
 
     # Make sure there is no clash in the intermediate column names
     count_col <- get_non_matching(COUNT_COL_NAME, c(cohort_name(ct), var_name(ct)))
@@ -294,7 +211,7 @@ get_count_rows <- function(ct, wide = T, long_out_col = DEFAULT_OUT_COL, round_t
 
 #' @export
 add_count_rows <- function(ct, round_to = ROUND_PERCENT_TO) {
-    assert_crosstab(ct)
+    validate_add_count_rows(ct, round_to)
 
     count_rows <- get_count_rows(ct, wide = T, round_to = round_to)
     ct <- add_rows(ct, count_rows)

@@ -1,13 +1,16 @@
+# FUNCTIONS ####
 pass <- function(obj) obj
 
 remove_na <- function(obj) {
     obj[!is.na(obj)]
 }
 
+#' @export
 is.factorlist <- function(obj) {
     is.list(obj) && all(sapply(obj, function(x) is.factor(x)))
 }
 
+#' @export
 factor <- function(obj, levels = NULL, end_levels = NULL, ...) {
     # Clean empty values
     if (is.null(levels)) levels <- character()
@@ -41,6 +44,7 @@ factor <- function(obj, levels = NULL, end_levels = NULL, ...) {
     return(result)
 }
 
+#' @export
 levels <- function(obj) {
     if (is.factorlist(obj))
         return(base::levels(unlist(obj)))
@@ -48,6 +52,7 @@ levels <- function(obj) {
         return(base::levels(obj))
 }
 
+#' @export
 `levels<-` <- function(obj, value) {
     if (is.list(obj))
         return(lapply(obj, function(x) base::`levels<-`(x, value)))
@@ -55,6 +60,7 @@ levels <- function(obj) {
         return(base::`levels<-`(obj, value))
 }
 
+#' @export
 default_likert_map <- function(fct) {
     assert_that(is.factor(fct) | is.factorlist(fct), msg = "fct must be either a factor or list of factors")
     assert_that(!is.null(levels(fct)), msg = "fct has no \"levels\" attribute")
@@ -63,4 +69,31 @@ default_likert_map <- function(fct) {
     vals <- (1:length(lev)) |> rev()
     names(vals) <- lev
     return(vals)
+}
+
+get_non_matching <- function(str, dif_than) {
+    assert_that(is.character(str), is.character(dif_than))
+    while (str %in% dif_than) {
+        warning(sprintf(
+            "Detected clash in name %s, adding %s",
+            str,
+            STR_CLASH_SUFFIX
+        ))
+        str <- paste0(str, STR_CLASH_SUFFIX)
+    }
+    return(str)
+}
+
+determine_col_type <- function(col, map = NULL) {
+    if (!is.null(map))
+        assert_that(is.numeric(map), !is.null(names(map)), msg = "map must be a named numeric vector")
+
+    if (is.numeric(col))
+        CT_DATA_CLASS_NUM
+    else if (is.list(col))
+        CT_DATA_CLASS_MULTI
+    else if (all(col %in% c(names(map), NA)))
+        CT_DATA_CLASS_MULTI
+    else
+        CT_DATA_CLASS_CAT
 }

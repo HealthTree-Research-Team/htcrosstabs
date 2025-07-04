@@ -1,10 +1,7 @@
-# IMPORTS ####
-#' @import assertthat
-
 # TABLES ####
 #' @export
 add_default_table <- function(ct, round_mean_sd_to = ROUND_MEAN_SD_TO, round_med_iqr_to = ROUND_MED_IQR_TO, round_percent_to = ROUND_PERCENT_TO) {
-    assert_crosstab(ct)
+    validate_add_default_table(ct, round_mean_sd_to, round_med_iqr_to, round_percent_to)
 
     if (is.crosstab.categorical(ct)) {
         ct |>
@@ -27,19 +24,6 @@ add_default_table <- function(ct, round_mean_sd_to = ROUND_MEAN_SD_TO, round_med
     } else {
         stop("Unrecognized crosstab type")
     }
-}
-
-get_default_col_type <- function(col, map = NULL) {
-    if (!is.null(map))
-        assert_that(is.numeric(map), !is.null(names(map)), msg = "map must be a named numeric vector")
-    if (is.numeric(col))
-        return("numeric")
-    else if (is.list(col))
-        return("multianswer")
-    else if (all %in% c(names(map)), NA))
-        return("likert")
-    else
-        return("categorical")
 }
 
 #' @export
