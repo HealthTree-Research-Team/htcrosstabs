@@ -389,20 +389,20 @@ test_that("validate_input_data_table_getter() fails when raw is not logical",{
 
 # validate_input_index_getter() ####
 test_that("validate_input_index_getter() works when given proper data",{
-    expect_silent(validate_input_index_getter(crosstab(cat_test_df(), "cohort")), F)
-    expect_silent(validate_input_index_getter(crosstab(cat_test_df(), "cohort")), T)
+    expect_silent(validate_input_index_getter(crosstab(cat_test_df(), "cohort"), F))
+    expect_silent(validate_input_index_getter(crosstab(cat_test_df(), "cohort"), T))
 })
 
 test_that("validate_input_index_getter() fails when ct is not a crosstab",{
-    expect_error(validate_input_index_getter(crosstab_data(cat_test_df(), "cohort")), F)
-    expect_error(validate_input_index_getter(NULL), F)
-    expect_error(validate_input_index_getter(1), F)
-    expect_error(validate_input_index_getter(c(1, 2, 3)), F)
-    expect_error(validate_input_index_getter("a"), F)
-    expect_error(validate_input_index_getter(c("a", "b", "c")), F)
-    expect_error(validate_input_index_getter(TRUE), F)
-    expect_error(validate_input_index_getter(list()), F)
-    expect_error(validate_input_index_getter(data.frame()), F)
+    expect_error(validate_input_index_getter(crosstab_data(cat_test_df(), "cohort"), F))
+    expect_error(validate_input_index_getter(NULL, F))
+    expect_error(validate_input_index_getter(1, F))
+    expect_error(validate_input_index_getter(c(1, 2, 3), F))
+    expect_error(validate_input_index_getter("a", F))
+    expect_error(validate_input_index_getter(c("a", "b", "c"), F))
+    expect_error(validate_input_index_getter(TRUE, F))
+    expect_error(validate_input_index_getter(list(), F))
+    expect_error(validate_input_index_getter(data.frame(), F))
 })
 
 test_that("validate_input_index_getter() fails when long is not logical",{

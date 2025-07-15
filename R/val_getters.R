@@ -1,9 +1,9 @@
-# IMPORTS
+# IMPORTS  ####
 #' @importFrom rlang !!
 #' @importFrom rlang :=
 #' @importFrom rlang .data
 
-# GET TOTAL
+# GET TOTAL ####
 #' @export
 get_total <- function(ct_data, out_col_name = TOTAL_COL_NAME) {
     UseMethod("get_total", ct_data)
@@ -23,7 +23,7 @@ get_total.crosstab <- function(ct_data, out_col_name = TOTAL_COL_NAME) {
     get_total(data_table(ct_data), out_col_name = out_col_name)
 }
 
-# GET COMPLETE
+# GET COMPLETE ####
 #' @export
 get_complete <- function(ct_data, out_col_name = COMP_COL_NAME) {
     UseMethod("get_complete", ct_data)
@@ -44,7 +44,7 @@ get_complete.crosstab <- function(ct_data, out_col_name = COMP_COL_NAME) {
     get_complete(data_table(ct_data), out_col_name = out_col_name)
 }
 
-# GET MEAN
+# GET MEAN ####
 #' @export
 get_mean <- function(ct_data, round_to = ROUND_MEAN_TO, out_col_name = MEAN_COL_NAME) {
     UseMethod("get_mean")
@@ -79,7 +79,7 @@ get_mean.crosstab_data <- function(ct_data, round_to = ROUND_MEAN_TO, out_col_na
     get_mean(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
-# GET SD
+# GET SD ####
 #' @export
 get_sd <- function(ct_data, round_to = ROUND_SD_TO, out_col_name = SD_COL_NAME) {
     UseMethod("get_sd", ct_data)
@@ -114,7 +114,7 @@ get_sd.crosstab_data <- function(ct_data, round_to = ROUND_SD_TO, out_col_name =
     get_sd(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
-# GET MEDIAN
+# GET MEDIAN ####
 #' @export
 get_med <- function(ct_data, round_to = ROUND_MEDIAN_TO, out_col_name = MED_COL_NAME) {
     UseMethod("get_med", ct_data)
@@ -149,7 +149,7 @@ get_med.crosstab_data <- function(ct_data, round_to = ROUND_MEDIAN_TO, out_col_n
     get_med(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
-# GET Q1
+# GET Q1 ####
 #' @export
 get_q1 <- function(ct_data, round_to = ROUND_Q1_TO, out_col_name = Q1_COL_NAME) {
     UseMethod("get_q1", ct_data)
@@ -185,7 +185,7 @@ get_q1.crosstab_data <- function(ct_data, round_to = ROUND_Q1_TO, out_col_name =
     get_q1(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
-# GET Q3
+# GET Q3 ####
 #' @export
 get_q3 <- function(ct_data, round_to = ROUND_Q3_TO, out_col_name = Q3_COL_NAME) {
     UseMethod("get_q3", ct_data)
@@ -221,7 +221,7 @@ get_q3.crosstab_data <- function(ct_data, round_to = ROUND_Q3_TO, out_col_name =
     get_q3(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
-# GET COUNT
+# GET COUNT ####
 #' @export
 get_count <- function(ct_data, out_col_name = COUNT_COL_NAME) {
     UseMethod("get_count", ct_data)
@@ -252,7 +252,7 @@ get_count.crosstab_data <- function(ct_data, out_col_name = COUNT_COL_NAME) {
     get_count(as.crosstab.cat(ct_data), out_col_name = out_col_name)
 }
 
-# GET PERCENT
+# GET PERCENT ####
 #' @export
 get_percent <- function(ct_data, round_to = ROUND_PERCENT_TO, out_col_name = PERCENT_COL_NAME) {
     UseMethod("get_percent", ct_data)
@@ -265,6 +265,8 @@ get_percent.crosstab <- function(ct_data, round_to = ROUND_PERCENT_TO, out_col_n
 
 #' @export
 get_percent.crosstab_data_cat <- function(ct_data, round_to = ROUND_PERCENT_TO, out_col_name = PERCENT_COL_NAME) {
+    # Don't check for types a) because there's no need, it's a polymorphic
+    # function, and b) because I need to pass other types in like multi.
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
 
@@ -282,6 +284,11 @@ get_percent.crosstab_data_cat <- function(ct_data, round_to = ROUND_PERCENT_TO, 
     percents <- percents[, c(cohort_name(ct_data), var_name(ct_data), out_col_name), drop = F]
 
     return(percents)
+}
+
+#' @export
+get_percent.crosstab_data_multi <- function(ct_data, round_to = ROUND_PERCENT_TO, out_col_name = PERCENT_COL_NAME) {
+    get_percent.crosstab_data_cat(ct_data, round_to = round_to, out_col_name = out_col_name)
 }
 
 #' @export

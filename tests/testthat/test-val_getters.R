@@ -1,5 +1,4 @@
-
-# get_total()
+# get_total() ####
 test_that("get_total() works when provided proper data",{
     test_df <- cat_test_df()
     test_ct <- crosstab(test_df, "cohort")
@@ -27,7 +26,7 @@ test_that("get_total() respects out_col_name",{
     expect_in("test_col", names(result))
 })
 
-# get_complete()
+# get_complete() ####
 test_that("get_complete() works when provided proper data",{
     test_df <- cat_test_df()
     test_ct <- crosstab(test_df, "cohort")
@@ -55,7 +54,7 @@ test_that("get_complete() respects out_col_name",{
     expect_in("test_col", names(result))
 })
 
-# get_mean()
+# get_mean() ####
 test_that("get_mean() works when provided proper data",{
     test_df <- num_test_df()
     test_ct <- crosstab(test_df, "cohort")
@@ -107,7 +106,7 @@ test_that("get_mean() respects round_to",{
     expect_false(any(grepl("\\.", non_na_vals)))
 })
 
-# get_sd()
+# get_sd() ####
 test_that("get_sd() works when provided proper data",{
     test_df <- num_test_df()
     test_ct <- crosstab(test_df, "cohort")
@@ -159,7 +158,7 @@ test_that("get_sd() respects round_to",{
     expect_false(any(grepl("\\.", non_na_vals)))
 })
 
-# get_med()
+# get_med() ####
 test_that("get_med() works when provided proper data",{
     test_df <- num_test_df()
     test_ct <- crosstab(test_df, "cohort")
@@ -212,7 +211,7 @@ test_that("get_med() respects round_to",{
     expect_false(any(grepl("\\.", non_na_vals)))
 })
 
-# get_q1()
+# get_q1() ####
 test_that("get_q1() works when provided proper data",{
     test_df <- num_test_df()
     test_ct <- crosstab(test_df, "cohort")
@@ -264,7 +263,7 @@ test_that("get_q1() respects round_to",{
     expect_false(any(grepl("\\.", non_na_vals)))
 })
 
-# get_q3()
+# get_q3() ####
 test_that("get_q3() works when provided proper data",{
     test_df <- num_test_df()
     test_ct <- crosstab(test_df, "cohort")
@@ -316,8 +315,8 @@ test_that("get_q3() respects round_to",{
     expect_false(any(grepl("\\.", non_na_vals)))
 })
 
-# get_count()
-test_that("get_count() works when provided proper data",{
+# get_count() ####
+test_that("get_count() works when provided categorical data",{
     test_df <- cat_test_df()
     test_ct <- crosstab(test_df, "cohort")
 
@@ -328,6 +327,31 @@ test_that("get_count() works when provided proper data",{
     expect_equal(ncol(result), 3)
     expect_equal(nrow(result), 30)
     expect_true(is.numeric(result[["count"]]))
+
+    wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
+    wide_all <- wide_result[["All"]]
+    wide_cohort <- rowSums(wide_result[c(character_levels, "NA")])
+    expect_equal(wide_all, wide_cohort)
+})
+
+test_that("get_count() works when provided multianswer data",{
+    test_df <- multi_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_count(test_ct))
+    result <- get_count(test_ct)
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 3)
+    expect_equal(nrow(result), 42)
+    expect_true(is.numeric(result[["count"]]))
+
+    wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
+    wide_all <- wide_result[["All"]]
+    wide_cohort <- rowSums(wide_result[c(character_levels, "NA")])
+    expect_equal(wide_all, wide_cohort)
+
+    expect_gt(sum(wide_all), nrow(test_df))
 })
 
 test_that("get_count() respects out_col_name",{
@@ -342,18 +366,43 @@ test_that("get_count() respects out_col_name",{
     expect_in("test_col", names(result))
 })
 
-# get_percent()
-test_that("get_percent() works when provided proper data",{
+# get_percent() ####
+test_that("get_percent() works when provided categorical data",{
     test_df <- cat_test_df()
     test_ct <- crosstab(test_df, "cohort")
 
     expect_silent(get_percent(test_ct))
-    result <- get_percent(test_ct)
+    result <- get_percent(test_ct, round_to = 5)
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
     expect_equal(nrow(result), 30)
     expect_true(is.numeric(result[["percent"]]))
+
+    wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
+    keep <- !is.na(wide_result[["variable"]])
+    wide_result <- wide_result[keep, , drop = F]
+    totals <- sapply(wide_result[c("All", character_levels, "NA")], sum)
+    expect_true(all(totals > 98 & totals < 102))
+})
+
+test_that("get_percent() works when provided multianswer data",{
+    test_df <- multi_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_percent(test_ct))
+    result <- get_percent(test_ct, round_to = 5)
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 3)
+    expect_equal(nrow(result), 42)
+    expect_true(is.numeric(result[["percent"]]))
+
+    wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
+    keep <- !is.na(wide_result[["variable"]])
+    wide_result <- wide_result[keep, , drop = F]
+    totals <- sapply(wide_result[c("All", character_levels, "NA")], sum)
+    expect_false(all(totals > 98 & totals < 102))
 })
 
 test_that("get_percent() respects out_col_name",{
