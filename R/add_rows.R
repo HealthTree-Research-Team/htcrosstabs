@@ -76,6 +76,11 @@ add_rows <- function(ct, rows) {
     # Restore class
     class(combined) <- orig_attrs[["class"]]
 
+    # Add one to the index
+    cur_index <- index(combined)
+    cur_index[length(cur_index)] <- cur_index[length(cur_index)] + nrow(rows)
+    attr(combined, "index") <- cur_index
+
     return(combined)
 }
 

@@ -10,9 +10,13 @@ new_crosstab <- function(df, cohort_col_name, var_map, combined_cohort_name, des
         desc_col_name = desc_col_name
     )
 
+    index <- c(0)
+    names(index) <- c(var_name(data))
+
     structure(
         data.frame(), # Output table
         data = data,  # crosstab_data
+        index = index,
         class = c(CT_CLASS, class(data.frame()))
     )
 }
@@ -39,6 +43,12 @@ data_table <- function(ct, raw = F) {
     ct_data <- attr(ct, "data")
     if (raw) ct_data <- get_raw_data(ct_data)
     return(ct_data)
+}
+
+#' @export
+index <- function(ct) {
+    validate_input_index_getter(ct)
+    attr(ct, "index")
 }
 
 #' @export
@@ -98,10 +108,20 @@ get_raw_data.crosstab <- function(ct_data) {
 
 # SETTERS ####
 #' @export
-`data_table<-` <- function(ct_data, value) {
-    validate_input_data_table_setter(ct_data, value)
-    attr(ct_data, "data") <- value
-    return(ct_data)
+`data_table<-` <- function(ct, value) {
+    validate_input_data_table_setter(ct, value)
+    attr(ct, "data") <- value
+    new_index_val <- 0
+    names(new_index_val) <- var_name(value)
+    attr(ct, "index") <- c(attr(ct, "index"), new_index_val)
+    return(ct)
+}
+
+#' @export
+`index<-` <- function(ct, value) {
+    validate_input_index_setter(ct, value)
+    attr(ct, "index") <- value
+    return(ct)
 }
 
 #' @export

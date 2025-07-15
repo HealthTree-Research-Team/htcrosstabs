@@ -20,17 +20,43 @@ validate_crosstab <- function(ct) {
     assert_that(has_attr(ct, "data"))
     data <- attr(ct, "data")
     validate_crosstab_data(data)
+    assert_that(has_attr(ct, "index"))
+    index <- attr(ct, "index")
+    assert_that(
+        is.numeric(index),
+        !is.null(names(index)),
+        msg = "index must be a named vector of numeric values"
+    )
 
     return(TRUE)
 }
 
 validate_input_data_table_getter <- function(ct, raw) {
-    assert_crosstab(ct)
+    assert_crosstab(ct, strict = T)
     assert_that(has_attr(ct, "data"))
     assert_that(is.logical(raw))
 }
 
+validate_input_index_getter <- function(ct) {
+    assert_crosstab(ct, strict = T)
+}
+
 validate_input_data_table_setter <- function(ct, value) {
-    assert_crosstab(ct)
+    assert_crosstab(ct, strict = T)
     assert_crosstab_data(value)
+}
+
+validate_input_index_setter <- function(ct, value) {
+    assert_crosstab(ct, strict = T)
+    assert_that(
+        is.numeric(value),
+        !is.null(names(value)),
+        msg = "new index must be a named numeric vector"
+    )
+    cur_index <- attr(ct, "index")
+    assert_that(all(!is.na(cur_index)), msg = "Can not have NA values in index")
+    assert_that(
+        sum(cur_index) == sum(value),
+        msg = "New index must have the same total number of rows (same sum) as the old index"
+    )
 }

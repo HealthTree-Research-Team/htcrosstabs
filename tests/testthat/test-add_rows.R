@@ -386,6 +386,43 @@ test_that("add_rows() works when adding a row to an empty table",{
     expect_false(any(is.na(ct)))
 })
 
+test_that("add_rows() updates index correctly",{
+    ct <- crosstab(
+        df = cat_test_df(),
+        cohort_col_name = "cohort"
+    )
+
+    new_rows <- data.frame(
+        Description = "test Description",
+        All = "test All",
+        A = "test A",
+        B = "test B",
+        C = "test C",
+        D = "test D",
+        "NA" = "test NA",
+        check.names = F
+    )
+
+    ct <- add_rows(ct, new_rows)
+
+    expect_equal(index(ct), c(variable = 1))
+
+    new_rows <- data.frame(
+        Description = c("test Description 1", "test Description 2", "test Description 3"),
+        All = "test All",
+        A = "test A",
+        B = "test B",
+        C = "test C",
+        D = "test D",
+        "NA" = "test NA",
+        check.names = F
+    )
+
+    ct <- add_rows(ct, new_rows)
+
+    expect_equal(index(ct), c(variable = 4))
+})
+
 test_that("add_rows() works when adding a row to a table that already has rows with matching columns",{
     ct <- crosstab(
         df = cat_test_df(),
@@ -879,6 +916,7 @@ test_that("add_count_rows() adds correct number of rows", {
     expect_gt(nrow(ct), 0)
 
     row_count_after_first <- nrow(ct)
+
     ct <- add_count_rows(ct)
     expect_equal(nrow(ct), 2 * row_count_after_first)
 })

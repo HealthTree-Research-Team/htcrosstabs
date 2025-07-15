@@ -457,6 +457,17 @@ test_that("data_table() works to remove grouping data when raw = T",{
     expect_true(all(test_df[["variable"]] == ct_data[["variable"]], na.rm = T))
 })
 
+test_that("index() returns the proper index",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort") |>
+        add_total_row() |>
+        add_total_row() |>
+        add_total_row() |>
+        add_total_row()
+
+    expect_equal(index(test_ct), c("variable" = 4))
+})
+
 test_that("desc_name() passes the call onto the data object",{
     test_ct <- crosstab(cat_test_df(), "cohort", desc_col_name = "test_desc_col")
     expect_silent(desc_name(test_ct))
@@ -563,16 +574,54 @@ test_that("get_raw_data() passes the call onto the data object",{
     expect_equal(nrow(test_df), nrow(get_raw_data(test_ct)))
 })
 
-test_that("data_table<-() passes the call onto the data object",{
+# SETTERS ####
+test_that("data_table<-() sets the data object to the new object",{
     test_df <- cat_test_df()
     test_ct <- crosstab(test_df, "cohort")
     new_df <- num_test_df()
     new_data <- crosstab_data(new_df, "cohort")
 
+    orig_index <- attr(test_ct, "index")
+
     orig_data <- data_table(test_ct)
     expect_silent(`data_table<-`(test_ct, new_data))
     data_table(test_ct) <- new_data
     expect_equal(data_table(test_ct), new_data)
+})
+
+test_that("data_table<-() correctly adds a 0 to the index vector",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort") |>
+        add_total_row() |>
+        add_total_row() |>
+        add_total_row() |>
+        add_total_row() |>
+        add_total_row()
+    new_df <- num_test_df()
+    new_data <- crosstab_data(new_df, "cohort")
+
+    orig_index <- attr(test_ct, "index")
+    data_table(test_ct) <- new_data
+    new_index <- attr(test_ct, "index")
+
+    expect_true(all(orig_index %in% new_index))
+    expect_equal(length(orig_index) + 1, length(new_index))
+    expect_true(new_index[length(new_index)] == 0)
+    expect_equal(sum(orig_index), sum(new_index))
+})
+
+test_that("index<-() sets the new index attribute",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort") |>
+        add_total_row() |>
+        add_total_row() |>
+        add_total_row() |>
+        add_total_row()
+
+    expect_equal(index(test_ct), c("variable" = 4))
+    expect_silent(`index<-`(test_ct, c(a = 2, b = 2)))
+    index(test_ct) <- c(a = 2, b = 2)
+    expect_equal(index(test_ct), c(a = 2, b = 2))
 })
 
 test_that("var_name<-() passes the call onto the data object",{

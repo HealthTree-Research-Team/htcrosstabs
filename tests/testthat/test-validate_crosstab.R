@@ -339,6 +339,17 @@ test_that("validate_crosstab() fails when data attribute is malformed",{
     expect_error(validate_crosstab(test_ct))
 })
 
+test_that("validate_crosstab() fails when index attribute is malformed",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+    attr(test_ct, "index") <- c(1, 2, 3)
+    expect_error(validate_crosstab(test_ct))
+    attr(test_ct, "index") <- c(a = "a", b = "b", c = "c")
+    expect_error(validate_crosstab(test_ct))
+    attr(test_ct, "index") <- NULL
+    expect_error(validate_crosstab(test_ct))
+})
+
 # validate_input_data_table_getter() ####
 test_that("validate_input_data_table_getter() works when given proper data",{
     test_df <- cat_test_df()
@@ -376,6 +387,23 @@ test_that("validate_input_data_table_getter() fails when raw is not logical",{
     expect_error(validate_input_data_table_getter(crosstab(cat_test_df(), "cohort"), data.frame()))
 })
 
+# validate_input_index_getter() ####
+test_that("validate_input_index_getter() works when given proper data",{
+    expect_silent(validate_input_index_getter(crosstab(cat_test_df(), "cohort")))
+})
+
+test_that("validate_input_index_getter() fails when ct is not a crosstab",{
+    expect_error(validate_input_index_getter(crosstab_data(cat_test_df(), "cohort")))
+    expect_error(validate_input_index_getter(NULL))
+    expect_error(validate_input_index_getter(1))
+    expect_error(validate_input_index_getter(c(1, 2, 3)))
+    expect_error(validate_input_index_getter("a"))
+    expect_error(validate_input_index_getter(c("a", "b", "c")))
+    expect_error(validate_input_index_getter(TRUE))
+    expect_error(validate_input_index_getter(list()))
+    expect_error(validate_input_index_getter(data.frame()))
+})
+
 # validate_input_data_table_setter() ####
 test_that("validate_input_data_table_setter() works when given proper data",{
     test_df1 <- cat_test_df()
@@ -409,4 +437,65 @@ test_that("validate_input_data_table_setter() fails when value is not a crosstab
     expect_error(validate_input_data_table_setter(c("a", "b", "c"), ct_data))
     expect_error(validate_input_data_table_setter(list(), ct_data))
     expect_error(validate_input_data_table_setter(data.frame(), ct_data))
+})
+
+# validate_input_index_setter() ####
+test_that("validate_input_index_setter() works when given proper data",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort") |>
+        add_total_row() |>
+        add_total_row() |>
+        add_total_row() |>
+        add_total_row()
+
+    expect_silent(validate_input_index_setter(test_ct, c(a = 2, b = 2)))
+    expect_silent(validate_input_index_setter(test_ct, c(a = 3, b = 1)))
+    expect_silent(validate_input_index_setter(test_ct, c(a = 0, b = 4)))
+    expect_silent(validate_input_index_setter(test_ct, c(a = 4, b = 0, c = 0)))
+})
+
+test_that("validate_input_index_setter() fails when ct is not a crosstab",{
+    expect_error(validate_input_index_setter(NULL, c(a = 2, b = 2)))
+    expect_error(validate_input_index_setter(TRUE, c(a = 2, b = 2)))
+    expect_error(validate_input_index_setter(1, c(a = 2, b = 2)))
+    expect_error(validate_input_index_setter(c(1, 2, 3), c(a = 2, b = 2)))
+    expect_error(validate_input_index_setter("a", c(a = 2, b = 2)))
+    expect_error(validate_input_index_setter(c("a", "b", "c"), c(a = 2, b = 2)))
+    expect_error(validate_input_index_setter(list(), c(a = 2, b = 2)))
+    expect_error(validate_input_index_setter(data.frame(), c(a = 2, b = 2)))
+})
+
+test_that("validate_input_index_setter() fails when value is not a named numeric vector",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_error(validate_input_index_setter(test_ct, c(1, 2, 3)))
+    expect_error(validate_input_index_setter(test_ct, c("a", "b", "c")))
+    expect_error(validate_input_index_setter(test_ct, c(a = "a", b = "b", c = "c")))
+})
+
+test_that("validate_input_index_setter() fails when the new index has NA values",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort") |>
+        add_total_row() |>
+        add_total_row() |>
+        add_total_row() |>
+        add_total_row()
+
+    expect_error(validate_input_index_setter(test_ct, c(a = 2, b = NA)))
+    expect_error(validate_input_index_setter(test_ct, c(a = NA, b = 2)))
+})
+
+test_that("validate_input_index_setter() fails when the new index doesn't have the same sum of rows as the old index",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort") |>
+        add_total_row() |>
+        add_total_row() |>
+        add_total_row() |>
+        add_total_row()
+
+    expect_error(validate_input_index_setter(test_ct, c(a = 2, b = 1)))
+    expect_error(validate_input_index_setter(test_ct, c(a = 0, b = 2)))
+    expect_error(validate_input_index_setter(test_ct, c(a = 5, b = 1)))
+    expect_error(validate_input_index_setter(test_ct, c(a = 5, b = 5, c = 5)))
 })

@@ -1,4 +1,4 @@
-# add_default_table()
+# add_default_table() ####
 test_that("add_default_table() functions when given ungrouped categorical data",{
     test_df <- cat_test_df(gr = F)
     test_ct <- crosstab(test_df)
@@ -159,4 +159,35 @@ test_that("add_default_table() functions when given grouped multianswer data",{
 
     expect_equal(nrow(test_ct), 8)
     expect_equal(ncol(test_ct), 7)
+})
+
+# auto_stacked_table() ####
+test_that("auto_stacked_table() works when given proper data",{
+    test_df <- cat_test_df(col_name = "cat")
+    test_df[["num"]] <- num_test_df(col_name = "var2")[["var2"]]
+    test_df[["lik"]] <- lik_test_df(col_name = "var3")[["var3"]]
+    test_df[["mul"]] <- multi_test_df(col_name = "var4")[["var4"]]
+    test_df <- test_df[, c("cat", "num", "lik", "mul", "cohort"), drop = F]
+
+    test_map <- default_var_map(test_df[["lik"]])
+
+    test_ct <- auto_stacked_table(
+        df = test_df,
+        cohort_col_name = "cohort",
+        var_map = test_map
+    )
+
+    expect_equal(nrow(test_ct), 25)
+    expect_equal(ncol(test_ct), 7)
+
+    test_ct
+    index(test_ct)
+
+    expect_equal(sum(index(test_ct)), 25)
+    expect_equal(index(test_ct), c(
+        cat = 6,
+        num = 3,
+        lik = 8,
+        mul = 8
+    ))
 })
