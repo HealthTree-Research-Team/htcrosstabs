@@ -18,35 +18,35 @@ is.crosstab.data <- function(obj) {
 #' @export
 is.crosstab.categorical <- function(obj) {
     if (is.null(obj)) return(FALSE)
-    if (is.crosstab(obj)) obj <- get_data(obj)
+    if (is.crosstab(obj)) obj <- data_table(obj)
     return(inherits(obj, CT_DATA_CLASS_CAT))
 }
 
 #' @export
 is.crosstab.numeric <- function(obj) {
     if (is.null(obj)) return(FALSE)
-    if (is.crosstab(obj)) obj <- get_data(obj)
+    if (is.crosstab(obj)) obj <- data_table(obj)
     return(inherits(obj, CT_DATA_CLASS_NUM))
 }
 
 #' @export
 is.crosstab.likert <- function(obj) {
     if (is.null(obj)) return(FALSE)
-    if (is.crosstab(obj)) obj <- get_data(obj)
+    if (is.crosstab(obj)) obj <- data_table(obj)
     return(inherits(obj, CT_DATA_CLASS_LIKERT))
 }
 
 #' @export
 is.crosstab.multi <- function(obj) {
     if (is.null(obj)) return(FALSE)
-    if (is.crosstab(obj)) obj <- get_data(obj)
+    if (is.crosstab(obj)) obj <- data_table(obj)
     return(inherits(obj, CT_DATA_CLASS_MULTI))
 }
 
 #' @export
 is.crosstab.grouped <- function(obj) {
     if (is.null(obj)) return(FALSE)
-    if (is.crosstab(obj)) obj <- get_data(obj)
+    if (is.crosstab(obj)) obj <- data_table(obj)
     return(inherits(obj, CT_DATA_CLASS_GROUPED))
 }
 
@@ -94,7 +94,7 @@ as.crosstab.cat <- function(ct_data) {
 
 #' @export
 as.crosstab.cat.crosstab <- function(ct_data) {
-    set_data(ct_data) <- as.crosstab.cat(get_data(ct_data))
+    data_table(ct_data) <- as.crosstab.cat(data_table(ct_data))
     return(ct_data)
 }
 
@@ -129,8 +129,8 @@ as.crosstab.cat.crosstab_data_num <- function(ct_data) {
 #' @export
 as.crosstab.cat.crosstab_data_likert <- function(ct_data) {
 
-    # Get rid of the var_mapping attribute
-    attr(ct_data, "var_mapping") <- NULL
+    # Get rid of the var_map attribute
+    attr(ct_data, "var_map") <- NULL
 
     # Change the class
     class(ct_data)[class(ct_data) == CT_DATA_CLASS_LIKERT] <- CT_DATA_CLASS_CAT
@@ -177,7 +177,7 @@ as.crosstab.num <- function(ct_data) {
 
 #' @export
 as.crosstab.num.crosstab <- function(ct_data) {
-    set_data(ct_data) <- as.crosstab.num(get_data(ct_data))
+    data_table(ct_data) <- as.crosstab.num(data_table(ct_data))
     return(ct_data)
 }
 
@@ -213,7 +213,7 @@ as.crosstab.num.crosstab_data_likert <- function(ct_data) {
 
     # Get rid of unneeded attributes
     attr(ct_data, "var_levels") <- NULL
-    attr(ct_data, "var_mapping") <- NULL
+    attr(ct_data, "var_map") <- NULL
 
     # Change the class
     class(ct_data)[class(ct_data) == CT_DATA_CLASS_LIKERT] <- CT_DATA_CLASS_NUM
@@ -241,22 +241,22 @@ as.crosstab.num.crosstab_data_multi <- function(ct_data) {
 
 # AS LIKERT ####
 #' @export
-as.crosstab.likert <- function(ct_data, likert_map = NULL) {
+as.crosstab.likert <- function(ct_data, var_map = NULL) {
     UseMethod("as.crosstab.likert", ct_data)
 }
 
 #' @export
-as.crosstab.likert.crosstab <- function(ct_data, likert_map = NULL) {
-    set_data(ct_data) <- as.crosstab.likert(get_data(ct_data), likert_map = likert_map)
+as.crosstab.likert.crosstab <- function(ct_data, var_map = NULL) {
+    data_table(ct_data) <- as.crosstab.likert(data_table(ct_data), var_map = var_map)
     return(ct_data)
 }
 
 #' @export
-as.crosstab.likert.crosstab_data_cat <- function(ct_data, likert_map = NULL) {
-    validate_as_crosstab_likert(ct_data, likert_map)
+as.crosstab.likert.crosstab_data_cat <- function(ct_data, var_map = NULL) {
+    validate_input_as_likert(ct_data, var_map)
 
-    # Add the var_mapping attribute
-    attr(ct_data, "var_mapping") <- likert_map
+    # Add the var_map attribute
+    attr(ct_data, "var_map") <- var_map
 
     # Add the class
     class(ct_data)[class(ct_data) == CT_DATA_CLASS_CAT] <- CT_DATA_CLASS_LIKERT
@@ -268,15 +268,20 @@ as.crosstab.likert.crosstab_data_cat <- function(ct_data, likert_map = NULL) {
 }
 
 #' @export
-as.crosstab.likert.crosstab_data_num <- function(ct_data, likert_map = NULL) {
-    validate_as_crosstab_likert(ct_data, likert_map)
+as.crosstab.likert.crosstab_data_num <- function(ct_data, var_map = NULL) {
+    validate_input_as_likert(ct_data, var_map)
 
-    # Map the numbers to their corresponding names in likert_map
-    ct_data[[var_name(ct_data)]] <- names(likert_map)[match(var(ct_data), likert_map)]
+    # Map the numbers to their corresponding names in var_map
+    ct_data[[var_name(ct_data)]] <- names(var_map)[match(var(ct_data), var_map)]
+
+    # Factorize
+    factor_levels <- sort(var_map, decreasing = T)
+    factor_levels <- names(factor_levels)
+    ct_data[[var_name(ct_data)]] <- factor(ct_data[[var_name(ct_data)]], levels = factor_levels)
 
     # Add the missing attributes
-    attr(ct_data, "var_levels") <- names(likert_map)
-    attr(ct_data, "var_mapping") <- likert_map
+    attr(ct_data, "var_levels") <- names(var_map)
+    attr(ct_data, "var_map") <- var_map
 
     # Add the class
     class(ct_data)[class(ct_data) == CT_DATA_CLASS_NUM] <- CT_DATA_CLASS_LIKERT
@@ -288,22 +293,24 @@ as.crosstab.likert.crosstab_data_num <- function(ct_data, likert_map = NULL) {
 }
 
 #' @export
-as.crosstab.likert.crosstab_data_likert <- function(ct_data, likert_map = NULL) {
-    if(!is.null(likert_map))
-        var_mapping(ct_data) <- likert_map
-    validate_crosstab_data.crosstab_data_likert(ct_data)
+as.crosstab.likert.crosstab_data_likert <- function(ct_data, var_map = NULL) {
+    validate_input_as_likert(ct_data, var_map)
+
+    if (!is.null(var_map))
+        var_map(ct_data) <- var_map
+
     return(ct_data)
 }
 
 #' @export
-as.crosstab.likert.crosstab_data_multi <- function(ct_data, likert_map = NULL) {
-    validate_as_crosstab_likert(ct_data, likert_map)
+as.crosstab.likert.crosstab_data_multi <- function(ct_data, var_map = NULL) {
+    validate_input_as_likert(ct_data, var_map)
 
     # Unnest the values
     cat_data <- as.crosstab.cat(ct_data)
 
     # Convert the resulting categorical table to likert
-    likert_data <- as.crosstab.likert(cat_data, likert_map = likert_map)
+    likert_data <- as.crosstab.likert(cat_data, var_map = var_map)
 
     # Validate to make sure you did it right
     validate_crosstab_data.crosstab_data_likert(likert_data)
@@ -319,7 +326,7 @@ as.crosstab.multi <- function(ct_data) {
 
 #' @export
 as.crosstab.multi.crosstab <- function(ct_data) {
-    set_data(ct_data) <- as.crosstab.multi(get_data(ct_data))
+    data_table(ct_data) <- as.crosstab.multi(data_table(ct_data))
     return(ct_data)
 }
 
@@ -356,7 +363,7 @@ as.crosstab.multi.crosstab_data_num <- function(ct_data) {
 #' @export
 as.crosstab.multi.crosstab_data_likert <- function(ct_data) {
 
-    # Strip off the var_mapping attribute
+    # Strip off the var_map attribute
     cat_data <- as.crosstab.cat(ct_data)
 
     # Convert the variable column to a list column

@@ -11,7 +11,7 @@ is.factorlist <- function(obj) {
 }
 
 #' @export
-factor <- function(obj, levels = NULL, end_levels = NULL, ...) {
+factor <- function(obj, levels = NULL, end_levels = NULL, drop_levels = F, ...) {
     # Clean empty values
     if (is.null(levels)) levels <- character()
     if (is.null(end_levels)) end_levels <- character()
@@ -30,6 +30,12 @@ factor <- function(obj, levels = NULL, end_levels = NULL, ...) {
     # Order values: levels at the start, then remaining, then end_levels at the end
     middle_values <- setdiff(all_values, c(levels, end_levels))
     final_levels <- c(levels, middle_values, end_levels)
+
+    # Or, drop the remaining if drop_levels = TRUE
+    if (drop_levels) {
+        all_vals <- unique(c(levels, end_levels))
+        final_levels <- final_levels[final_levels %in% all_vals]
+    }
 
     # Add final_levels to ... (overriding levels if present)
     dot_args <- list(...)
@@ -61,7 +67,7 @@ levels <- function(obj) {
 }
 
 #' @export
-default_likert_map <- function(fct) {
+default_var_map <- function(fct) {
     assert_that(is.factor(fct) | is.factorlist(fct), msg = "fct must be either a factor or list of factors")
     assert_that(!is.null(levels(fct)), msg = "fct has no \"levels\" attribute")
     lev <- levels(fct)
@@ -84,16 +90,17 @@ get_non_matching <- function(str, dif_than) {
     return(str)
 }
 
-determine_col_type <- function(col, map = NULL) {
-    if (!is.null(map))
-        assert_that(is.numeric(map), !is.null(names(map)), msg = "map must be a named numeric vector")
+determine_col_type <- function(col, var_map = NULL) {
+    if (!is.null(var_map))
+        assert_that(is.numeric(var_map), !is.null(names(var_map)), msg = "var_map must be a named numeric vector")
+    assert_that(!is.null(col), msg = "col must not be NULL")
 
     if (is.numeric(col))
         CT_DATA_CLASS_NUM
     else if (is.list(col))
         CT_DATA_CLASS_MULTI
-    else if (all(col %in% c(names(map), NA)))
-        CT_DATA_CLASS_MULTI
+    else if (all(col %in% c(names(var_map), NA)))
+        CT_DATA_CLASS_LIKERT
     else
         CT_DATA_CLASS_CAT
 }

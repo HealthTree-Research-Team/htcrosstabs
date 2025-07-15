@@ -5,7 +5,7 @@ var_name <- function(ct_data) {
 }
 
 #' @export
-var <- function(ct_data) {
+var <- function(ct_data, raw = F) {
     UseMethod("var", ct_data)
 }
 
@@ -20,22 +20,22 @@ cohort_name <- function(ct_data) {
 }
 
 #' @export
-cohort <- function(ct_data) {
+cohort <- function(ct_data, raw = F) {
     UseMethod("cohort", ct_data)
 }
 
 #' @export
-cohort_levels <- function(ct_data) {
+cohort_levels <- function(ct_data, raw = F) {
     UseMethod("cohort_levels", ct_data)
 }
 
 #' @export
-var_mapping <- function(ct_data) {
-    UseMethod("var_mapping", ct_data)
+var_map <- function(ct_data) {
+    UseMethod("var_map", ct_data)
 }
 
 #' @export
-var_mapped <- function(ct_data, all = T) {
+var_mapped <- function(ct_data, raw = F) {
     UseMethod("var_mapped", ct_data)
 }
 

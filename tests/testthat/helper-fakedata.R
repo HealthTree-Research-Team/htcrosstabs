@@ -4,13 +4,30 @@ multianswer_levels <- c("soccer", "tennis", "basketball", "swimming", "golf", "b
 
 character_levels <- c("A", "B", "C", "D")
 numeric_levels <- c(1, 2, 3, 4)
-likert_map <- c(
-    "strongly agree" = 5,
-    "disagree" = 2,
-    "agree" = 4,
-    "neither" = -10,
-    "strongly disagree" = 1
-)
+# likert_map <- c(
+#     "strongly agree" = 5,
+#     "disagree" = 2,
+#     "agree" = 4,
+#     "neither" = -10,
+#     "strongly disagree" = 1
+# )
+
+factorize_columns <- function(df, colnames = NULL) {
+    if (is.null(colnames))
+        colnames <- names(df)
+
+    stopifnot(all(colnames %in% names(df)))
+
+    for (col in colnames) {
+        if (is.list(df[[col]])) {
+            df[[col]] <- lapply(df[[col]], function(x) factor(x))
+        } else if (!is.numeric(df[[col]])) {
+            df[[col]] <- factor(df[[col]])
+        }
+    }
+
+    df
+}
 
 spatter_missing <- function(vec, w_na) {
     n <- length(vec)
@@ -38,7 +55,7 @@ add_group_col <- function(df, name = "cohort", value = "Response") {
     df
 }
 
-get_numeric_test_df <- function(col_name = "variable", group_name = "cohort", gr = FALSE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
+num_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE, factorize = TRUE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
     if (!is.null(seed)) set.seed(seed)
     data_col <- sample(1:100, nrows, replace = TRUE)
     data_col <- spatter_missing(data_col, w_na)
@@ -52,10 +69,18 @@ get_numeric_test_df <- function(col_name = "variable", group_name = "cohort", gr
 
     names(df)[names(df) == "col_name"] <- col_name
     names(df)[names(df) == "group_name"] <- group_name
+
+    if (factorize & gr) {
+        df[[group_name]] <- factor(
+            df[[group_name]],
+            levels = if (is.numeric(df[[group_name]])) numeric_levels else character_levels
+        )
+    }
+
     df
 }
 
-get_categorical_test_df <- function(col_name = "variable", group_name = "cohort", gr = FALSE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
+cat_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE, factorize = TRUE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
     if (!is.null(seed)) set.seed(seed)
     data_col <- sample(categorical_levels, nrows, replace = TRUE)
     data_col <- spatter_missing(data_col, w_na)
@@ -69,10 +94,21 @@ get_categorical_test_df <- function(col_name = "variable", group_name = "cohort"
 
     names(df)[names(df) == "col_name"] <- col_name
     names(df)[names(df) == "group_name"] <- group_name
+
+    if (factorize) {
+        df[[col_name]] <- factor(df[[col_name]], levels = categorical_levels)
+        if (gr) {
+            df[[group_name]] <- factor(
+                df[[group_name]],
+                levels = if (is.numeric(df[[group_name]])) numeric_levels else character_levels
+            )
+        }
+    }
+
     df
 }
 
-get_likert_test_df <- function(col_name = "variable", group_name = "cohort", gr = FALSE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
+lik_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE, factorize = TRUE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
     if (!is.null(seed)) set.seed(seed)
     data_col <- sample(likert_levels, nrows, replace = TRUE)
     data_col <- spatter_missing(data_col, w_na)
@@ -86,10 +122,21 @@ get_likert_test_df <- function(col_name = "variable", group_name = "cohort", gr 
 
     names(df)[names(df) == "col_name"] <- col_name
     names(df)[names(df) == "group_name"] <- group_name
+
+    if (factorize) {
+        df[[col_name]] <- factor(df[[col_name]], levels = likert_levels)
+        if (gr) {
+            df[[group_name]] <- factor(
+                df[[group_name]],
+                levels = if (is.numeric(df[[group_name]])) numeric_levels else character_levels
+            )
+        }
+    }
+
     df
 }
 
-get_multianswer_test_df <- function(col_name = "variable", group_name = "cohort", gr = FALSE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
+multi_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE, factorize = TRUE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
     if (!is.null(seed)) set.seed(seed)
 
     get_sample <- function() {
@@ -109,38 +156,16 @@ get_multianswer_test_df <- function(col_name = "variable", group_name = "cohort"
 
     names(df)[names(df) == "col_name"] <- col_name
     names(df)[names(df) == "group_name"] <- group_name
-    df
-}
 
-factorize_columns <- function(df, colnames = NULL) {
-    if (is.null(colnames))
-        colnames <- names(df)
-
-    stopifnot(all(colnames %in% names(df)))
-
-    for (col in colnames) {
-        if (is.list(df[[col]])) {
-            df[[col]] <- lapply(df[[col]], function(x) factor(x))
-        } else if (!is.numeric(df[[col]])) {
-            df[[col]] <- factor(df[[col]])
+    if (factorize) {
+        df[[col_name]] <- factor(df[[col_name]], levels = multianswer_levels)
+        if (gr) {
+            df[[group_name]] <- factor(
+                df[[group_name]],
+                levels = if (is.numeric(df[[group_name]])) numeric_levels else character_levels
+            )
         }
     }
 
     df
 }
-
-test_df <- data.frame(
-    var = factor(c("a", "b", "a", "c")),
-    cohort = factor(c("G1", "G1", "G2", "G2"))
-)
-
-test_ct <- new_crosstab_data_cat(
-    df = test_df,
-    var_col_name = "var",
-    var_levels = levels(test_df$var),
-    cohort_col_name = "cohort",
-    cohort_levels = levels(test_df$cohort),
-    grouped = T,
-    combined_cohort_name = "G1",
-    desc_col_name = "Description"
-)

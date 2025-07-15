@@ -30,6 +30,6 @@
 }
 
 #' @export
-`var_mapping<-` <- function(ct_data, value) {
-    UseMethod("var_mapping<-", ct_data)
+`var_map<-` <- function(ct_data, value) {
+    UseMethod("var_map<-", ct_data)
 }
