@@ -465,7 +465,15 @@ test_that("index() returns the proper index",{
         add_total_row() |>
         add_total_row()
 
-    expect_equal(index(test_ct), c("variable" = 4))
+    expect_silent(index(test_ct))
+    short_index <- index(test_ct)
+    expect_equal(short_index, c("variable" = 4))
+
+    expect_silent(index(test_ct, long = T))
+    long_index <- index(test_ct, long = T)
+
+    expect_equal(length(long_index), sum(short_index))
+    expect_true(all(long_index %in% names(short_index)))
 })
 
 test_that("desc_name() passes the call onto the data object",{

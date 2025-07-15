@@ -37,8 +37,9 @@ validate_input_data_table_getter <- function(ct, raw) {
     assert_that(is.logical(raw))
 }
 
-validate_input_index_getter <- function(ct) {
+validate_input_index_getter <- function(ct, long) {
     assert_crosstab(ct, strict = T)
+    assert_that(is.logical(long))
 }
 
 validate_input_data_table_setter <- function(ct, value) {

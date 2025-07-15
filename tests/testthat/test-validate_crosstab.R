@@ -389,19 +389,33 @@ test_that("validate_input_data_table_getter() fails when raw is not logical",{
 
 # validate_input_index_getter() ####
 test_that("validate_input_index_getter() works when given proper data",{
-    expect_silent(validate_input_index_getter(crosstab(cat_test_df(), "cohort")))
+    expect_silent(validate_input_index_getter(crosstab(cat_test_df(), "cohort")), F)
+    expect_silent(validate_input_index_getter(crosstab(cat_test_df(), "cohort")), T)
 })
 
 test_that("validate_input_index_getter() fails when ct is not a crosstab",{
-    expect_error(validate_input_index_getter(crosstab_data(cat_test_df(), "cohort")))
-    expect_error(validate_input_index_getter(NULL))
-    expect_error(validate_input_index_getter(1))
-    expect_error(validate_input_index_getter(c(1, 2, 3)))
-    expect_error(validate_input_index_getter("a"))
-    expect_error(validate_input_index_getter(c("a", "b", "c")))
-    expect_error(validate_input_index_getter(TRUE))
-    expect_error(validate_input_index_getter(list()))
-    expect_error(validate_input_index_getter(data.frame()))
+    expect_error(validate_input_index_getter(crosstab_data(cat_test_df(), "cohort")), F)
+    expect_error(validate_input_index_getter(NULL), F)
+    expect_error(validate_input_index_getter(1), F)
+    expect_error(validate_input_index_getter(c(1, 2, 3)), F)
+    expect_error(validate_input_index_getter("a"), F)
+    expect_error(validate_input_index_getter(c("a", "b", "c")), F)
+    expect_error(validate_input_index_getter(TRUE), F)
+    expect_error(validate_input_index_getter(list()), F)
+    expect_error(validate_input_index_getter(data.frame()), F)
+})
+
+test_that("validate_input_index_getter() fails when long is not logical",{
+    test_ct <- crosstab(cat_test_df(), "cohort")
+
+    expect_error(validate_input_index_getter(test_ct, crosstab_data(cat_test_df(), "cohort")))
+    expect_error(validate_input_index_getter(test_ct, NULL))
+    expect_error(validate_input_index_getter(test_ct, 1))
+    expect_error(validate_input_index_getter(test_ct, c(1, 2, 3)))
+    expect_error(validate_input_index_getter(test_ct, "a"))
+    expect_error(validate_input_index_getter(test_ct, c("a", "b", "c")))
+    expect_error(validate_input_index_getter(test_ct, list()))
+    expect_error(validate_input_index_getter(test_ct, data.frame()))
 })
 
 # validate_input_data_table_setter() ####

@@ -46,9 +46,11 @@ data_table <- function(ct, raw = F) {
 }
 
 #' @export
-index <- function(ct) {
-    validate_input_index_getter(ct)
-    attr(ct, "index")
+index <- function(ct, long = F) {
+    validate_input_index_getter(ct, long)
+    out <- attr(ct, "index")
+    if (long) out <- rep(names(out), times = out)
+    return(out)
 }
 
 #' @export
