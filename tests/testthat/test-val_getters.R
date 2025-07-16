@@ -54,6 +54,31 @@ test_that("get_complete() respects out_col_name",{
     expect_in("test_col", names(result))
 })
 
+# get_complete_total() ####
+test_that("get_complete_total() works when provided proper data",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_complete_total(test_ct))
+    result <- get_complete_total(test_ct)
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 2)
+    expect_equal(nrow(result), 6)
+})
+
+test_that("get_complete_total() respects out_col_name",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_complete_total(test_ct, out_col_name = "test_col"))
+    result <- get_complete_total(test_ct, out_col_name = "test_col")
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 2)
+    expect_in("test_col", names(result))
+})
+
 # get_mean() ####
 test_that("get_mean() works when provided proper data",{
     test_df <- num_test_df()
@@ -164,6 +189,76 @@ test_that("get_sd() respects round_to",{
     expect_silent(get_sd(test_ct, round_to = NULL))
     result3 <- get_sd(test_ct, round_to = NULL)
     expect_false(all(result1[["sd"]] == result3[["sd"]]))
+})
+
+# get_mean_sd() ####
+test_that("get_mean_sd() works when provided numeric data",{
+    test_df <- num_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_mean_sd(test_ct))
+    result <- get_mean_sd(test_ct, round_to = 5)
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 2)
+    expect_equal(nrow(result), 6)
+    expect_true(is.character(result[["mean_sd"]]))
+})
+
+test_that("get_mean_sd() works when provided likert data",{
+    test_df <- lik_test_df()
+    test_map <- default_var_map(test_df[["variable"]])
+    test_ct <- crosstab(test_df, "cohort", test_map)
+
+    expect_silent(get_mean_sd(test_ct))
+    result <- get_mean_sd(test_ct, round_to = 5)
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 2)
+    expect_equal(nrow(result), 6)
+    expect_true(is.character(result[["mean_sd"]]))
+})
+
+test_that("get_mean_sd() respects out_col_name",{
+    test_df <- num_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_mean_sd(test_ct, out_col_name = "test_col"))
+    result <- get_mean_sd(test_ct, out_col_name = "test_col")
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 2)
+    expect_in("test_col", names(result))
+})
+
+test_that("get_mean_sd() respects round_to",{
+    test_df <- num_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_mean_sd(test_ct, round_to = 0))
+    result1 <- get_mean_sd(test_ct, round_to = 0)
+
+    expect_s3_class(result1, "data.frame")
+    expect_equal(ncol(result1), 2)
+
+    expect_silent(get_mean_sd(test_ct, round_to = 7))
+    result2 <- get_mean_sd(test_ct, round_to = 7)
+
+    expect_true(all(result1[["cohort"]] == result2[["cohort"]], na.rm = T))
+    expect_true(all(result1[["variable"]] == result2[["variable"]], na.rm = T))
+
+    mean_sd_1 <- result1[["mean_sd"]]
+    mean_sd_2 <- result2[["mean_sd"]]
+
+    expect_false(all(mean_sd_1 == mean_sd_2, na.rm = T))
+
+    # Make sure there are no periods in the one rounded to 0 decimal places
+    non_na_vals <- mean_sd_1[!is.na(mean_sd_1)]
+    expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_mean_sd(test_ct, round_to = NULL))
+    result3 <- get_mean_sd(test_ct, round_to = NULL)
+    expect_false(all(result1[["mean_sd"]] == result3[["mean_sd"]]))
 })
 
 # get_med() ####
@@ -333,6 +428,76 @@ test_that("get_q3() respects round_to",{
     expect_silent(get_q3(test_ct, round_to = NULL))
     result3 <- get_q3(test_ct, round_to = NULL)
     expect_false(all(result1[["q3"]] == result3[["q3"]]))
+})
+
+# get_med_iqr() ####
+test_that("get_med_iqr() works when provided numeric data",{
+    test_df <- num_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_med_iqr(test_ct))
+    result <- get_med_iqr(test_ct, round_to = 5)
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 2)
+    expect_equal(nrow(result), 6)
+    expect_true(is.character(result[["med_iqr"]]))
+})
+
+test_that("get_med_iqr() works when provided likert data",{
+    test_df <- lik_test_df()
+    test_map <- default_var_map(test_df[["variable"]])
+    test_ct <- crosstab(test_df, "cohort", test_map)
+
+    expect_silent(get_med_iqr(test_ct))
+    result <- get_med_iqr(test_ct, round_to = 5)
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 2)
+    expect_equal(nrow(result), 6)
+    expect_true(is.character(result[["med_iqr"]]))
+})
+
+test_that("get_med_iqr() respects out_col_name",{
+    test_df <- num_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_med_iqr(test_ct, out_col_name = "test_col"))
+    result <- get_med_iqr(test_ct, out_col_name = "test_col")
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 2)
+    expect_in("test_col", names(result))
+})
+
+test_that("get_med_iqr() respects round_to",{
+    test_df <- num_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_med_iqr(test_ct, round_to = 0))
+    result1 <- get_med_iqr(test_ct, round_to = 0)
+
+    expect_s3_class(result1, "data.frame")
+    expect_equal(ncol(result1), 2)
+
+    expect_silent(get_med_iqr(test_ct, round_to = 7))
+    result2 <- get_med_iqr(test_ct, round_to = 7)
+
+    expect_true(all(result1[["cohort"]] == result2[["cohort"]], na.rm = T))
+    expect_true(all(result1[["variable"]] == result2[["variable"]], na.rm = T))
+
+    med_iqr_1 <- result1[["med_iqr"]]
+    med_iqr_2 <- result2[["med_iqr"]]
+
+    expect_false(all(med_iqr_1 == med_iqr_2, na.rm = T))
+
+    # Make sure there are no periods in the one rounded to 0 decimal places
+    non_na_vals <- med_iqr_1[!is.na(med_iqr_1)]
+    expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_med_iqr(test_ct, round_to = NULL))
+    result3 <- get_med_iqr(test_ct, round_to = NULL)
+    expect_false(all(result1[["med_iqr"]] == result3[["med_iqr"]]))
 })
 
 # get_count() ####
@@ -603,144 +768,4 @@ test_that("get_count_percent() respects round_to",{
     expect_silent(get_count_percent(test_ct, round_to = NULL))
     result3 <- get_count_percent(test_ct, round_to = NULL)
     expect_false(all(result1[["count_percent"]] == result3[["count_percent"]]))
-})
-
-# get_mean_sd() ####
-test_that("get_mean_sd() works when provided numeric data",{
-    test_df <- num_test_df()
-    test_ct <- crosstab(test_df, "cohort")
-
-    expect_silent(get_mean_sd(test_ct))
-    result <- get_mean_sd(test_ct, round_to = 5)
-
-    expect_s3_class(result, "data.frame")
-    expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
-    expect_true(is.character(result[["mean_sd"]]))
-})
-
-test_that("get_mean_sd() works when provided likert data",{
-    test_df <- lik_test_df()
-    test_map <- default_var_map(test_df[["variable"]])
-    test_ct <- crosstab(test_df, "cohort", test_map)
-
-    expect_silent(get_mean_sd(test_ct))
-    result <- get_mean_sd(test_ct, round_to = 5)
-
-    expect_s3_class(result, "data.frame")
-    expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
-    expect_true(is.character(result[["mean_sd"]]))
-})
-
-test_that("get_mean_sd() respects out_col_name",{
-    test_df <- num_test_df()
-    test_ct <- crosstab(test_df, "cohort")
-
-    expect_silent(get_mean_sd(test_ct, out_col_name = "test_col"))
-    result <- get_mean_sd(test_ct, out_col_name = "test_col")
-
-    expect_s3_class(result, "data.frame")
-    expect_equal(ncol(result), 2)
-    expect_in("test_col", names(result))
-})
-
-test_that("get_mean_sd() respects round_to",{
-    test_df <- num_test_df()
-    test_ct <- crosstab(test_df, "cohort")
-
-    expect_silent(get_mean_sd(test_ct, round_to = 0))
-    result1 <- get_mean_sd(test_ct, round_to = 0)
-
-    expect_s3_class(result1, "data.frame")
-    expect_equal(ncol(result1), 2)
-
-    expect_silent(get_mean_sd(test_ct, round_to = 7))
-    result2 <- get_mean_sd(test_ct, round_to = 7)
-
-    expect_true(all(result1[["cohort"]] == result2[["cohort"]], na.rm = T))
-    expect_true(all(result1[["variable"]] == result2[["variable"]], na.rm = T))
-
-    mean_sd_1 <- result1[["mean_sd"]]
-    mean_sd_2 <- result2[["mean_sd"]]
-
-    expect_false(all(mean_sd_1 == mean_sd_2, na.rm = T))
-
-    # Make sure there are no periods in the one rounded to 0 decimal places
-    non_na_vals <- mean_sd_1[!is.na(mean_sd_1)]
-    expect_false(any(grepl("\\.", non_na_vals)))
-
-    expect_silent(get_mean_sd(test_ct, round_to = NULL))
-    result3 <- get_mean_sd(test_ct, round_to = NULL)
-    expect_false(all(result1[["mean_sd"]] == result3[["mean_sd"]]))
-})
-
-# get_med_iqr() ####
-test_that("get_med_iqr() works when provided numeric data",{
-    test_df <- num_test_df()
-    test_ct <- crosstab(test_df, "cohort")
-
-    expect_silent(get_med_iqr(test_ct))
-    result <- get_med_iqr(test_ct, round_to = 5)
-
-    expect_s3_class(result, "data.frame")
-    expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
-    expect_true(is.character(result[["med_iqr"]]))
-})
-
-test_that("get_med_iqr() works when provided likert data",{
-    test_df <- lik_test_df()
-    test_map <- default_var_map(test_df[["variable"]])
-    test_ct <- crosstab(test_df, "cohort", test_map)
-
-    expect_silent(get_med_iqr(test_ct))
-    result <- get_med_iqr(test_ct, round_to = 5)
-
-    expect_s3_class(result, "data.frame")
-    expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
-    expect_true(is.character(result[["med_iqr"]]))
-})
-
-test_that("get_med_iqr() respects out_col_name",{
-    test_df <- num_test_df()
-    test_ct <- crosstab(test_df, "cohort")
-
-    expect_silent(get_med_iqr(test_ct, out_col_name = "test_col"))
-    result <- get_med_iqr(test_ct, out_col_name = "test_col")
-
-    expect_s3_class(result, "data.frame")
-    expect_equal(ncol(result), 2)
-    expect_in("test_col", names(result))
-})
-
-test_that("get_med_iqr() respects round_to",{
-    test_df <- num_test_df()
-    test_ct <- crosstab(test_df, "cohort")
-
-    expect_silent(get_med_iqr(test_ct, round_to = 0))
-    result1 <- get_med_iqr(test_ct, round_to = 0)
-
-    expect_s3_class(result1, "data.frame")
-    expect_equal(ncol(result1), 2)
-
-    expect_silent(get_med_iqr(test_ct, round_to = 7))
-    result2 <- get_med_iqr(test_ct, round_to = 7)
-
-    expect_true(all(result1[["cohort"]] == result2[["cohort"]], na.rm = T))
-    expect_true(all(result1[["variable"]] == result2[["variable"]], na.rm = T))
-
-    med_iqr_1 <- result1[["med_iqr"]]
-    med_iqr_2 <- result2[["med_iqr"]]
-
-    expect_false(all(med_iqr_1 == med_iqr_2, na.rm = T))
-
-    # Make sure there are no periods in the one rounded to 0 decimal places
-    non_na_vals <- med_iqr_1[!is.na(med_iqr_1)]
-    expect_false(any(grepl("\\.", non_na_vals)))
-
-    expect_silent(get_med_iqr(test_ct, round_to = NULL))
-    result3 <- get_med_iqr(test_ct, round_to = NULL)
-    expect_false(all(result1[["med_iqr"]] == result3[["med_iqr"]]))
 })

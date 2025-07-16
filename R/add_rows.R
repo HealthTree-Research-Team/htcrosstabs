@@ -95,18 +95,11 @@ get_total_row <- function(ct, wide = T, long_out_col = COMP_TOT_COL_NAME) {
     validate_input_get_total_row(ct, wide, long_out_col)
     validate_input_col_names(ct, long_out_col, wide)
 
-    # Make sure there is no clash in the intermediate column names
-    complete_col <- get_non_matching(COMP_COL_NAME, cohort_name(ct))
-    total_col <- get_non_matching(TOTAL_COL_NAME, cohort_name(ct))
+    # If there is a clash in the long_out_col, change it
     if (wide) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct)))
 
-    # Create string column
-    totals <- get_complete(ct, out_col_name = complete_col) |>
-        dplyr::full_join(get_total(ct, out_col_name = total_col), by = cohort_name(ct))
-    totals[[long_out_col]] <- paste0(totals[[complete_col]], " / ", totals[[total_col]])
-    totals <- totals[, c(cohort_name(ct), long_out_col), drop = FALSE]
-
-    # Add description column
+    # Get totals and add description column
+    totals <- get_complete_total(ct, out_col_name = long_out_col)
     totals[[desc_name(ct)]] <- COMP_TOT_DESC
     totals <- totals[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
 
@@ -158,20 +151,11 @@ get_med_iqr_row <- function(ct, wide = T, long_out_col = MED_IQR_COL_NAME, round
     validate_input_get_med_iqr_row(ct, wide, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, wide)
 
-    # Make sure there is no clash in the intermediate column names
-    med_col <- get_non_matching(MED_COL_NAME, cohort_name(ct))
-    q1_col <- get_non_matching(Q1_COL_NAME, cohort_name(ct))
-    q3_col <- get_non_matching(Q3_COL_NAME, cohort_name(ct))
+    # If there is a clash in the long_out_col, change it
     if (wide) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct)))
 
-    # Create the string column
-    med_iqrs <- get_med(ct, round_to = round_to, out_col_name = med_col) |>
-        dplyr::full_join(get_q1(ct, round_to = round_to, out_col_name = q1_col), by = cohort_name(ct)) |>
-        dplyr::full_join(get_q3(ct, round_to = round_to, out_col_name = q3_col), by = cohort_name(ct))
-    med_iqrs[[long_out_col]] <- paste0(med_iqrs[[med_col]], " (", med_iqrs[[q1_col]], ", ", med_iqrs[[q3_col]], ")")
-    med_iqrs <- med_iqrs[, c(cohort_name(ct), long_out_col), drop = FALSE]
-
-    # Add description column
+    # Get values and add description column
+    med_iqrs <- get_med_iqr(ct, out_col_name = long_out_col, round_to = round_to)
     med_iqrs[[desc_name(ct)]] <- MED_IQR_DESC
     med_iqrs <- med_iqrs[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
 
@@ -195,20 +179,11 @@ get_count_rows <- function(ct, wide = T, long_out_col = COUNT_COL_NAME, round_to
     validate_input_get_count_rows(ct, wide, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, wide)
 
-    # Make sure there is no clash in the intermediate column names
-    count_col <- get_non_matching(COUNT_COL_NAME, c(cohort_name(ct), var_name(ct)))
-    percent_col <- get_non_matching(PERCENT_COL_NAME, c(cohort_name(ct), var_name(ct), count_col))
+    # If there is a clash in the long_out_col, change it
     if (wide) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct), var_name(ct)))
 
-    # Join count and percent columns
-    count_table <- get_count(ct, out_col_name = count_col)
-    percent_table <- get_percent(ct, round_to = round_to, out_col_name = percent_col)
-    counts <- dplyr::full_join(count_table, percent_table, by = c(var_name(ct), cohort_name(ct)))
-
-    # Create string column
-    counts[[long_out_col]] <- paste0(counts[[count_col]], " (", counts[[percent_col]], "%)")
-
-    # Reorder and rename variable column to description column
+    # Get values and rename variable column to description column
+    counts <- get_count_percent(ct, out_col_name = long_out_col, round_to = round_to)
     names(counts)[names(counts) == var_name(ct)] <- desc_name(ct)
     counts <- counts[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
 

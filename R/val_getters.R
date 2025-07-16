@@ -63,6 +63,40 @@ get_complete.crosstab <- function(ct_data, out_col_name = COMP_COL_NAME) {
     get_complete(data_table(ct_data), out_col_name = out_col_name)
 }
 
+# GET COMPLETE TOTAL STRING ####
+#' @export
+get_complete_total <- function(ct_data, out_col_name = COMP_TOT_COL_NAME) {
+    UseMethod("get_complete_total", ct_data)
+}
+
+#' @export
+get_complete_total.crosstab <- function(ct_data, out_col_name = COMP_TOT_COL_NAME) {
+    get_complete_total(data_table(ct_data), out_col_name = out_col_name)
+}
+
+#' @export
+get_complete_total.crosstab_data <- function(ct_data, out_col_name = COMP_TOT_COL_NAME) {
+    validate_out_col_name(out_col_name, ct_data)
+
+    comp_col <- get_non_matching(COMP_COL_NAME, c(cohort_name(ct_data)))
+    tot_col <- get_non_matching(TOTAL_COL_NAME, c(cohort_name(ct_data)))
+    comp_tot <- join_val(
+        get_complete(ct_data, out_col_name = comp_col),
+        get_total(ct_data, out_col_name = tot_col)
+    )
+
+    comp_tot[[out_col_name]] <- sprintf(
+        "%s / %s",
+        comp_tot[[comp_col]],
+        comp_tot[[tot_col]]
+    )
+
+    keep_columns <- c(cohort_name(ct_data), out_col_name)
+    comp_tot <- comp_tot[, keep_columns, drop = F]
+
+    return(comp_tot)
+}
+
 # GET MEAN ####
 #' @export
 get_mean <- function(ct_data, out_col_name = MEAN_COL_NAME, round_to = ROUND_MEAN_TO) {
@@ -137,6 +171,41 @@ get_sd.crosstab_data_num <- function(ct_data, out_col_name = SD_COL_NAME, round_
 #' @export
 get_sd.crosstab_data <- function(ct_data, out_col_name = SD_COL_NAME, round_to = ROUND_SD_TO) {
     get_sd(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
+}
+
+# GET MEAN SD STRING ####
+#' @export
+get_mean_sd <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = ROUND_MEAN_SD_TO) {
+    UseMethod("get_mean_sd", ct_data)
+}
+
+#' @export
+get_mean_sd.crosstab <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = ROUND_MEAN_SD_TO) {
+    get_mean_sd(data_table(ct_data), out_col_name = out_col_name, round_to = round_to)
+}
+
+#' @export
+get_mean_sd.crosstab <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = ROUND_MEAN_SD_TO) {
+    validate_round_to(round_to)
+    validate_out_col_name(out_col_name, ct_data)
+
+    mean_col <- get_non_matching(MEAN_COL_NAME, cohort_name(ct_data))
+    sd_col <- get_non_matching(SD_COL_NAME, cohort_name(ct_data))
+    mean_sd <- join_val(
+        get_mean(ct_data, out_col_name = mean_col, round_to = round_to),
+        get_sd(ct_data, out_col_name = sd_col, round_to = round_to)
+    )
+
+    mean_sd[[out_col_name]] <- sprintf(
+        "%s \u00b1 %s", # This is unicode for the plus-minus symbol
+        mean_sd[[mean_col]],
+        mean_sd[[sd_col]]
+    )
+
+    keep_columns <- c(cohort_name(ct_data), out_col_name)
+    mean_sd <- mean_sd[, keep_columns, drop = F]
+
+    return(mean_sd)
 }
 
 # GET MEDIAN ####
@@ -255,6 +324,44 @@ get_q3.crosstab_data <- function(ct_data, out_col_name = Q3_COL_NAME, round_to =
     get_q3(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
+# GET MED IQR STRING ####
+#' @export
+get_med_iqr <- function(ct_data, out_col_name = MED_IQR_COL_NAME, round_to = ROUND_MED_IQR_TO) {
+    UseMethod("get_med_iqr", ct_data)
+}
+
+#' @export
+get_med_iqr.crosstab <- function(ct_data, out_col_name = MED_IQR_COL_NAME, round_to = ROUND_MED_IQR_TO) {
+    get_med_iqr(data_table(ct_data), out_col_name = out_col_name, round_to = round_to)
+}
+
+#' @export
+get_med_iqr.crosstab_data <- function(ct_data, out_col_name = MED_IQR_COL_NAME, round_to = ROUND_MED_IQR_TO) {
+    validate_round_to(round_to)
+    validate_out_col_name(out_col_name, ct_data)
+
+    med_col <- get_non_matching(MED_COL_NAME, c(cohort_name(ct_data)))
+    q1_col <- get_non_matching(Q1_COL_NAME, c(cohort_name(ct_data)))
+    q3_col <- get_non_matching(Q3_COL_NAME, c(cohort_name(ct_data)))
+    med_iqr <- join_val(
+        get_med(ct_data, out_col_name = med_col, round_to = round_to),
+        get_q1(ct_data, out_col_name = q1_col, round_to = round_to),
+        get_q3(ct_data, out_col_name = q3_col, round_to = round_to)
+    )
+
+    med_iqr[[out_col_name]] <- sprintf(
+        "%s (%s, %s)",
+        med_iqr[[med_col]],
+        med_iqr[[q1_col]],
+        med_iqr[[q3_col]]
+    )
+
+    keep_columns <- c(cohort_name(ct_data), out_col_name)
+    med_iqr <- med_iqr[, keep_columns, drop = F]
+
+    return(med_iqr)
+}
+
 # GET COUNT ####
 #' @export
 get_count <- function(ct_data, out_col_name = COUNT_COL_NAME) {
@@ -366,7 +473,7 @@ get_percent_str.crosstab_data <- function(ct_data, out_col_name = PERCENT_STR_CO
     return(percent)
 }
 
-# GET N PERCENT STRING ####
+# GET COUNT PERCENT STRING ####
 #' @export
 get_count_percent <- function(ct_data, out_col_name = COUNT_PERCENT_COL_NAME, round_to = ROUND_PERCENT_TO) {
     UseMethod("get_count_percent", ct_data)
@@ -405,77 +512,4 @@ get_count_percent.crosstab_data <- function(ct_data, out_col_name = COUNT_PERCEN
     count_percent <- count_percent[, keep_columns, drop = F]
 
     return(count_percent)
-}
-
-# GET MEAN SD STRING ####
-#' @export
-get_mean_sd <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = ROUND_MEAN_SD_TO) {
-    UseMethod("get_mean_sd", ct_data)
-}
-
-#' @export
-get_mean_sd.crosstab <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = ROUND_MEAN_SD_TO) {
-    get_mean_sd(data_table(ct_data), out_col_name = out_col_name, round_to = round_to)
-}
-
-#' @export
-get_mean_sd.crosstab <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = ROUND_MEAN_SD_TO) {
-    validate_round_to(round_to)
-    validate_out_col_name(out_col_name, ct_data)
-
-    mean_col <- get_non_matching(MEAN_COL_NAME, cohort_name(ct_data))
-    sd_col <- get_non_matching(SD_COL_NAME, cohort_name(ct_data))
-    mean_sd <- join_val(
-        get_mean(ct_data, out_col_name = mean_col, round_to = round_to),
-        get_sd(ct_data, out_col_name = sd_col, round_to = round_to)
-    )
-
-    mean_sd[[out_col_name]] <- sprintf(
-        "%s \u00b1 %s", # This is unicode for the plus-minus symbol
-        mean_sd[[mean_col]],
-        mean_sd[[sd_col]]
-    )
-
-    keep_columns <- c(cohort_name(ct_data), out_col_name)
-    mean_sd <- mean_sd[, keep_columns, drop = F]
-
-    return(mean_sd)
-}
-
-# GET MED IQR STRING ####
-#' @export
-get_med_iqr <- function(ct_data, out_col_name = MED_IQR_COL_NAME, round_to = ROUND_MED_IQR_TO) {
-    UseMethod("get_med_iqr", ct_data)
-}
-
-#' @export
-get_med_iqr.crosstab <- function(ct_data, out_col_name = MED_IQR_COL_NAME, round_to = ROUND_MED_IQR_TO) {
-    get_med_iqr(data_table(ct_data), out_col_name = out_col_name, round_to = round_to)
-}
-
-#' @export
-get_med_iqr.crosstab_data <- function(ct_data, out_col_name = MED_IQR_COL_NAME, round_to = ROUND_MED_IQR_TO) {
-    validate_round_to(round_to)
-    validate_out_col_name(out_col_name, ct_data)
-
-    med_col <- get_non_matching(MED_COL_NAME, c(cohort_name(ct_data)))
-    q1_col <- get_non_matching(Q1_COL_NAME, c(cohort_name(ct_data)))
-    q3_col <- get_non_matching(Q3_COL_NAME, c(cohort_name(ct_data)))
-    med_iqr <- join_val(
-        get_med(ct_data, out_col_name = med_col, round_to = round_to),
-        get_q1(ct_data, out_col_name = q1_col, round_to = round_to),
-        get_q3(ct_data, out_col_name = q3_col, round_to = round_to)
-    )
-
-    med_iqr[[out_col_name]] <- sprintf(
-        "%s (%s, %s)",
-        med_iqr[[med_col]],
-        med_iqr[[q1_col]],
-        med_iqr[[q3_col]]
-    )
-
-    keep_columns <- c(cohort_name(ct_data), out_col_name)
-    med_iqr <- med_iqr[, keep_columns, drop = F]
-
-    return(med_iqr)
 }
