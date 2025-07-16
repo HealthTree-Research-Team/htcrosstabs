@@ -61,23 +61,23 @@ validate_input_add_rows <- function(ct, rows) {
     assert_that(is.data.frame(rows))
 }
 
-validate_input_col_names <- function(ct, long_out_col, wide) {
-    if (wide) {
+validate_input_col_names <- function(ct, long_out_col, long) {
+    if (!long) {
         assert_that(
             !(desc_name(ct) %in% c(cohort_levels(ct), var_name(ct))),
-            msg = "If wide = TRUE, desc_col_name must be different than cohort_levels and var_name. Specify a different desc_col_name when creating the original crosstab object."
+            msg = "If long = FALSE, desc_col_name must be different than cohort_levels and var_name. Specify a different desc_col_name when creating the original crosstab object."
         )
     } else {
         assert_that(
             !(desc_name(ct) %in% c(cohort_name(ct), var_name(ct), long_out_col)),
-            msg = "If wide = FALSE, description column must be different from cohort_col, var_name, and long_out_col. Specify a different long_out_col in this function or a different desc_col_name when creating the original crosstab object."
+            msg = "If long = TRUE, description column must be different from cohort_col, var_name, and long_out_col. Specify a different long_out_col in this function or a different desc_col_name when creating the original crosstab object."
         )
     }
 }
 
-validate_input_get_total_row <- function(ct, wide, long_out_col) {
+validate_input_get_total_row <- function(ct, long, long_out_col) {
     assert_crosstab(ct)
-    assert_that(is.logical(wide))
+    assert_that(is.logical(long))
     assert_that(is.character(long_out_col))
 }
 
@@ -85,9 +85,9 @@ validate_input_add_total_row <- function(ct) {
     assert_crosstab(ct)
 }
 
-validate_input_get_mean_sd_row <- function(ct, wide, long_out_col, round_to) {
+validate_input_get_mean_sd_row <- function(ct, long, long_out_col, round_to) {
     assert_crosstab(ct)
-    assert_that(is.logical(wide))
+    assert_that(is.logical(long))
     assert_that(is.character(long_out_col))
     assert_that(is.numeric(round_to))
 }
@@ -97,9 +97,9 @@ validate_input_add_mean_sd_row <- function(ct, round_to) {
     assert_that(is.numeric(round_to))
 }
 
-validate_input_get_med_iqr_row <- function(ct, wide, long_out_col, round_to) {
+validate_input_get_med_iqr_row <- function(ct, long, long_out_col, round_to) {
     assert_crosstab(ct)
-    assert_that(is.logical(wide))
+    assert_that(is.logical(long))
     assert_that(is.character(long_out_col))
     assert_that(is.numeric(round_to))
 }
@@ -109,9 +109,9 @@ validate_input_add_med_iqr_row <- function(ct, round_to) {
     assert_that(is.numeric(round_to))
 }
 
-validate_input_get_count_rows <- function(ct, wide, long_out_col, round_to) {
+validate_input_get_count_rows <- function(ct, long, long_out_col, round_to) {
     assert_crosstab(ct)
-    assert_that(is.logical(wide))
+    assert_that(is.logical(long))
     assert_that(is.character(long_out_col))
     assert_that(is.numeric(round_to))
 }

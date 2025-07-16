@@ -567,7 +567,7 @@ test_that("get_total_row() works given proper data",{
     expect_true(all(names(total_row) %in% c("Description", "All", "NA", character_levels)))
 })
 
-test_that("get_total_row() works and long_out_col has no effect on the output if wide = T",{
+test_that("get_total_row() works and long_out_col has no effect on the output if long = T",{
     ct <- crosstab(
         df = cat_test_df(),
         cohort_col_name = "cohort"
@@ -580,14 +580,14 @@ test_that("get_total_row() works and long_out_col has no effect on the output if
     expect_identical(total_row_2, total_row_1)
 })
 
-test_that("get_total_row() works with wide = F",{
+test_that("get_total_row() works with long = T",{
     ct <- crosstab(
         df = cat_test_df(),
         cohort_col_name = "cohort"
     )
 
-    expect_silent(get_total_row(ct, wide = F))
-    total_long <- get_total_row(ct, wide = F)
+    expect_silent(get_total_row(ct, long = T))
+    total_long <- get_total_row(ct, long = T)
 
     expect_equal(nrow(total_long), 6)
     expect_equal(ncol(total_long), 3)
@@ -595,14 +595,14 @@ test_that("get_total_row() works with wide = F",{
     expect_true(all(total_long[["cohort"]] %in% c("All", NA, character_levels)))
 })
 
-test_that("get_total_row() works with wide = F, long_out_col changes the column name",{
+test_that("get_total_row() works with long = T, long_out_col changes the column name",{
     ct <- crosstab(
         df = cat_test_df(),
         cohort_col_name = "cohort"
     )
 
-    expect_silent(get_total_row(ct, wide = F, long_out_col = "This is a test column name"))
-    total_long <- get_total_row(ct, wide = F, long_out_col = "This is a test column name")
+    expect_silent(get_total_row(ct, long = T, long_out_col = "This is a test column name"))
+    total_long <- get_total_row(ct, long = T, long_out_col = "This is a test column name")
 
     expect_in("This is a test column name", names(total_long))
 
@@ -650,7 +650,7 @@ test_that("get_mean_sd_row() works given proper data", {
     expect_true("Description" %in% names(mean_sd_row))
 })
 
-test_that("get_mean_sd_row() ignores long_out_col when wide = TRUE", {
+test_that("get_mean_sd_row() ignores long_out_col when long = F", {
     ct <- crosstab(
         df = num_test_df(),
         cohort_col_name = "cohort"
@@ -662,13 +662,14 @@ test_that("get_mean_sd_row() ignores long_out_col when wide = TRUE", {
     expect_identical(row1, row2)
 })
 
-test_that("get_mean_sd_row() works with wide = FALSE", {
+test_that("get_mean_sd_row() works with long = T", {
     ct <- crosstab(
         df = num_test_df(),
         cohort_col_name = "cohort"
     )
 
-    long <- get_mean_sd_row(ct, wide = FALSE)
+    expect_silent(get_mean_sd_row(ct, long = T))
+    long <- get_mean_sd_row(ct, long = T)
 
     expect_true(nrow(long) >= 3)
     expect_equal(ncol(long), 3)
@@ -677,14 +678,14 @@ test_that("get_mean_sd_row() works with wide = FALSE", {
     expect_true(all(c("Description") %in% names(long)))
 })
 
-test_that("get_mean_sd_row() allows custom long_out_col when wide = FALSE", {
+test_that("get_mean_sd_row() allows custom long_out_col when long = T", {
     ct <- crosstab(
         df = num_test_df(),
         cohort_col_name = "cohort"
     )
 
-    custom_name <- "Mean ± SD"
-    long <- get_mean_sd_row(ct, wide = FALSE, long_out_col = custom_name)
+    custom_name <- "test"
+    long <- get_mean_sd_row(ct, long = T, long_out_col = custom_name)
 
     expect_in(custom_name, names(long))
     expect_equal(ncol(long), 3)
@@ -696,8 +697,8 @@ test_that("get_mean_sd_row() obeys rounding parameter", {
         cohort_col_name = "cohort"
     )
 
-    row_1dp <- get_mean_sd_row(ct, round_to = 1, wide = FALSE)
-    row_3dp <- get_mean_sd_row(ct, round_to = 3, wide = FALSE)
+    row_1dp <- get_mean_sd_row(ct, round_to = 1, long = T)
+    row_3dp <- get_mean_sd_row(ct, round_to = 3, long = T)
 
     # Values should not be identical due to different rounding
     expect_false(identical(row_1dp[[3]], row_3dp[[3]]))
@@ -751,7 +752,7 @@ test_that("get_med_iqr_row() works with proper data", {
     expect_true("Description" %in% names(med_iqr_row))
 })
 
-test_that("get_med_iqr_row() ignores long_out_col when wide = TRUE", {
+test_that("get_med_iqr_row() ignores long_out_col when long = F", {
     ct <- crosstab(
         df = num_test_df(),
         cohort_col_name = "cohort"
@@ -763,13 +764,14 @@ test_that("get_med_iqr_row() ignores long_out_col when wide = TRUE", {
     expect_identical(row1, row2)
 })
 
-test_that("get_med_iqr_row() works with wide = FALSE", {
+test_that("get_med_iqr_row() works with long = T", {
     ct <- crosstab(
         df = num_test_df(),
         cohort_col_name = "cohort"
     )
 
-    med_iqr_long <- get_med_iqr_row(ct, wide = FALSE)
+    expect_silent(get_med_iqr_row(ct, long = T))
+    med_iqr_long <- get_med_iqr_row(ct, long = T)
 
     expect_true(nrow(med_iqr_long) >= 3)
     expect_equal(ncol(med_iqr_long), 3)
@@ -778,14 +780,14 @@ test_that("get_med_iqr_row() works with wide = FALSE", {
     expect_true(any(is.na(med_iqr_long[["cohort"]])))
 })
 
-test_that("get_med_iqr_row() uses custom long_out_col when wide = FALSE", {
+test_that("get_med_iqr_row() uses custom long_out_col when long = T", {
     ct <- crosstab(
         df = num_test_df(),
         cohort_col_name = "cohort"
     )
 
-    custom_col <- "Median (Q1, Q3)"
-    med_iqr_long <- get_med_iqr_row(ct, wide = FALSE, long_out_col = custom_col)
+    custom_col <- "test"
+    med_iqr_long <- get_med_iqr_row(ct, long = T, long_out_col = custom_col)
 
     expect_in(custom_col, names(med_iqr_long))
     expect_equal(ncol(med_iqr_long), 3)
@@ -800,8 +802,8 @@ test_that("get_med_iqr_row() obeys rounding", {
     ct1 <- crosstab(df = test_df, cohort_col_name = "cohort")
     ct2 <- crosstab(df = test_df, cohort_col_name = "cohort")
 
-    row1 <- get_med_iqr_row(ct1, round_to = 0, wide = FALSE)
-    row2 <- get_med_iqr_row(ct2, round_to = 3, wide = FALSE)
+    row1 <- get_med_iqr_row(ct1, round_to = 0, long = T)
+    row2 <- get_med_iqr_row(ct2, round_to = 3, long = T)
 
     expect_false(identical(row1[[3]], row2[[3]]))
 })
@@ -859,7 +861,7 @@ test_that("get_count_rows() works with proper categorical data", {
     expect_false(any(is.na(count_rows[, cohort_col_names])))
 })
 
-test_that("get_count_rows() wide = TRUE ignores long_out_col argument", {
+test_that("get_count_rows() long = F ignores long_out_col argument", {
     ct <- crosstab(
         df = cat_test_df(),
         cohort_col_name = "cohort"
@@ -871,13 +873,14 @@ test_that("get_count_rows() wide = TRUE ignores long_out_col argument", {
     expect_identical(row1, row2)
 })
 
-test_that("get_count_rows() works with wide = FALSE and custom long_out_col", {
+test_that("get_count_rows() works with long = T and custom long_out_col", {
     ct <- crosstab(
         df = cat_test_df(),
         cohort_col_name = "cohort"
     )
 
-    count_long <- get_count_rows(ct, wide = FALSE, long_out_col = "count_percent")
+    expect_silent(get_count_rows(ct, long = T, long_out_col = "count_percent"))
+    count_long <- get_count_rows(ct, long = T, long_out_col = "count_percent")
 
     expect_equal(ncol(count_long), 3)
     expect_in("count_percent", names(count_long))
@@ -900,7 +903,7 @@ test_that("get_count_rows() produces 0% output when na_fill kicks in", {
         cohort_col_name = "cohort"
     )
 
-    wide_out <- get_count_rows(ct, wide = TRUE)
+    wide_out <- get_count_rows(ct, long = T)
     expect_true(any(wide_out == "0 (0%)"))
 })
 

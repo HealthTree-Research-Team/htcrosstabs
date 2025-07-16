@@ -185,7 +185,7 @@ get_mean_sd.crosstab <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round
 }
 
 #' @export
-get_mean_sd.crosstab <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = ROUND_MEAN_SD_TO) {
+get_mean_sd.crosstab_data <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = ROUND_MEAN_SD_TO) {
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
 

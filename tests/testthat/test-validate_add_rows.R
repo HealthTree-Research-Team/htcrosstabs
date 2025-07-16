@@ -1,4 +1,3 @@
-
 # validate_input_to_wide() ####
 test_that("validate_input_to_wide() works when given proper data",{
     long_df <- factorize_columns(data.frame(
@@ -253,28 +252,28 @@ test_that("validate_input_add_rows() errors when rows is not a data frame", {
 })
 
 # validate_input_col_names() ####
-test_that("validate_input_col_names() passes when names are all unique (wide = TRUE)", {
+test_that("validate_input_col_names() passes when names are all unique (long = F)", {
     test_df <- cat_test_df()
     ct <- crosstab(test_df, cohort_col_name = "cohort", desc_col_name = "description")
-    expect_silent(validate_input_col_names(ct, long_out_col = "out_col", wide = T))
+    expect_silent(validate_input_col_names(ct, long_out_col = "out_col", long = F))
 })
 
-test_that("validate_input_col_names() errors when desc_name is in cohort_levels (wide = TRUE)", {
+test_that("validate_input_col_names() errors when desc_name is in cohort_levels (long = F)", {
     test_df <- cat_test_df()
     ct <- crosstab(test_df, cohort_col_name = "cohort", desc_col_name = character_levels[1])
-    expect_error(validate_input_col_names(ct, long_out_col = "out_col", wide = T))
+    expect_error(validate_input_col_names(ct, long_out_col = "out_col", long = F))
 })
 
-test_that("validate_input_col_names() passes when names are all unique (wide = FALSE)", {
+test_that("validate_input_col_names() passes when names are all unique (long = T)", {
     test_df <- cat_test_df()
     ct <- crosstab(test_df, cohort_col_name = "cohort", desc_col_name = "description")
-    expect_silent(validate_input_col_names(ct, long_out_col = "out_col", wide = F))
+    expect_silent(validate_input_col_names(ct, long_out_col = "out_col", long = T))
 })
 
-test_that("validate_input_col_names() errors when desc_name is same as long_out_col (wide = FALSE)", {
+test_that("validate_input_col_names() errors when desc_name is same as long_out_col (long = T)", {
     test_df <- cat_test_df()
     ct <- crosstab(test_df, cohort_col_name = "cohort", desc_col_name = "out_col")
-    expect_error(validate_input_col_names(ct, long_out_col = "out_col", wide = F))
+    expect_error(validate_input_col_names(ct, long_out_col = "out_col", long = T))
 })
 
 # validate_input_get_total_row() ####

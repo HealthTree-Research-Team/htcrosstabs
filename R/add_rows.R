@@ -91,19 +91,19 @@ add_rows <- function(ct, rows) {
 
 # ROWS ####
 #' @export
-get_total_row <- function(ct, wide = T, long_out_col = COMP_TOT_COL_NAME) {
-    validate_input_get_total_row(ct, wide, long_out_col)
-    validate_input_col_names(ct, long_out_col, wide)
+get_total_row <- function(ct, long_out_col = COMP_TOT_COL_NAME, long = F) {
+    validate_input_get_total_row(ct, long, long_out_col)
+    validate_input_col_names(ct, long_out_col, long)
 
     # If there is a clash in the long_out_col, change it
-    if (wide) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct)))
+    if (!long) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct)))
 
     # Get totals and add description column
     totals <- get_complete_total(ct, out_col_name = long_out_col)
     totals[[desc_name(ct)]] <- COMP_TOT_DESC
     totals <- totals[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
 
-    if (wide) totals <- to_wide(totals, desc_name(ct), cohort_name(ct))
+    if (!long) totals <- to_wide(totals, desc_name(ct), cohort_name(ct))
     return(totals)
 }
 
@@ -112,26 +112,26 @@ add_total_row <- function(ct) {
     validate_input_add_total_row(ct)
 
     # Get the row and add it to the running output table
-    total_row <- get_total_row(ct, wide = T)
+    total_row <- get_total_row(ct, long = F)
     ct <- add_rows(ct, total_row)
 
     return(ct)
 }
 
 #' @export
-get_mean_sd_row <- function(ct, wide = T, long_out_col = MEAN_SD_COL_NAME, round_to = ROUND_MEAN_SD_TO) {
-    validate_input_get_mean_sd_row(ct, wide, long_out_col, round_to)
-    validate_input_col_names(ct, long_out_col, wide)
+get_mean_sd_row <- function(ct, round_to = ROUND_MEAN_SD_TO, long_out_col = MEAN_SD_COL_NAME, long = F) {
+    validate_input_get_mean_sd_row(ct, long, long_out_col, round_to)
+    validate_input_col_names(ct, long_out_col, long)
 
     # If there is a clash in the long_out_col, change it
-    if (wide) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct)))
+    if (!long) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct)))
 
     # Get values and add description column
     mean_sds <- get_mean_sd(ct, out_col_name = long_out_col, round_to = round_to)
     mean_sds[[desc_name(ct)]] <- MEAN_SD_DESC
     mean_sds <- mean_sds[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
 
-    if (wide) mean_sds <- to_wide(mean_sds, desc_name(ct), cohort_name(ct))
+    if (!long) mean_sds <- to_wide(mean_sds, desc_name(ct), cohort_name(ct))
     return(mean_sds)
 }
 
@@ -140,26 +140,26 @@ add_mean_sd_row <- function(ct, round_to = ROUND_MEAN_SD_TO) {
     validate_input_add_mean_sd_row(ct, round_to)
 
     # Get the row and add it to the running output table
-    mean_sd_row <- get_mean_sd_row(ct, wide = T, round_to = round_to)
+    mean_sd_row <- get_mean_sd_row(ct, long = F, round_to = round_to)
     ct <- add_rows(ct, mean_sd_row)
 
     return(ct)
 }
 
 #' @export
-get_med_iqr_row <- function(ct, wide = T, long_out_col = MED_IQR_COL_NAME, round_to = ROUND_MED_IQR_TO) {
-    validate_input_get_med_iqr_row(ct, wide, long_out_col, round_to)
-    validate_input_col_names(ct, long_out_col, wide)
+get_med_iqr_row <- function(ct, round_to = ROUND_MED_IQR_TO, long_out_col = MED_IQR_COL_NAME, long = F) {
+    validate_input_get_med_iqr_row(ct, long, long_out_col, round_to)
+    validate_input_col_names(ct, long_out_col, long)
 
     # If there is a clash in the long_out_col, change it
-    if (wide) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct)))
+    if (!long) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct)))
 
     # Get values and add description column
     med_iqrs <- get_med_iqr(ct, out_col_name = long_out_col, round_to = round_to)
     med_iqrs[[desc_name(ct)]] <- MED_IQR_DESC
     med_iqrs <- med_iqrs[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
 
-    if (wide) med_iqrs <- to_wide(med_iqrs, desc_name(ct), cohort_name(ct))
+    if (!long) med_iqrs <- to_wide(med_iqrs, desc_name(ct), cohort_name(ct))
     return(med_iqrs)
 }
 
@@ -168,26 +168,26 @@ add_med_iqr_row <- function(ct, round_to = ROUND_MED_IQR_TO) {
     validate_input_add_med_iqr_row(ct, round_to)
 
     # Get the row and add it to the running output column
-    med_iqr_row <- get_med_iqr_row(ct, wide = T, round_to = round_to)
+    med_iqr_row <- get_med_iqr_row(ct, long = F, round_to = round_to)
     ct <- add_rows(ct, med_iqr_row)
 
     return(ct)
 }
 
 #' @export
-get_count_rows <- function(ct, wide = T, long_out_col = COUNT_COL_NAME, round_to = ROUND_PERCENT_TO) {
-    validate_input_get_count_rows(ct, wide, long_out_col, round_to)
-    validate_input_col_names(ct, long_out_col, wide)
+get_count_rows <- function(ct, round_to = ROUND_PERCENT_TO, long_out_col = COUNT_COL_NAME, long = F) {
+    validate_input_get_count_rows(ct, long, long_out_col, round_to)
+    validate_input_col_names(ct, long_out_col, long)
 
     # If there is a clash in the long_out_col, change it
-    if (wide) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct), var_name(ct)))
+    if (!long) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct), var_name(ct)))
 
     # Get values and rename variable column to description column
     counts <- get_count_percent(ct, out_col_name = long_out_col, round_to = round_to)
     names(counts)[names(counts) == var_name(ct)] <- desc_name(ct)
     counts <- counts[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
 
-    if (wide) counts <- to_wide(counts, desc_name(ct), cohort_name(ct), na_fill = "0 (0%)")
+    if (!long) counts <- to_wide(counts, desc_name(ct), cohort_name(ct), na_fill = "0 (0%)")
     return(counts)
 }
 
@@ -196,7 +196,7 @@ add_count_rows <- function(ct, round_to = ROUND_PERCENT_TO) {
     validate_input_add_count_rows(ct, round_to)
 
     # Get the rows and add it to the running output table
-    count_rows <- get_count_rows(ct, wide = T, round_to = round_to)
+    count_rows <- get_count_rows(ct, long = F, round_to = round_to)
     ct <- add_rows(ct, count_rows)
 
     return(ct)
