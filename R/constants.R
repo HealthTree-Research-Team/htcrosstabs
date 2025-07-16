@@ -31,7 +31,7 @@ COMP_TOT_COL_NAME <- "comp_total"
 MEAN_SD_COL_NAME <- "mean_sd"
 MED_IQR_COL_NAME <- "med_iqr"
 PERCENT_STR_COL_NAME <- "percent_str"
-N_PERCENT_COL_NAME <- "n_percent"
+COUNT_PERCENT_COL_NAME <- "count_percent"
 
 # DEFAULT ROW DESCRIPTIONS
 COMP_TOT_DESC <- "Complete / Total"

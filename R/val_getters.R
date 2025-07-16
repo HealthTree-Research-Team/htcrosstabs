@@ -78,19 +78,22 @@ get_mean.crosstab <- function(ct_data, out_col_name = MEAN_COL_NAME, round_to = 
 get_mean.crosstab_data_num <- function(ct_data, out_col_name = MEAN_COL_NAME, round_to = ROUND_MEAN_TO) {
     validate_out_col_name(out_col_name, ct_data)
     validate_round_to(round_to)
-    ct_data |>
+    result <- ct_data |>
         dplyr::group_by(.data[[cohort_name(ct_data)]]) |>
         dplyr::summarise(
-            !!rlang::sym(out_col_name) := round(
-                base::mean(
-                    .data[[var_name(ct_data)]],
-                    na.rm = TRUE
-                ),
-                digits = round_to
+            !!rlang::sym(out_col_name) := base::mean(
+                .data[[var_name(ct_data)]],
+                na.rm = TRUE
             ),
             .groups = "drop"
         ) |>
         data.frame(check.names = F)
+
+    # Round if applicable
+    if (!is.null(round_to))
+        result[[out_col_name]] <- round(result[[out_col_name]], digits = round_to)
+
+    return(result)
 }
 
 #' @export
@@ -113,19 +116,22 @@ get_sd.crosstab <- function(ct_data, out_col_name = SD_COL_NAME, round_to = ROUN
 get_sd.crosstab_data_num <- function(ct_data, out_col_name = SD_COL_NAME, round_to = ROUND_SD_TO) {
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
-    ct_data |>
+    result <- ct_data |>
         dplyr::group_by(.data[[cohort_name(ct_data)]]) |>
         dplyr::summarise(
-            !!rlang::sym(out_col_name) := round(
-                stats::sd(
-                    .data[[var_name(ct_data)]],
-                    na.rm = TRUE
-                ),
-                digits = round_to
+            !!rlang::sym(out_col_name) := stats::sd(
+                .data[[var_name(ct_data)]],
+                na.rm = TRUE
             ),
             .groups = "drop"
         ) |>
         data.frame(check.names = F)
+
+    # Round if applicable
+    if (!is.null(round_to))
+        result[[out_col_name]] <- round(result[[out_col_name]], digits = round_to)
+
+    return(result)
 }
 
 #' @export
@@ -148,19 +154,22 @@ get_med.crosstab <- function(ct_data, out_col_name = MED_COL_NAME, round_to = RO
 get_med.crosstab_data_num <- function(ct_data, out_col_name = MED_COL_NAME, round_to = ROUND_MEDIAN_TO) {
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
-    ct_data |>
+    result <- ct_data |>
         dplyr::group_by(.data[[cohort_name(ct_data)]]) |>
         dplyr::summarise(
-            !!rlang::sym(out_col_name) := round(
-                stats::median(
-                    .data[[var_name(ct_data)]],
-                    na.rm = TRUE
-                ),
-                digits = round_to
+            !!rlang::sym(out_col_name) := stats::median(
+                .data[[var_name(ct_data)]],
+                na.rm = TRUE
             ),
             .groups = "drop"
         ) |>
         data.frame(check.names = F)
+
+    # Round if applicable
+    if (!is.null(round_to))
+        result[[out_col_name]] <- round(result[[out_col_name]], digits = round_to)
+
+    return(result)
 }
 
 #' @export
@@ -183,20 +192,23 @@ get_q1.crosstab <- function(ct_data, out_col_name = Q1_COL_NAME, round_to = ROUN
 get_q1.crosstab_data_num <- function(ct_data, out_col_name = Q1_COL_NAME, round_to = ROUND_Q1_TO) {
     validate_out_col_name(out_col_name, ct_data)
     validate_round_to(round_to)
-    ct_data |>
+    result <- ct_data |>
         dplyr::group_by(.data[[cohort_name(ct_data)]]) |>
         dplyr::summarise(
-            !!rlang::sym(out_col_name) := round(
-                stats::quantile(
-                    .data[[var_name(ct_data)]],
-                    1/4,
-                    na.rm = TRUE
-                ),
-                digits = round_to
+            !!rlang::sym(out_col_name) := stats::quantile(
+                .data[[var_name(ct_data)]],
+                1/4,
+                na.rm = TRUE
             ),
             .groups = "drop"
         ) |>
         data.frame(check.names = F)
+
+    # Round if applicable
+    if (!is.null(round_to))
+        result[[out_col_name]] <- round(result[[out_col_name]], digits = round_to)
+
+    return(result)
 }
 
 #' @export
@@ -219,20 +231,23 @@ get_q3.crosstab <- function(ct_data, out_col_name = Q3_COL_NAME, round_to = ROUN
 get_q3.crosstab_data_num <- function(ct_data, out_col_name = Q3_COL_NAME, round_to = ROUND_Q3_TO) {
     validate_out_col_name(out_col_name, ct_data)
     validate_round_to(round_to)
-    ct_data |>
+    result <- ct_data |>
         dplyr::group_by(.data[[cohort_name(ct_data)]]) |>
         dplyr::summarise(
-            !!rlang::sym(out_col_name) := round(
-                stats::quantile(
-                    .data[[var_name(ct_data)]],
-                    3/4,
-                    na.rm = TRUE
-                ),
-                digits = round_to
+            !!rlang::sym(out_col_name) := stats::quantile(
+                .data[[var_name(ct_data)]],
+                3/4,
+                na.rm = TRUE
             ),
             .groups = "drop"
         ) |>
         data.frame(check.names = F)
+
+    # Round if applicable
+    if (!is.null(round_to))
+        result[[out_col_name]] <- round(result[[out_col_name]], digits = round_to)
+
+    return(result)
 }
 
 #' @export
@@ -296,10 +311,12 @@ get_percent.crosstab_data_cat <- function(ct_data, out_col_name = PERCENT_COL_NA
         get_complete(ct_data, out_col_name = complete_col)
     )
 
-    percents[[out_col_name]] <- round(
-        100 * percents[[count_col]] / percents[[complete_col]],
-        digits = round_to
-    )
+    percents[[out_col_name]] <- 100 * percents[[count_col]] / percents[[complete_col]]
+
+    # Round if applicable
+    if (!is.null(round_to))
+        percents[[out_col_name]] <- round(percents[[out_col_name]], digits = round_to)
+
     percents <- percents[, c(cohort_name(ct_data), var_name(ct_data), out_col_name), drop = F]
 
     # NA variables shouldn't have a percent, because percents are calculated
@@ -351,21 +368,21 @@ get_percent_str.crosstab_data <- function(ct_data, out_col_name = PERCENT_STR_CO
 
 # GET N PERCENT STRING ####
 #' @export
-get_n_percent <- function(ct_data, out_col_name = N_PERCENT_COL_NAME, round_to = ROUND_PERCENT_TO) {
-    UseMethod("get_n_percent", ct_data)
+get_count_percent <- function(ct_data, out_col_name = COUNT_PERCENT_COL_NAME, round_to = ROUND_PERCENT_TO) {
+    UseMethod("get_count_percent", ct_data)
 }
 
 #' @export
-get_n_percent.crosstab <- function(ct_data, out_col_name = N_PERCENT_COL_NAME, round_to = ROUND_PERCENT_TO) {
-    get_n_percent(data_table(ct_data), out_col_name = out_col_name, round_to = round_to)
+get_count_percent.crosstab <- function(ct_data, out_col_name = COUNT_PERCENT_COL_NAME, round_to = ROUND_PERCENT_TO) {
+    get_count_percent(data_table(ct_data), out_col_name = out_col_name, round_to = round_to)
 }
 
 #' @export
-get_n_percent.crosstab_data <- function(ct_data, out_col_name = N_PERCENT_COL_NAME, round_to = ROUND_PERCENT_TO) {
+get_count_percent.crosstab_data <- function(ct_data, out_col_name = COUNT_PERCENT_COL_NAME, round_to = ROUND_PERCENT_TO) {
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
 
-    make_n_percent <- function(count, percent) {
+    make_count_percent <- function(count, percent) {
         na_vals <- is.na(count) | is.na(percent)
         combined <- sprintf("%s (%s)", count, percent)
         combined[na_vals] <- NA
@@ -374,20 +391,20 @@ get_n_percent.crosstab_data <- function(ct_data, out_col_name = N_PERCENT_COL_NA
 
     count_col <- get_non_matching(COUNT_COL_NAME, c(cohort_name(ct_data), var_name(ct_data)))
     percent_str_col <- get_non_matching(PERCENT_STR_COL_NAME, c(cohort_name(ct_data), var_name(ct_data)))
-    n_percent <- join_val(
+    count_percent <- join_val(
         get_count(ct_data, out_col_name = count_col),
         get_percent_str(ct_data, out_col_name = percent_str_col, round_to = round_to)
     )
 
-    n_percent[[out_col_name]] <- make_n_percent(
-        n_percent[[count_col]],
-        n_percent[[percent_str_col]]
+    count_percent[[out_col_name]] <- make_count_percent(
+        count_percent[[count_col]],
+        count_percent[[percent_str_col]]
     )
 
     keep_columns <- c(cohort_name(ct_data), var_name(ct_data), out_col_name)
-    n_percent <- n_percent[, keep_columns, drop = F]
+    count_percent <- count_percent[, keep_columns, drop = F]
 
-    return(n_percent)
+    return(count_percent)
 }
 
 # GET MEAN SD STRING ####

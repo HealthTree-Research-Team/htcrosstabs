@@ -2,6 +2,7 @@ test_that("validate_round_to() works with valid input", {
     expect_silent(validate_round_to(1))
     expect_silent(validate_round_to(0))
     expect_silent(validate_round_to(2.5))
+    expect_silent(validate_round_to(NULL))
 })
 
 test_that("validate_round_to() fails with non-numeric input", {

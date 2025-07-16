@@ -130,20 +130,11 @@ get_mean_sd_row <- function(ct, wide = T, long_out_col = MEAN_SD_COL_NAME, round
     validate_input_get_mean_sd_row(ct, wide, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, wide)
 
-    # Make sure there is no clash in the intermediate column names
-    mean_col <- get_non_matching(MEAN_COL_NAME, cohort_name(ct))
-    sd_col <- get_non_matching(SD_COL_NAME, cohort_name(ct))
+    # If there is a clash in the long_out_col, change it
     if (wide) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct)))
 
-    # Create the string column
-    mean_sds <- join_val(
-        get_mean(ct, out_col_name = mean_col, round_to = round_to),
-        get_sd(ct, out_col_name = sd_col, round_to = round_to)
-    )
-    mean_sds[[long_out_col]] <- paste0(mean_sds[[mean_col]], " \u00b1 ", mean_sds[[sd_col]])
-    mean_sds <- mean_sds[, c(cohort_name(ct), long_out_col), drop = FALSE]
-
-    # Add description column
+    # Get values and add description column
+    mean_sds <- get_mean_sd(ct, out_col_name = long_out_col, round_to = round_to)
     mean_sds[[desc_name(ct)]] <- MEAN_SD_DESC
     mean_sds <- mean_sds[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
 

@@ -104,6 +104,10 @@ test_that("get_mean() respects round_to",{
     # Make sure there are no periods in the one rounded to 0 decimal places
     non_na_vals <- means1[!is.na(means1)]
     expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_mean(test_ct, round_to = NULL))
+    result3 <- get_mean(test_ct, round_to = NULL)
+    expect_false(all(result1[["mean"]] == result3[["mean"]]))
 })
 
 # get_sd() ####
@@ -156,6 +160,10 @@ test_that("get_sd() respects round_to",{
     # Make sure there are no periods in the one rounded to 0 decimal places
     non_na_vals <- sds1[!is.na(sds1)]
     expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_sd(test_ct, round_to = NULL))
+    result3 <- get_sd(test_ct, round_to = NULL)
+    expect_false(all(result1[["sd"]] == result3[["sd"]]))
 })
 
 # get_med() ####
@@ -209,6 +217,10 @@ test_that("get_med() respects round_to",{
     # Make sure there are no periods in the one rounded to 0 decimal places
     non_na_vals <- meds1[!is.na(meds1)]
     expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_med(test_ct, round_to = NULL))
+    result3 <- get_med(test_ct, round_to = NULL)
+    expect_false(all(result1[["med"]] == result3[["med"]]))
 })
 
 # get_q1() ####
@@ -261,6 +273,10 @@ test_that("get_q1() respects round_to",{
     # Make sure there are no periods in the one rounded to 0 decimal places
     non_na_vals <- q1s1[!is.na(q1s1)]
     expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_q1(test_ct, round_to = NULL))
+    result3 <- get_q1(test_ct, round_to = NULL)
+    expect_false(all(result1[["q1"]] == result3[["q1"]]))
 })
 
 # get_q3() ####
@@ -313,6 +329,10 @@ test_that("get_q3() respects round_to",{
     # Make sure there are no periods in the one rounded to 0 decimal places
     non_na_vals <- q3s1[!is.na(q3s1)]
     expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_q3(test_ct, round_to = NULL))
+    result3 <- get_q3(test_ct, round_to = NULL)
+    expect_false(all(result1[["q3"]] == result3[["q3"]]))
 })
 
 # get_count() ####
@@ -441,6 +461,10 @@ test_that("get_percent() respects round_to",{
     # Make sure there are no periods in the one rounded to 0 decimal places
     non_na_vals <- percents1[!is.na(percents1)]
     expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_percent(test_ct, round_to = NULL))
+    result3 <- get_percent(test_ct, round_to = NULL)
+    expect_false(all(result1[["percent"]] == result3[["percent"]]))
 })
 
 # get_percent_str() ####
@@ -506,71 +530,79 @@ test_that("get_percent_str() respects round_to",{
     # Make sure there are no periods in the one rounded to 0 decimal places
     non_na_vals <- percents1[!is.na(percents1)]
     expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_percent_str(test_ct, round_to = NULL))
+    result3 <- get_percent_str(test_ct, round_to = NULL)
+    expect_false(all(result1[["percent_str"]] == result3[["percent_str"]]))
 })
 
-# get_n_percent() ####
-test_that("get_n_percent() works when provided categorical data",{
+# get_count_percent() ####
+test_that("get_count_percent() works when provided categorical data",{
     test_df <- cat_test_df()
     test_ct <- crosstab(test_df, "cohort")
 
-    expect_silent(get_n_percent(test_ct))
-    result <- get_n_percent(test_ct, round_to = 5)
+    expect_silent(get_count_percent(test_ct))
+    result <- get_count_percent(test_ct, round_to = 5)
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
     expect_equal(nrow(result), 30)
-    expect_true(is.character(result[["n_percent"]]))
+    expect_true(is.character(result[["count_percent"]]))
 })
 
-test_that("get_n_percent() works when provided multianswer data",{
+test_that("get_count_percent() works when provided multianswer data",{
     test_df <- multi_test_df()
     test_ct <- crosstab(test_df, "cohort")
 
-    expect_silent(get_n_percent(test_ct))
-    result <- get_n_percent(test_ct, round_to = 5)
+    expect_silent(get_count_percent(test_ct))
+    result <- get_count_percent(test_ct, round_to = 5)
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
     expect_equal(nrow(result), 42)
-    expect_true(is.character(result[["n_percent"]]))
+    expect_true(is.character(result[["count_percent"]]))
 })
 
-test_that("get_n_percent() respects out_col_name",{
+test_that("get_count_percent() respects out_col_name",{
     test_df <- cat_test_df()
     test_ct <- crosstab(test_df, "cohort")
 
-    expect_silent(get_n_percent(test_ct, out_col_name = "test_col"))
-    result <- get_n_percent(test_ct, out_col_name = "test_col")
+    expect_silent(get_count_percent(test_ct, out_col_name = "test_col"))
+    result <- get_count_percent(test_ct, out_col_name = "test_col")
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
     expect_in("test_col", names(result))
 })
 
-test_that("get_n_percent() respects round_to",{
+test_that("get_count_percent() respects round_to",{
     test_df <- cat_test_df()
     test_ct <- crosstab(test_df, "cohort")
 
-    expect_silent(get_n_percent(test_ct, round_to = 0))
-    result1 <- get_n_percent(test_ct, round_to = 0)
+    expect_silent(get_count_percent(test_ct, round_to = 0))
+    result1 <- get_count_percent(test_ct, round_to = 0)
 
     expect_s3_class(result1, "data.frame")
     expect_equal(ncol(result1), 3)
 
-    expect_silent(get_n_percent(test_ct, round_to = 7))
-    result2 <- get_n_percent(test_ct, round_to = 7)
+    expect_silent(get_count_percent(test_ct, round_to = 7))
+    result2 <- get_count_percent(test_ct, round_to = 7)
 
     expect_true(all(result1[["cohort"]] == result2[["cohort"]], na.rm = T))
     expect_true(all(result1[["variable"]] == result2[["variable"]], na.rm = T))
 
-    percents1 <- result1[["n_percent"]]
-    percents2 <- result2[["n_percent"]]
+    percents1 <- result1[["count_percent"]]
+    percents2 <- result2[["count_percent"]]
 
     expect_false(all(percents1 == percents2, na.rm = T))
 
     # Make sure there are no periods in the one rounded to 0 decimal places
     non_na_vals <- percents1[!is.na(percents1)]
     expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_count_percent(test_ct, round_to = NULL))
+    result3 <- get_count_percent(test_ct, round_to = NULL)
+    expect_false(all(result1[["count_percent"]] == result3[["count_percent"]]))
 })
 
 # get_mean_sd() ####
@@ -637,6 +669,10 @@ test_that("get_mean_sd() respects round_to",{
     # Make sure there are no periods in the one rounded to 0 decimal places
     non_na_vals <- mean_sd_1[!is.na(mean_sd_1)]
     expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_mean_sd(test_ct, round_to = NULL))
+    result3 <- get_mean_sd(test_ct, round_to = NULL)
+    expect_false(all(result1[["mean_sd"]] == result3[["mean_sd"]]))
 })
 
 # get_med_iqr() ####
@@ -703,4 +739,8 @@ test_that("get_med_iqr() respects round_to",{
     # Make sure there are no periods in the one rounded to 0 decimal places
     non_na_vals <- med_iqr_1[!is.na(med_iqr_1)]
     expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_med_iqr(test_ct, round_to = NULL))
+    result3 <- get_med_iqr(test_ct, round_to = NULL)
+    expect_false(all(result1[["med_iqr"]] == result3[["med_iqr"]]))
 })
