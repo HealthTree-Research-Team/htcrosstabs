@@ -17,13 +17,18 @@ to_wide <- function(long_df, desc_col, cohort_col, na_fill = NA) {
             # Make a column for EVERY factor level,
             # even ones that aren't represented in the data
             names_expand = TRUE,
-            names_sort = TRUE
+            names_sort = TRUE,
+            values_fill = NA
         )
 
     # Convert to data frame to avoid weirdness
     wide_df <- data.frame(wide_df, check.names = F)
 
     # Fill NA values
+    # I KNOW that pivot_wider has a values_fill option, but it requires that the
+    # na_fill value match the data type of the rest of the column, whereas doing
+    # it this way will cast the data types. It will all be converted to
+    # characters anyway in the final output column.
     cohort_cols <- names(wide_df)[names(wide_df) != desc_col]
     wide_df[, cohort_cols][is.na(wide_df[, cohort_cols, drop = F])] <- na_fill
 
@@ -131,8 +136,10 @@ get_mean_sd_row <- function(ct, wide = T, long_out_col = MEAN_SD_COL_NAME, round
     if (wide) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct)))
 
     # Create the string column
-    mean_sds <- get_mean(ct, round_to = round_to, out_col_name = mean_col) |>
-        dplyr::full_join(get_sd(ct, round_to = round_to, out_col_name = sd_col), by = cohort_name(ct))
+    mean_sds <- join_val(
+        get_mean(ct, out_col_name = mean_col, round_to = round_to),
+        get_sd(ct, out_col_name = sd_col, round_to = round_to)
+    )
     mean_sds[[long_out_col]] <- paste0(mean_sds[[mean_col]], " \u00b1 ", mean_sds[[sd_col]])
     mean_sds <- mean_sds[, c(cohort_name(ct), long_out_col), drop = FALSE]
 
