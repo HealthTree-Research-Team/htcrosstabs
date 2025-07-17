@@ -453,6 +453,76 @@ test_that("validate_input_data_table_setter() fails when value is not a crosstab
     expect_error(validate_input_data_table_setter(data.frame(), ct_data))
 })
 
+test_that("validate_input_data_table_setter() fails when one is grouped and the other isn't",{
+    test_ct <- crosstab(cat_test_df(), "cohort")
+    new_data <- crosstab_data(cat_test_df(gr = F))
+    expect_error(validate_input_data_table_setter(test_ct, new_data))
+
+    test_ct <- crosstab(cat_test_df(gr = F))
+    new_data <- crosstab_data(cat_test_df(), "cohort")
+    expect_error(validate_input_data_table_setter(test_ct, new_data))
+})
+
+test_that("validate_input_data_table_setter() fails when the objects have different cohort columns",{
+    test_ct <- crosstab(cat_test_df(), "cohort")
+    new_data <- crosstab_data(cat_test_df(group_name = "group"), "group")
+    expect_error(validate_input_data_table_setter(test_ct, new_data))
+})
+
+test_that("validate_input_data_table_setter() fails when the objects have different factor levels",{
+    test_ct <- crosstab(cat_test_df(), "cohort")
+    new_data <- crosstab_data(cat_test_df(), "cohort")
+    cohort_levels(new_data) <- rev(cohort_levels(new_data))
+    expect_error(validate_input_data_table_setter(test_ct, new_data))
+})
+
+test_that("validate_input_data_table_setter() fails when the objects have different combined_cohort_names",{
+    test_ct <- crosstab(cat_test_df(), "cohort")
+    new_data <- crosstab_data(cat_test_df(), "cohort", combined_cohort_name = "All (but different)")
+    expect_error(validate_input_data_table_setter(test_ct, new_data))
+})
+
+test_that("validate_input_data_table_setter() fails when the objects have different desc_col_name",{
+    test_ct <- crosstab(cat_test_df(), "cohort")
+    new_data <- crosstab_data(cat_test_df(), "cohort", desc_col_name = "All (but different)")
+    expect_error(validate_input_data_table_setter(test_ct, new_data))
+})
+
+# validate_input_set_new_data_df() ####
+test_that("validate_input_set_new_data_df() works when given proper data",{
+    test_ct <- crosstab(cat_test_df(), "cohort")
+    expect_silent(validate_input_set_new_data_df(test_ct, data.frame(), NULL))
+    expect_silent(validate_input_set_new_data_df(test_ct, data.frame(), c(a = 1, b = 2)))
+})
+
+test_that("validate_input_set_new_data_df() fails when ct is not a crosstab",{
+    expect_error(validate_input_set_new_data_df(NULL, data.frame(), NULL))
+    expect_error(validate_input_set_new_data_df(TRUE, data.frame(), NULL))
+    expect_error(validate_input_set_new_data_df(1, data.frame(), NULL))
+    expect_error(validate_input_set_new_data_df(c(1, 2, 3), data.frame(), NULL))
+    expect_error(validate_input_set_new_data_df("a", data.frame(), NULL))
+    expect_error(validate_input_set_new_data_df(c("a", "b", "c"), data.frame(), NULL))
+    expect_error(validate_input_set_new_data_df(list(), data.frame(), NULL))
+    expect_error(validate_input_set_new_data_df(data.frame(), data.frame(), NULL))
+})
+
+test_that("validate_input_set_new_data_df() fails when df is not a data.frame",{
+    test_ct <- crosstab(cat_test_df(), "cohort")
+    expect_error(validate_input_set_new_data_df(test_ct, NULL, NULL))
+    expect_error(validate_input_set_new_data_df(test_ct, TRUE, NULL))
+    expect_error(validate_input_set_new_data_df(test_ct, 1, NULL))
+    expect_error(validate_input_set_new_data_df(test_ct, c(1, 2, 3), NULL))
+    expect_error(validate_input_set_new_data_df(test_ct, "a", NULL))
+    expect_error(validate_input_set_new_data_df(test_ct, c("a", "b", "c"), NULL))
+    expect_error(validate_input_set_new_data_df(test_ct, list(), NULL))
+})
+
+test_that("validate_input_set_new_data_df() fails when df is not a data.frame",{
+    test_ct <- crosstab(cat_test_df(), "cohort")
+    expect_error(validate_input_set_new_data_df(test_ct, data.frame(), c(1, 2, 3)))
+    expect_error(validate_input_set_new_data_df(test_ct, data.frame(), c(a = "a", b = "b", c = "c")))
+})
+
 # validate_input_index_setter() ####
 test_that("validate_input_index_setter() works when given proper data",{
     test_df <- cat_test_df()
@@ -512,4 +582,86 @@ test_that("validate_input_index_setter() fails when the new index doesn't have t
     expect_error(validate_input_index_setter(test_ct, c(a = 0, b = 2)))
     expect_error(validate_input_index_setter(test_ct, c(a = 5, b = 1)))
     expect_error(validate_input_index_setter(test_ct, c(a = 5, b = 5, c = 5)))
+})
+
+# validate_input_stack_crosstabs() ####
+test_that("validate_input_stack_crosstabs() works when given proper data",{
+    expect_silent(validate_input_stack_crosstabs(list(
+        crosstab(cat_test_df(col_name = "cat"), "cohort"),
+        crosstab(num_test_df(col_name = "num"), "cohort"),
+        crosstab(lik_test_df(col_name = "lik"), "cohort"),
+        crosstab(multi_test_df(col_name = "mul"), "cohort")
+    )))
+})
+
+test_that("validate_input_stack_crosstabs() works when given proper data",{
+    expect_error(validate_input_stack_crosstabs(list(
+        NULL,
+        crosstab(num_test_df(col_name = "num"), "cohort"),
+        crosstab(lik_test_df(col_name = "lik"), "cohort"),
+        crosstab(multi_test_df(col_name = "mul"), "cohort")
+    )))
+
+    expect_error(validate_input_stack_crosstabs(list(
+        NA,
+        crosstab(num_test_df(col_name = "num"), "cohort"),
+        crosstab(lik_test_df(col_name = "lik"), "cohort"),
+        crosstab(multi_test_df(col_name = "mul"), "cohort")
+    )))
+
+    expect_error(validate_input_stack_crosstabs(list(
+        TRUE,
+        crosstab(num_test_df(col_name = "num"), "cohort"),
+        crosstab(lik_test_df(col_name = "lik"), "cohort"),
+        crosstab(multi_test_df(col_name = "mul"), "cohort")
+    )))
+
+    expect_error(validate_input_stack_crosstabs(list(
+        1,
+        crosstab(num_test_df(col_name = "num"), "cohort"),
+        crosstab(lik_test_df(col_name = "lik"), "cohort"),
+        crosstab(multi_test_df(col_name = "mul"), "cohort")
+    )))
+
+    expect_error(validate_input_stack_crosstabs(list(
+        c(1, 2, 3),
+        crosstab(num_test_df(col_name = "num"), "cohort"),
+        crosstab(lik_test_df(col_name = "lik"), "cohort"),
+        crosstab(multi_test_df(col_name = "mul"), "cohort")
+    )))
+
+    expect_error(validate_input_stack_crosstabs(list(
+        "a",
+        crosstab(num_test_df(col_name = "num"), "cohort"),
+        crosstab(lik_test_df(col_name = "lik"), "cohort"),
+        crosstab(multi_test_df(col_name = "mul"), "cohort")
+    )))
+
+    expect_error(validate_input_stack_crosstabs(list(
+        c("a", "b", "c"),
+        crosstab(num_test_df(col_name = "num"), "cohort"),
+        crosstab(lik_test_df(col_name = "lik"), "cohort"),
+        crosstab(multi_test_df(col_name = "mul"), "cohort")
+    )))
+
+    expect_error(validate_input_stack_crosstabs(list(
+        list(),
+        crosstab(num_test_df(col_name = "num"), "cohort"),
+        crosstab(lik_test_df(col_name = "lik"), "cohort"),
+        crosstab(multi_test_df(col_name = "mul"), "cohort")
+    )))
+
+    expect_error(validate_input_stack_crosstabs(list(
+        data.frame(),
+        crosstab(num_test_df(col_name = "num"), "cohort"),
+        crosstab(lik_test_df(col_name = "lik"), "cohort"),
+        crosstab(multi_test_df(col_name = "mul"), "cohort")
+    )))
+
+    expect_error(validate_input_stack_crosstabs(list(
+        crosstab_data(cat_test_df(col_name = "cat"), "cohort"),
+        crosstab(num_test_df(col_name = "num"), "cohort"),
+        crosstab(lik_test_df(col_name = "lik"), "cohort"),
+        crosstab(multi_test_df(col_name = "mul"), "cohort")
+    )))
 })

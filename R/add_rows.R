@@ -91,7 +91,7 @@ add_rows <- function(ct, rows) {
 
 # ROWS ####
 #' @export
-get_total_row <- function(ct, long_out_col = COMP_TOT_COL_NAME, long = F) {
+get_total_row <- function(ct, long = F, long_out_col = COMP_TOT_COL_NAME) {
     validate_input_get_total_row(ct, long, long_out_col)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -119,7 +119,7 @@ add_total_row <- function(ct) {
 }
 
 #' @export
-get_mean_sd_row <- function(ct, round_to = ROUND_MEAN_SD_TO, long_out_col = MEAN_SD_COL_NAME, long = F) {
+get_mean_sd_row <- function(ct, round_to = ROUND_MEAN_SD_TO, long = F, long_out_col = MEAN_SD_COL_NAME) {
     validate_input_get_mean_sd_row(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -147,7 +147,7 @@ add_mean_sd_row <- function(ct, round_to = ROUND_MEAN_SD_TO) {
 }
 
 #' @export
-get_med_iqr_row <- function(ct, round_to = ROUND_MED_IQR_TO, long_out_col = MED_IQR_COL_NAME, long = F) {
+get_med_iqr_row <- function(ct, round_to = ROUND_MED_IQR_TO, long = F, long_out_col = MED_IQR_COL_NAME) {
     validate_input_get_med_iqr_row(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -175,7 +175,7 @@ add_med_iqr_row <- function(ct, round_to = ROUND_MED_IQR_TO) {
 }
 
 #' @export
-get_count_rows <- function(ct, round_to = ROUND_PERCENT_TO, long_out_col = COUNT_COL_NAME, long = F) {
+get_count_rows <- function(ct, round_to = ROUND_PERCENT_TO, long = F, long_out_col = COUNT_COL_NAME) {
     validate_input_get_count_rows(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 

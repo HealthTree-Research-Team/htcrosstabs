@@ -492,7 +492,7 @@ get_count_percent.crosstab_data <- function(ct_data, out_col_name = COUNT_PERCEN
     make_count_percent <- function(count, percent) {
         na_vals <- is.na(count) | is.na(percent)
         combined <- sprintf("%s (%s)", count, percent)
-        combined[na_vals] <- NA
+        combined[na_vals] <- count[na_vals]
         combined
     }
 

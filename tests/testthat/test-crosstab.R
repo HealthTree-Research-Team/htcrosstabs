@@ -618,6 +618,140 @@ test_that("data_table<-() correctly adds a 0 to the index vector",{
     expect_equal(sum(orig_index), sum(new_index))
 })
 
+test_that("data_table<-() can take a crosstab in value and pass the call onto its data table",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+    new_df <- num_test_df()
+    new_ct <- crosstab(new_df, "cohort")
+
+    orig_index <- attr(test_ct, "index")
+
+    orig_data <- data_table(test_ct)
+    expect_silent(`data_table<-`(test_ct, new_ct))
+    data_table(test_ct) <- new_ct
+    expect_equal(data_table(test_ct), data_table(new_ct))
+})
+
+test_that("set_new_data() works when given a crosstab object",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+    orig_data <- data_table(test_ct)
+    expect_equal(orig_data, crosstab_data(test_df, "cohort"))
+
+    new_df <- cat_test_df()
+    new_ct <- crosstab(new_df, "cohort")
+    new_data <- data_table(new_ct)
+
+    expect_false(all(new_data == crosstab_data(test_df, "cohort"), na.rm = T))
+    expect_silent(set_new_data(test_ct, new_ct))
+    test_ct <- set_new_data(test_ct, new_ct)
+    expect_equal(new_data, data_table(test_ct))
+
+    new_df <- num_test_df()
+    new_ct <- crosstab(new_df, "cohort")
+    new_data <- data_table(new_ct)
+
+    expect_false(all(new_data == crosstab_data(test_df, "cohort"), na.rm = T))
+    expect_silent(set_new_data(test_ct, new_ct))
+    test_ct <- set_new_data(test_ct, new_ct)
+    expect_equal(new_data, data_table(test_ct))
+
+    new_df <- lik_test_df()
+    new_map <- default_var_map(new_df[["variable"]])
+    new_ct <- crosstab(new_df, "cohort", new_map)
+    new_data <- data_table(new_ct)
+
+    expect_false(all(as.character(new_data) == as.character(crosstab_data(test_df, "cohort")), na.rm = T))
+    expect_silent(set_new_data(test_ct, new_ct))
+    test_ct <- set_new_data(test_ct, new_ct)
+    expect_equal(new_data, data_table(test_ct))
+
+    new_df <- multi_test_df()
+    new_ct <- crosstab(new_df, "cohort")
+    new_data <- data_table(new_ct)
+
+    expect_false(all(new_data == crosstab_data(test_df, "cohort"), na.rm = T))
+    expect_silent(set_new_data(test_ct, new_ct))
+    test_ct <- set_new_data(test_ct, new_ct)
+    expect_equal(new_data, data_table(test_ct))
+})
+
+test_that("set_new_data() works when given a crosstab_data object",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+    orig_data <- data_table(test_ct)
+    expect_equal(orig_data, crosstab_data(test_df, "cohort"))
+
+    new_df <- cat_test_df()
+    new_data <- crosstab_data(new_df, "cohort")
+
+    expect_false(all(new_data == orig_data, na.rm = T))
+    expect_silent(set_new_data(test_ct, new_data))
+    test_ct <- set_new_data(test_ct, new_data)
+    expect_equal(new_data, data_table(test_ct))
+
+    new_df <- num_test_df()
+    new_data <- crosstab_data(new_df, "cohort")
+
+    expect_false(all(new_data == orig_data, na.rm = T))
+    expect_silent(set_new_data(test_ct, new_data))
+    test_ct <- set_new_data(test_ct, new_data)
+    expect_equal(new_data, data_table(test_ct))
+
+    new_df <- lik_test_df()
+    new_map <- default_var_map(new_df[["variable"]])
+    new_data <- crosstab_data(new_df, "cohort", new_map)
+
+    expect_false(all(as.character(new_data) == as.character(orig_data), na.rm = T))
+    expect_silent(set_new_data(test_ct, new_data))
+    test_ct <- set_new_data(test_ct, new_data)
+    expect_equal(new_data, data_table(test_ct))
+
+    new_df <- multi_test_df()
+    new_data <- crosstab_data(new_df, "cohort")
+
+    expect_false(all(new_data == orig_data, na.rm = T))
+    expect_silent(set_new_data(test_ct, new_data))
+    test_ct <- set_new_data(test_ct, new_data)
+    expect_equal(new_data, data_table(test_ct))
+})
+
+test_that("set_new_data() works when given a data.frame object",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+    orig_data <- data_table(test_ct)
+    expect_equal(orig_data, crosstab_data(test_df, "cohort"))
+
+    new_df <- cat_test_df()
+
+    expect_false(all(test_df == new_df, na.rm = T))
+    expect_silent(set_new_data(test_ct, new_df))
+    test_ct <- set_new_data(test_ct, new_df)
+    expect_equal(crosstab_data(new_df, "cohort"), data_table(test_ct))
+
+    new_df <- num_test_df()
+
+    expect_false(all(test_df == new_df, na.rm = T))
+    expect_silent(set_new_data(test_ct, new_df))
+    test_ct <- set_new_data(test_ct, new_df)
+    expect_equal(crosstab_data(new_df, "cohort"), data_table(test_ct))
+
+    new_df <- lik_test_df()
+    new_map <- default_var_map(new_df[["variable"]])
+
+    expect_false(all(as.character(test_df) == as.character(new_df), na.rm = T))
+    expect_silent(set_new_data(test_ct, new_df, var_map = new_map))
+    test_ct <- set_new_data(test_ct, new_df, var_map = new_map)
+    expect_equal(crosstab_data(new_df, "cohort", new_map), data_table(test_ct))
+
+    new_df <- multi_test_df()
+
+    expect_false(all(test_df == new_df, na.rm = T))
+    expect_silent(set_new_data(test_ct, new_df))
+    test_ct <- set_new_data(test_ct, new_df)
+    expect_equal(crosstab_data(new_df, "cohort"), data_table(test_ct))
+})
+
 test_that("index<-() sets the new index attribute",{
     test_df <- cat_test_df()
     test_ct <- crosstab(test_df, "cohort") |>
@@ -714,4 +848,34 @@ test_that("var_map<-() passes the call onto the data object",{
     expect_silent(`var_map<-`(test_ct, new_map))
     var_map(test_ct) <- new_map
     expect_equal(var_map(test_ct), new_map)
+})
+
+# UTILITIES ####
+test_that("stack_crosstabs() works when given proper data",{
+    test_df1 <- cat_test_df(col_name = "cat")
+    test_df2 <- num_test_df(col_name = "num")
+    test_df3 <- lik_test_df(col_name = "lik")
+    test_df4 <- multi_test_df(col_name = "mul")
+
+    test_map <- default_var_map(test_df3[["lik"]])
+
+    expect_silent(
+        stack_crosstabs(
+            crosstab(test_df1, "cohort") |> add_default_table(),
+            crosstab(test_df2, "cohort") |> add_default_table(),
+            crosstab(test_df3, "cohort") |> add_default_table(),
+            crosstab(test_df4, "cohort") |> add_default_table()
+        )
+    )
+
+    result <- stack_crosstabs(
+        crosstab(test_df1, "cohort") |> add_default_table(),
+        crosstab(test_df2, "cohort") |> add_default_table(),
+        crosstab(test_df3, "cohort") |> add_default_table(),
+        crosstab(test_df4, "cohort") |> add_default_table()
+    )
+
+    expect_equal(ncol(result), 7)
+    expect_equal(nrow(result), 24)
+    expect_equal(index(result), c(cat = 6, num = 3, lik = 7, mul = 8))
 })

@@ -6,7 +6,7 @@ validate_input_add_default_table <- function(ct, round_mean_sd_to, round_med_iqr
     assert_that(is.numeric(round_percent_to))
 }
 
-validate_input_auto_stacked_table <- function(df, cohort_col_name, var_map) {
+validate_input_default_stacked_crosstab <- function(df, cohort_col_name, var_map) {
     assert_that(is.data.frame(df))
     if (!is.null(cohort_col_name)) {
         assert_that(is.character(cohort_col_name))
