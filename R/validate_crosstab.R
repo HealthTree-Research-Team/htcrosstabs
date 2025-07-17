@@ -1,5 +1,7 @@
 # IMPORTS ####
 #' @import assertthat
+
+# FUNCTIONS ####
 validate_input_new_crosstab <- function(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name) {
     assert_that(is.data.frame(df))
     if (!is.null(cohort_col_name))
@@ -14,7 +16,6 @@ validate_input_new_crosstab <- function(df, cohort_col_name, var_map, combined_c
     assert_that(is.character(desc_col_name))
 }
 
-# FUNCTIONS ####
 validate_crosstab <- function(ct) {
     assert_crosstab(ct)
     assert_that(has_attr(ct, "data"))
