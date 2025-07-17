@@ -23,12 +23,21 @@ test_that("validate_input_add_default_table() errors if round_percent_to is not 
 })
 
 test_that("validate_input_default_stacked_crosstab() works when given proper data",{
-    test_df <- data.frame(a = c(1, 2, 3), b = c(4, 5, 6), c = c(7, 8, 9))
+    test_df <- cat_test_df(col_name = "cat")
+    test_df[["lik"]] <- lik_test_df()[["variable"]]
+    test_map <- default_var_map(test_df[["lik"]])
+
+    test_map_list <- list(
+        cat = default_var_map(test_df[["cat"]]),
+        lik = default_var_map(test_df[["lik"]])
+    )
 
     expect_silent(validate_input_default_stacked_crosstab(test_df, NULL, var_map = NULL))
-    expect_silent(validate_input_default_stacked_crosstab(test_df, "a", var_map = NULL))
-    expect_silent(validate_input_default_stacked_crosstab(test_df, NULL, var_map = c(a = 1, b = 2, c = 3)))
-    expect_silent(validate_input_default_stacked_crosstab(test_df, "a", var_map = c(a = 1, b = 2, c = 3)))
+    expect_silent(validate_input_default_stacked_crosstab(test_df, "cohort", var_map = NULL))
+    expect_silent(validate_input_default_stacked_crosstab(test_df, NULL, var_map = test_map))
+    expect_silent(validate_input_default_stacked_crosstab(test_df, "cohort", var_map = test_map))
+    expect_silent(validate_input_default_stacked_crosstab(test_df, NULL, var_map = test_map_list))
+    expect_silent(validate_input_default_stacked_crosstab(test_df, "cohort", var_map = test_map_list))
 })
 
 test_that("validate_input_default_stacked_crosstab() fails when df is not a data frame or has no variable columns",{
@@ -65,3 +74,4 @@ test_that("validate_input_default_stacked_crosstab() fails when var_map is not a
     expect_error(validate_input_default_stacked_crosstab(test_df, NULL, var_map = c(1, 2, 3)))
     expect_error(validate_input_default_stacked_crosstab(test_df, NULL, var_map = c("a", "b", "c")))
 })
+

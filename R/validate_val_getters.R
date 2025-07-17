@@ -20,3 +20,8 @@ validate_out_col_name <- function(out_col_name, ct_data) {
         )
     )
 }
+
+validate_input_get_count <- function(ct_data, out_col_name, keep_na_vars) {
+    validate_out_col_name(out_col_name, ct_data)
+    assert_that(is.logical(keep_na_vars))
+}

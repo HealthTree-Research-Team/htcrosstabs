@@ -15,7 +15,7 @@ test_that("add_default_table() functions when given ungrouped categorical data",
 
     test_ct <- add_default_table(test_ct)
 
-    expect_equal(nrow(test_ct), 6)
+    expect_equal(nrow(test_ct), 5)
     expect_equal(ncol(test_ct), 2)
 })
 
@@ -35,7 +35,7 @@ test_that("add_default_table() functions when given grouped categorical data",{
 
     test_ct <- add_default_table(test_ct)
 
-    expect_equal(nrow(test_ct), 6)
+    expect_equal(nrow(test_ct), 5)
     expect_equal(ncol(test_ct), 7)
 })
 
@@ -96,7 +96,7 @@ test_that("add_default_table() functions when given ungrouped likert data",{
 
     test_ct <- add_default_table(test_ct)
 
-    expect_equal(nrow(test_ct), 8)
+    expect_equal(nrow(test_ct), 7)
     expect_equal(ncol(test_ct), 2)
 })
 
@@ -117,7 +117,7 @@ test_that("add_default_table() functions when given grouped likert data",{
 
     test_ct <- add_default_table(test_ct)
 
-    expect_equal(nrow(test_ct), 8)
+    expect_equal(nrow(test_ct), 7)
     expect_equal(ncol(test_ct), 7)
 })
 
@@ -137,7 +137,7 @@ test_that("add_default_table() functions when given ungrouped multianswer data",
 
     test_ct <- add_default_table(test_ct)
 
-    expect_equal(nrow(test_ct), 8)
+    expect_equal(nrow(test_ct), 7)
     expect_equal(ncol(test_ct), 2)
 })
 
@@ -157,7 +157,7 @@ test_that("add_default_table() functions when given grouped multianswer data",{
 
     test_ct <- add_default_table(test_ct)
 
-    expect_equal(nrow(test_ct), 8)
+    expect_equal(nrow(test_ct), 7)
     expect_equal(ncol(test_ct), 7)
 })
 
@@ -177,14 +177,14 @@ test_that("default_stacked_crosstab() works when given proper data",{
         var_map = test_map
     )
 
-    expect_equal(nrow(test_ct), 25)
+    expect_equal(nrow(test_ct), 22)
     expect_equal(ncol(test_ct), 7)
 
-    expect_equal(sum(index(test_ct)), 25)
+    expect_equal(sum(index(test_ct)), 22)
     expect_equal(index(test_ct), c(
-        cat = 6,
+        cat = 5,
         num = 3,
-        lik = 8,
-        mul = 8
+        lik = 7,
+        mul = 7
     ))
 })

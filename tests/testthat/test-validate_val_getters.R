@@ -32,3 +32,23 @@ test_that("validate_out_col_name() fails if name is already in use", {
     df <- data.frame(existing = 1:3)
     expect_error(validate_out_col_name("existing", df), "already in use as a column name")
 })
+
+test_that("validate_input_get_count() works when given proper data",{
+    expect_silent(validate_input_get_count(
+        ct_data = crosstab_data(cat_test_df(), "cohort"),
+        out_col_name = "test_col",
+        keep_na_vars = F
+    ))
+})
+
+test_that("validate_input_get_count() fails when keep_na_vars is not logical",{
+    ct_data <- crosstab_data(cat_test_df(), "cohort")
+    expect_error(validate_input_get_count(ct_data, "a", NULL))
+    expect_error(validate_input_get_count(ct_data, "a", 1))
+    expect_error(validate_input_get_count(ct_data, "a", c(1, 2, 3)))
+    expect_error(validate_input_get_count(ct_data, "a", "a"))
+    expect_error(validate_input_get_count(ct_data, "a", c("a", "b", "c")))
+    expect_error(validate_input_get_count(ct_data, "a", list()))
+    expect_error(validate_input_get_count(ct_data, "a", data.frame()))
+    expect_error(validate_input_get_count(ct_data, "a", ct_data))
+})

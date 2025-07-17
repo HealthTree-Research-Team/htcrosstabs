@@ -510,7 +510,7 @@ test_that("get_count() works when provided categorical data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 30)
+    expect_equal(nrow(result), 24)
     expect_true(is.numeric(result[["count"]]))
 
     wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
@@ -528,7 +528,7 @@ test_that("get_count() works when provided multianswer data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 42)
+    expect_equal(nrow(result), 36)
     expect_true(is.numeric(result[["count"]]))
 
     wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
@@ -561,7 +561,7 @@ test_that("get_percent() works when provided categorical data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 30)
+    expect_equal(nrow(result), 24)
     expect_true(is.numeric(result[["percent"]]))
 
     wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
@@ -580,7 +580,7 @@ test_that("get_percent() works when provided multianswer data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 42)
+    expect_equal(nrow(result), 36)
     expect_true(is.numeric(result[["percent"]]))
 
     wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
@@ -642,7 +642,7 @@ test_that("get_percent_str() works when provided categorical data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 30)
+    expect_equal(nrow(result), 24)
     expect_true(is.character(result[["percent_str"]]))
 })
 
@@ -655,7 +655,7 @@ test_that("get_percent_str() works when provided multianswer data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 42)
+    expect_equal(nrow(result), 36)
     expect_true(is.character(result[["percent_str"]]))
 })
 
@@ -711,7 +711,7 @@ test_that("get_count_percent() works when provided categorical data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 30)
+    expect_equal(nrow(result), 24)
     expect_true(is.character(result[["count_percent"]]))
 })
 
@@ -724,7 +724,7 @@ test_that("get_count_percent() works when provided multianswer data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 42)
+    expect_equal(nrow(result), 36)
     expect_true(is.character(result[["count_percent"]]))
 })
 

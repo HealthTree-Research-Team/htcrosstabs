@@ -876,6 +876,6 @@ test_that("stack_crosstabs() works when given proper data",{
     )
 
     expect_equal(ncol(result), 7)
-    expect_equal(nrow(result), 24)
-    expect_equal(index(result), c(cat = 6, num = 3, lik = 7, mul = 8))
+    expect_equal(nrow(result), 21)
+    expect_equal(index(result), c(cat = 5, num = 3, lik = 6, mul = 7))
 })

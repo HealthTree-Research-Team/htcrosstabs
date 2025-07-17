@@ -175,7 +175,7 @@ add_med_iqr_row <- function(ct, round_to = ROUND_MED_IQR_TO) {
 }
 
 #' @export
-get_count_rows <- function(ct, round_to = ROUND_PERCENT_TO, long = F, long_out_col = COUNT_COL_NAME) {
+get_count_rows <- function(ct, round_to = ROUND_PERCENT_TO, long = F, long_out_col = COUNT_COL_NAME, keep_na_vars = F) {
     validate_input_get_count_rows(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -183,7 +183,7 @@ get_count_rows <- function(ct, round_to = ROUND_PERCENT_TO, long = F, long_out_c
     if (!long) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct), var_name(ct)))
 
     # Get values and rename variable column to description column
-    counts <- get_count_percent(ct, out_col_name = long_out_col, round_to = round_to)
+    counts <- get_count_percent(ct, out_col_name = long_out_col, round_to = round_to, keep_na_vars = keep_na_vars)
     names(counts)[names(counts) == var_name(ct)] <- desc_name(ct)
     counts <- counts[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
 
@@ -192,11 +192,11 @@ get_count_rows <- function(ct, round_to = ROUND_PERCENT_TO, long = F, long_out_c
 }
 
 #' @export
-add_count_rows <- function(ct, round_to = ROUND_PERCENT_TO) {
+add_count_rows <- function(ct, round_to = ROUND_PERCENT_TO, keep_na_vars = F) {
     validate_input_add_count_rows(ct, round_to)
 
     # Get the rows and add it to the running output table
-    count_rows <- get_count_rows(ct, long = F, round_to = round_to)
+    count_rows <- get_count_rows(ct, long = F, round_to = round_to, keep_na_vars = keep_na_vars)
     ct <- add_rows(ct, count_rows)
 
     return(ct)
