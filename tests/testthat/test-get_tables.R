@@ -13,7 +13,6 @@ test_that("add_categorical_table() works when given proper data",{
 
     expect_equal(nrow(result), 6)
     expect_equal(ncol(result), 7)
-
 })
 
 test_that("add_categorical_table() works when given other types of data",{

@@ -63,7 +63,7 @@ get_total.crosstab <- function(ct_data, out_col_name = TOTAL_COL_NAME) {
     get_total(data_table(ct_data), out_col_name = out_col_name)
 }
 
-# GET COMPLETE TOTAL STRING ####
+# GET COMPLETE TOTAL ####
 #' @export
 get_complete_total <- function(ct_data, out_col_name = COMP_TOT_COL_NAME, raw = F) {
     UseMethod("get_complete_total", ct_data)
@@ -175,7 +175,7 @@ get_sd.crosstab_data <- function(ct_data, out_col_name = SD_COL_NAME, round_to =
     get_sd(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
-# GET MEAN SD STRING ####
+# GET MEAN SD ####
 #' @export
 get_mean_sd <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = MEAN_SD_ROUND_TO, raw = F) {
     UseMethod("get_mean_sd", ct_data)
@@ -333,7 +333,7 @@ get_q3.crosstab_data <- function(ct_data, out_col_name = Q3_COL_NAME, round_to =
     get_q3(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
-# GET Q1 Q3 STRING ####
+# GET Q1 Q3 ####
 #' @export
 get_q1_q3 <- function(ct_data, out_col_name = Q1_Q3_COL_NAME, round_to = Q1_Q3_ROUND_TO, raw = F) {
     UseMethod("get_q1_q3", ct_data)
@@ -441,7 +441,7 @@ get_iqr_q3_q1.crosstab_data <- function(ct_data, out_col_name = IQR_Q3_Q1_COL_NA
     return(iqr_q3_q1)
 }
 
-# GET MED Q1 Q3 STRING ####
+# GET MED Q1 Q3 ####
 #' @export
 get_med_q1_q3 <- function(ct_data, out_col_name = MED_Q1_Q3_COL_NAME, round_to = MED_Q1_Q3_ROUND_TO, raw = F) {
     UseMethod("get_med_q1_q3", ct_data)
@@ -518,6 +518,106 @@ get_count.crosstab_data <- function(ct_data, out_col_name = COUNT_COL_NAME, keep
     get_count(as.crosstab.cat(ct_data), out_col_name = out_col_name, keep_na_vars = keep_na_vars)
 }
 
+# GET PROPORTION ####
+#' @export
+get_proportion <- function(ct_data, out_col_name = PROP_COL_NAME, round_to = PROP_ROUND_TO, keep_na_vars = F) {
+    get_prop(ct_data = ct_data, out_col_name = out_col_name, round_to = round_to, keep_na_vars = keep_na_vars)
+}
+
+#' @export
+get_prop <- function(ct_data, out_col_name = PROP_COL_NAME, round_to = PROP_ROUND_TO, keep_na_vars = F) {
+    UseMethod("get_prop", ct_data)
+}
+
+#' @export
+get_prop.crosstab <- function(ct_data, out_col_name = PROP_COL_NAME, round_to = PROP_ROUND_TO, keep_na_vars = F) {
+    get_prop(data_table(ct_data), round_to = round_to, out_col_name = out_col_name, keep_na_vars = keep_na_vars)
+}
+
+#' @export
+get_prop.crosstab_data_cat <- function(ct_data, out_col_name = PROP_COL_NAME, round_to = PROP_ROUND_TO, keep_na_vars = F) {
+    # Don't check for types a) because there's no need, it's a polymorphic
+    # function, and b) because I need to pass other types in like multi.
+    validate_round_to(round_to)
+    validate_out_col_name(out_col_name, ct_data)
+
+    count_col <- get_non_matching(COUNT_COL_NAME, c(var_name(ct_data), cohort_name(ct_data)))
+    complete_col <- get_non_matching(COMP_COL_NAME, c(var_name(ct_data), cohort_name(ct_data), count_col))
+    props <- join_val(
+        get_count(ct_data, out_col_name = count_col, keep_na_vars = keep_na_vars),
+        get_complete(ct_data, out_col_name = complete_col)
+    )
+
+    props[[out_col_name]] <- props[[count_col]] / props[[complete_col]]
+
+    # Round if applicable
+    if (!is.null(round_to))
+        props[[out_col_name]] <- round(props[[out_col_name]], digits = round_to)
+
+    props <- props[, c(cohort_name(ct_data), var_name(ct_data), out_col_name), drop = F]
+
+    # NA variables shouldn't have a prop, because props are calculated
+    # out of those who completed the question, and if they are NA then they
+    # aren't part of that count.
+    na_answers <- is.na(props[[var_name(ct_data)]])
+    props[[out_col_name]][na_answers] <- NA
+
+    return(props)
+}
+
+#' @export
+get_prop.crosstab_data_multi <- function(ct_data, out_col_name = PROP_COL_NAME, round_to = PROP_ROUND_TO, keep_na_vars = F) {
+    get_prop.crosstab_data_cat(ct_data, round_to = round_to, out_col_name = out_col_name, keep_na_vars = keep_na_vars)
+}
+
+#' @export
+get_prop.crosstab_data <- function(ct_data, out_col_name = PROP_COL_NAME, round_to = PROP_ROUND_TO, keep_na_vars = F) {
+    get_prop(as.crosstab.cat(ct_data), round_to = round_to, out_col_name = out_col_name, keep_na_vars = keep_na_vars)
+}
+
+# GET COUNT PROPORTION ####
+#' @export
+get_count_prop <- function(ct_data, out_col_name = COUNT_PROP_COL_NAME, round_to = COUNT_PROP_ROUND_TO, keep_na_vars = F, raw = F) {
+    UseMethod("get_count_prop", ct_data)
+}
+
+#' @export
+get_count_prop.crosstab <- function(ct_data, out_col_name = COUNT_PROP_COL_NAME, round_to = COUNT_PROP_ROUND_TO, keep_na_vars = F, raw = F) {
+    get_count_prop(data_table(ct_data), out_col_name = out_col_name, round_to = round_to, keep_na_vars = keep_na_vars, raw = raw)
+}
+
+#' @export
+get_count_prop.crosstab_data <- function(ct_data, out_col_name = COUNT_PROP_COL_NAME, round_to = COUNT_PROP_ROUND_TO, keep_na_vars = F, raw = F) {
+    validate_round_to(round_to)
+    validate_out_col_name(out_col_name, ct_data)
+
+    count_col <- get_non_matching(COUNT_COL_NAME, c(cohort_name(ct_data), var_name(ct_data)))
+    prop_col <- get_non_matching(PROP_COL_NAME, c(cohort_name(ct_data), var_name(ct_data)))
+    count_prop <- join_val(
+        get_count(ct_data, out_col_name = count_col, keep_na_vars = keep_na_vars),
+        get_prop(ct_data, out_col_name = prop_col, round_to = round_to, keep_na_vars = keep_na_vars)
+    )
+
+    if (raw) return(count_prop)
+
+    make_count_prop <- function(count, prop) {
+        na_vals <- is.na(count) | is.na(prop)
+        combined <- sprintf("%s (%s)", count, prop)
+        combined[na_vals] <- count[na_vals]
+        combined
+    }
+
+    count_prop[[out_col_name]] <- make_count_prop(
+        count_prop[[count_col]],
+        count_prop[[prop_col]]
+    )
+
+    keep_columns <- c(cohort_name(ct_data), var_name(ct_data), out_col_name)
+    count_prop <- count_prop[, keep_columns, drop = F]
+
+    return(count_prop)
+}
+
 # GET PERCENT ####
 #' @export
 get_percent <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
@@ -530,32 +630,13 @@ get_percent.crosstab <- function(ct_data, out_col_name = PERCENT_COL_NAME, round
 }
 
 #' @export
-get_percent.crosstab_data_cat <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
-    # Don't check for types a) because there's no need, it's a polymorphic
-    # function, and b) because I need to pass other types in like multi.
-    validate_round_to(round_to)
-    validate_out_col_name(out_col_name, ct_data)
-
-    count_col <- get_non_matching(COUNT_COL_NAME, c(var_name(ct_data), cohort_name(ct_data)))
-    complete_col <- get_non_matching(COMP_COL_NAME, c(var_name(ct_data), cohort_name(ct_data), count_col))
-    percents <- join_val(
-        get_count(ct_data, out_col_name = count_col, keep_na_vars = keep_na_vars),
-        get_complete(ct_data, out_col_name = complete_col)
-    )
-
-    percents[[out_col_name]] <- 100 * percents[[count_col]] / percents[[complete_col]]
-
-    # Round if applicable
+get_percent.crosstab_data <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
+    # rounding 24% to 0 decimal places requires rounding 0.24 to 2 decimal places
     if (!is.null(round_to))
-        percents[[out_col_name]] <- round(percents[[out_col_name]], digits = round_to)
+        round_to <- round_to + 2
 
-    percents <- percents[, c(cohort_name(ct_data), var_name(ct_data), out_col_name), drop = F]
-
-    # NA variables shouldn't have a percent, because percents are calculated
-    # out of those who completed the question, and if they are NA then they
-    # aren't part of that count.
-    na_answers <- is.na(percents[[var_name(ct_data)]])
-    percents[[out_col_name]][na_answers] <- NA
+    percents <- get_proportion(ct_data = ct_data, out_col_name = out_col_name, round_to = round_to, keep_na_vars = keep_na_vars)
+    percents[[out_col_name]] <- 100 * percents[[out_col_name]]
 
     make_percent_str <- function(percent) {
         na_vals <- is.na(percent)
@@ -571,17 +652,7 @@ get_percent.crosstab_data_cat <- function(ct_data, out_col_name = PERCENT_COL_NA
     return(percents)
 }
 
-#' @export
-get_percent.crosstab_data_multi <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
-    get_percent.crosstab_data_cat(ct_data, round_to = round_to, out_col_name = out_col_name, keep_na_vars = keep_na_vars, raw = raw)
-}
-
-#' @export
-get_percent.crosstab_data <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
-    get_percent(as.crosstab.cat(ct_data), round_to = round_to, out_col_name = out_col_name, keep_na_vars = keep_na_vars, raw = raw)
-}
-
-# GET COUNT PERCENT STRING ####
+# GET COUNT PERCENT ####
 #' @export
 get_count_percent <- function(ct_data, out_col_name = COUNT_PERCENT_COL_NAME, round_to = COUNT_PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
     UseMethod("get_count_percent", ct_data)
@@ -623,3 +694,4 @@ get_count_percent.crosstab_data <- function(ct_data, out_col_name = COUNT_PERCEN
 
     return(count_percent)
 }
+

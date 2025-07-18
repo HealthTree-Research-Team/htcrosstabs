@@ -761,6 +761,156 @@ test_that("get_count() respects out_col_name",{
     expect_in("test_col", names(result))
 })
 
+# get_prop() ####
+test_that("get_prop() works when provided categorical data",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_prop(test_ct))
+    result <- get_prop(test_ct, round_to = 5)
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 3)
+    expect_equal(nrow(result), 24)
+    expect_true(is.numeric(result[["prop"]]))
+
+    wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
+    keep <- !is.na(wide_result[["variable"]])
+    wide_result <- wide_result[keep, , drop = F]
+    totals <- sapply(wide_result[c("All", character_levels, "NA")], sum)
+    expect_true(all(totals > 0.98 & totals < 1.02))
+})
+
+test_that("get_prop() works when provided multianswer data",{
+    test_df <- multi_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_prop(test_ct))
+    result <- get_prop(test_ct, round_to = 5)
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 3)
+    expect_equal(nrow(result), 36)
+    expect_true(is.numeric(result[["prop"]]))
+
+    wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
+    keep <- !is.na(wide_result[["variable"]])
+    wide_result <- wide_result[keep, , drop = F]
+    totals <- sapply(wide_result[c("All", character_levels, "NA")], sum)
+    expect_false(all(totals > 98 & totals < 102))
+})
+
+test_that("get_prop() respects out_col_name",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_prop(test_ct, out_col_name = "test_col"))
+    result <- get_prop(test_ct, out_col_name = "test_col")
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 3)
+    expect_in("test_col", names(result))
+})
+
+test_that("get_prop() respects round_to",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_prop(test_ct, round_to = 0))
+    result1 <- get_prop(test_ct, round_to = 0)
+
+    expect_s3_class(result1, "data.frame")
+    expect_equal(ncol(result1), 3)
+
+    expect_silent(get_prop(test_ct, round_to = 7))
+    result2 <- get_prop(test_ct, round_to = 7)
+
+    expect_true(all(result1[["cohort"]] == result2[["cohort"]], na.rm = T))
+    expect_true(all(result1[["variable"]] == result2[["variable"]], na.rm = T))
+
+    props1 <- result1[["prop"]] |> as.character()
+    props2 <- result2[["prop"]] |> as.character()
+
+    expect_false(all(props1 == props2, na.rm = T))
+
+    # Make sure there are no periods in the one rounded to 0 decimal places
+    non_na_vals <- props1[!is.na(props1)]
+    expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_prop(test_ct, round_to = NULL))
+    result3 <- get_prop(test_ct, round_to = NULL)
+    expect_false(all(result1[["prop"]] == result3[["prop"]]))
+})
+
+# get_count_prop() ####
+test_that("get_count_prop() works when provided categorical data",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_count_prop(test_ct))
+    result <- get_count_prop(test_ct, round_to = 5)
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 3)
+    expect_equal(nrow(result), 24)
+    expect_true(is.character(result[["count_prop"]]))
+})
+
+test_that("get_count_prop() works when provided multianswer data",{
+    test_df <- multi_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_count_prop(test_ct))
+    result <- get_count_prop(test_ct, round_to = 5)
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 3)
+    expect_equal(nrow(result), 36)
+    expect_true(is.character(result[["count_prop"]]))
+})
+
+test_that("get_count_prop() respects out_col_name",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_count_prop(test_ct, out_col_name = "test_col"))
+    result <- get_count_prop(test_ct, out_col_name = "test_col")
+
+    expect_s3_class(result, "data.frame")
+    expect_equal(ncol(result), 3)
+    expect_in("test_col", names(result))
+})
+
+test_that("get_count_prop() respects round_to",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+
+    expect_silent(get_count_prop(test_ct, round_to = 0))
+    result1 <- get_count_prop(test_ct, round_to = 0)
+
+    expect_s3_class(result1, "data.frame")
+    expect_equal(ncol(result1), 3)
+
+    expect_silent(get_count_prop(test_ct, round_to = 7))
+    result2 <- get_count_prop(test_ct, round_to = 7)
+
+    expect_true(all(result1[["cohort"]] == result2[["cohort"]], na.rm = T))
+    expect_true(all(result1[["variable"]] == result2[["variable"]], na.rm = T))
+
+    props1 <- result1[["count_prop"]]
+    props2 <- result2[["count_prop"]]
+
+    expect_false(all(props1 == props2, na.rm = T))
+
+    # Make sure there are no periods in the one rounded to 0 decimal places
+    non_na_vals <- props1[!is.na(props1)]
+    expect_false(any(grepl("\\.", non_na_vals)))
+
+    expect_silent(get_count_prop(test_ct, round_to = NULL))
+    result3 <- get_count_prop(test_ct, round_to = NULL)
+    expect_false(all(result1[["count_prop"]] == result3[["count_prop"]]))
+})
+
 # get_percent() ####
 test_that("get_percent() works when provided categorical data",{
     test_df <- cat_test_df()

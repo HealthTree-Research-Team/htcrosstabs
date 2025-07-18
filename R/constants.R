@@ -62,6 +62,12 @@ MED_Q1_Q3_ROUND_TO <- 1
 
 COUNT_COL_NAME <- "count"
 
+PROP_COL_NAME <- "prop"
+PROP_ROUND_TO <- 2
+
+COUNT_PROP_COL_NAME <- "count_prop"
+COUNT_PROP_ROUND_TO <- 2
+
 PERCENT_COL_NAME <- "percent"
 PERCENT_ROUND_TO <- 0
 

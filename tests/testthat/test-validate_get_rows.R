@@ -234,21 +234,21 @@ test_that("validate_input_add_rows() works when given proper input", {
     ct <- structure(data.frame(a = 1:3), class = c("crosstab", "data.frame"))
     rows <- data.frame(a = 4:5)
 
-    expect_silent(validate_input_add_rows(ct, rows))
+    expect_silent(validate_input_add_rows(ct, rows, NULL, "top", "bottom"))
 })
 
 test_that("validate_input_add_rows() errors when ct is not a crosstab", {
     not_ct <- data.frame(a = 1:3)
     rows <- data.frame(a = 4:5)
 
-    expect_error(validate_input_add_rows(not_ct, rows))
+    expect_error(validate_input_add_rows(not_ct, rows, NULL, "top", "bottom"))
 })
 
 test_that("validate_input_add_rows() errors when rows is not a data frame", {
     ct <- structure(data.frame(a = 1:3), class = c("crosstab", "data.frame"))
     rows <- list(a = 4:5)
 
-    expect_error(validate_input_add_rows(ct, rows))
+    expect_error(validate_input_add_rows(ct, rows, NULL, "top", "bottom"))
 })
 
 # validate_input_col_names() ####
@@ -279,9 +279,9 @@ test_that("validate_input_col_names() errors when desc_name is same as long_out_
 # validate_input_get_complete_row() ####
 test_that("validate_input_get_complete_row() works with correct types", {
     ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
-    expect_silent(validate_input_get_complete_row(ct, TRUE, "count_percent"))
-    expect_error(validate_input_get_complete_row("not_ct", TRUE, "count_percent"))
-    expect_error(validate_input_get_complete_row(ct, "TRUE", "count_percent"))
+    expect_silent(validate_input_get_complete_row(ct, TRUE, "count"))
+    expect_error(validate_input_get_complete_row("not_ct", TRUE, "count"))
+    expect_error(validate_input_get_complete_row(ct, "TRUE", "count"))
     expect_error(validate_input_get_complete_row(ct, TRUE, 123))
 })
 
@@ -295,9 +295,9 @@ test_that("validate_input_add_complete_row() works with correct types", {
 # validate_input_get_total_row() ####
 test_that("validate_input_get_total_row() works with correct types", {
     ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
-    expect_silent(validate_input_get_total_row(ct, TRUE, "count_percent"))
-    expect_error(validate_input_get_total_row("not_ct", TRUE, "count_percent"))
-    expect_error(validate_input_get_total_row(ct, "TRUE", "count_percent"))
+    expect_silent(validate_input_get_total_row(ct, TRUE, "count"))
+    expect_error(validate_input_get_total_row("not_ct", TRUE, "count"))
+    expect_error(validate_input_get_total_row(ct, "TRUE", "count"))
     expect_error(validate_input_get_total_row(ct, TRUE, 123))
 })
 
@@ -311,9 +311,9 @@ test_that("validate_input_add_total_row() works with correct types", {
 # validate_input_get_complete_total_row() ####
 test_that("validate_input_get_complete_total_row() works with correct types", {
     ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
-    expect_silent(validate_input_get_complete_total_row(ct, TRUE, "count_percent"))
-    expect_error(validate_input_get_complete_total_row("not_ct", TRUE, "count_percent"))
-    expect_error(validate_input_get_complete_total_row(ct, "TRUE", "count_percent"))
+    expect_silent(validate_input_get_complete_total_row(ct, TRUE, "count"))
+    expect_error(validate_input_get_complete_total_row("not_ct", TRUE, "count"))
+    expect_error(validate_input_get_complete_total_row(ct, "TRUE", "count"))
     expect_error(validate_input_get_complete_total_row(ct, TRUE, 123))
 })
 
@@ -502,6 +502,76 @@ test_that("validate_input_add_med_q1_q3_row() works with correct types", {
     expect_silent(validate_input_add_med_q1_q3_row(ct, 3))
     expect_error(validate_input_add_med_q1_q3_row("not_ct", 3))
     expect_error(validate_input_add_med_q1_q3_row(ct, "three"))
+})
+
+# validate_input_get_count_rows() ####
+test_that("validate_input_get_count_rows() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_count_rows(ct, FALSE, "count"))
+    expect_error(validate_input_get_count_rows("not_ct", FALSE, "count"))
+    expect_error(validate_input_get_count_rows(ct, "FALSE", "count"))
+    expect_error(validate_input_get_count_rows(ct, FALSE, 999))
+})
+
+# validate_input_add_count_rows() ####
+test_that("validate_input_add_count_rows() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_count_rows(ct))
+    expect_error(validate_input_add_count_rows("not_ct"))
+})
+
+# validate_input_get_prop_rows() ####
+test_that("validate_input_get_prop_rows() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_prop_rows(ct, FALSE, "prop", 0))
+    expect_error(validate_input_get_prop_rows("not_ct", FALSE, "prop", 0))
+    expect_error(validate_input_get_prop_rows(ct, "FALSE", "prop", 0))
+    expect_error(validate_input_get_prop_rows(ct, FALSE, 999, 0))
+    expect_error(validate_input_get_prop_rows(ct, FALSE, "prop", "zero"))
+})
+
+# validate_input_add_prop_rows() ####
+test_that("validate_input_add_prop_rows() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_prop_rows(ct, 4))
+    expect_error(validate_input_add_prop_rows("not_ct", 4))
+    expect_error(validate_input_add_prop_rows(ct, "four"))
+})
+
+# validate_input_get_count_prop_rows() ####
+test_that("validate_input_get_count_prop_rows() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_count_prop_rows(ct, FALSE, "count_prop", 0))
+    expect_error(validate_input_get_count_prop_rows("not_ct", FALSE, "count_prop", 0))
+    expect_error(validate_input_get_count_prop_rows(ct, "FALSE", "count_prop", 0))
+    expect_error(validate_input_get_count_prop_rows(ct, FALSE, 999, 0))
+    expect_error(validate_input_get_count_prop_rows(ct, FALSE, "count_prop", "zero"))
+})
+
+# validate_input_add_count_prop_rows() ####
+test_that("validate_input_add_count_prop_rows() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_count_prop_rows(ct, 4))
+    expect_error(validate_input_add_count_prop_rows("not_ct", 4))
+    expect_error(validate_input_add_count_prop_rows(ct, "four"))
+})
+
+# validate_input_get_percent_rows() ####
+test_that("validate_input_get_percent_rows() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_percent_rows(ct, FALSE, "percent", 0))
+    expect_error(validate_input_get_percent_rows("not_ct", FALSE, "percent", 0))
+    expect_error(validate_input_get_percent_rows(ct, "FALSE", "percent", 0))
+    expect_error(validate_input_get_percent_rows(ct, FALSE, 999, 0))
+    expect_error(validate_input_get_percent_rows(ct, FALSE, "percent", "zero"))
+})
+
+# validate_input_add_percent_rows() ####
+test_that("validate_input_add_percent_rows() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_percent_rows(ct, 4))
+    expect_error(validate_input_add_percent_rows("not_ct", 4))
+    expect_error(validate_input_add_percent_rows(ct, "four"))
 })
 
 # validate_input_get_count_percent_rows() ####

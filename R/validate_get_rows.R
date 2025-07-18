@@ -56,9 +56,22 @@ validate_input_to_long <- function(wide_df, description_col, cohorts_to, values_
     )
 }
 
-validate_input_add_rows <- function(ct, rows) {
+validate_input_add_rows <- function(ct, rows, index, index_from, prefer_table) {
     assert_crosstab(ct)
     assert_that(is.data.frame(rows))
+    if (!is.null(index))
+        assert_that(
+            is.numeric(index),
+            index >= 1,
+            length(index) == 1,
+            msg = "index must be a single positive integer"
+        )
+    assert_that(is.character(index_from))
+    assert_that(length(index_from) == 1, msg = "index_from must only have one value")
+    assert_that(index_from %in% c("top", "bottom"), msg = "index_from must be either \"top\" or \"bottom\"")
+    assert_that(is.character(prefer_table))
+    assert_that(length(prefer_table) == 1, msg = "prefer_table must only have one value")
+    assert_that(prefer_table %in% c("top", "bottom"), msg = "prefer_table must be either \"top\" or \"bottom\"")
 }
 
 validate_input_col_names <- function(ct, long_out_col, long) {
@@ -233,6 +246,30 @@ validate_input_get_count_rows <- function(ct, long, long_out_col) {
 
 validate_input_add_count_rows <- function(ct) {
     assert_crosstab(ct)
+}
+
+validate_input_get_prop_rows <- function(ct, long, long_out_col, round_to) {
+    assert_crosstab(ct)
+    assert_that(is.logical(long))
+    assert_that(is.character(long_out_col))
+    assert_that(is.numeric(round_to))
+}
+
+validate_input_add_prop_rows <- function(ct, round_to) {
+    assert_crosstab(ct)
+    assert_that(is.numeric(round_to))
+}
+
+validate_input_get_count_prop_rows <- function(ct, long, long_out_col, round_to) {
+    assert_crosstab(ct)
+    assert_that(is.logical(long))
+    assert_that(is.character(long_out_col))
+    assert_that(is.numeric(round_to))
+}
+
+validate_input_add_count_prop_rows <- function(ct, round_to) {
+    assert_crosstab(ct)
+    assert_that(is.numeric(round_to))
 }
 
 validate_input_get_percent_rows <- function(ct, long, long_out_col, round_to) {

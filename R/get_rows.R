@@ -61,12 +61,26 @@ to_long <- function(wide_df, description_col, cohorts_to, values_to, convert_NA_
 }
 
 #' @export
-add_rows <- function(ct, rows) {
-    validate_input_add_rows(ct, rows)
+add_rows <- function(ct, rows, ind = NULL, index_from = "top", prefer_table = "bottom") {
+    validate_input_add_rows(ct, rows, ind, index_from, prefer_table)
 
-    # Combine rows
-    combined <- dplyr::bind_rows(ct, rows)
+    # Calculate index
+    if (is.null(ind))
+        ind <- nrow(ct) + 1
+    ind <- max(1, min(ind, nrow(ct) + 1)) # Clamp the values
+    if (index_from == "bottom")
+        ind <- nrow(ct) - ind + 2
 
+    # Insert rows
+    if (nrow(ct) == 0) {
+        combined <- rows
+    } else {
+        top <- if (ind > 1) ct[1:(ind - 1), , drop = FALSE] else NULL
+        bottom <- if (ind <= nrow(ct)) ct[ind:nrow(ct), , drop = FALSE] else NULL
+        combined <- dplyr::bind_rows(top, rows, bottom)
+    }
+
+    # Check number of columns
     ncol_initial <- ncol(ct)
     ncol_final <- ncol(combined)
     if (ncol_initial != 0 & ncol_initial != ncol_final)
@@ -81,9 +95,28 @@ add_rows <- function(ct, rows) {
     # Restore class
     class(combined) <- orig_attrs[["class"]]
 
-    # Add one to the index
+    # Add the number of new rows to the proper index value
+    num_new_rows <- nrow(rows)
     cur_index <- index(combined)
-    cur_index[length(cur_index)] <- cur_index[length(cur_index)] + nrow(rows)
+    if (ind == 1) {
+        # If it's at the beginning, just add the number to the first one
+        cur_index[1] <- cur_index[1] + num_new_rows
+    } else if (ind > nrow(ct)) {
+        # If it's at the end, just add the number to the last one
+        cur_index[length(cur_index)] <- cur_index[length(cur_index)] + num_new_rows
+    } else {
+        # Otherwise, take steps to figure out which one to increment
+        for (i in 1:length(cur_index)) {
+            ind <- ind - cur_index[i]
+            # Prefer_table means if you inserted at an index between two tables,
+            # should it be joined with the one above or below? This defaults to
+            # below, preferring the most recent data.
+            if ((prefer_table == "bottom" & ind < 1) | (prefer_table == "top" & ind <= 1)) {
+                cur_index[i] <- cur_index[i] + num_new_rows
+                break
+            }
+        }
+    }
     attr(combined, "index") <- cur_index
 
     return(combined)
@@ -505,6 +538,86 @@ add_count_rows <- function(ct, keep_na_vars = F) {
     return(ct)
 }
 
+# PROPORTION ROWS ####
+#' @export
+get_proportion_rows <- function(ct, round_to = PROP_ROUND_TO, long = F, long_out_col = PROP_COL_NAME, keep_na_vars = F) {
+    get_prop_rows(ct, round_to = round_to, long = long, long_out_col = long_out_col, keep_na_vars = keep_na_vars)
+}
+
+#' @export
+add_proportion_rows <- function(ct, round_to = PROP_ROUND_TO, keep_na_vars = F) {
+    add_prop_rows(ct, round_to = round_to, keep_na_vars = keep_na_vars)
+}
+
+#' @export
+get_prop_rows <- function(ct, round_to = PROP_ROUND_TO, long = F, long_out_col = PROP_COL_NAME, keep_na_vars = F) {
+    validate_input_get_prop_rows(ct, long, long_out_col, round_to)
+    validate_input_col_names(ct, long_out_col, long)
+
+    # If there is a clash in the long_out_col, change it
+    if (!long) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct), var_name(ct)))
+
+    # Get values and rename variable column to description column
+    props <- get_prop(ct, out_col_name = long_out_col, round_to = round_to, keep_na_vars = keep_na_vars)
+    names(props)[names(props) == var_name(ct)] <- desc_name(ct)
+    props <- props[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
+
+    if (!long) props <- to_wide(props, desc_name(ct), cohort_name(ct))
+    return(props)
+}
+
+#' @export
+add_prop_rows <- function(ct, round_to = PROP_ROUND_TO, keep_na_vars = F) {
+    validate_input_add_prop_rows(ct, round_to)
+
+    # Get the rows and add it to the running output table
+    prop_rows <- get_prop_rows(ct, long = F, round_to = round_to, keep_na_vars = keep_na_vars)
+    ct <- add_rows(ct, prop_rows)
+
+    return(ct)
+}
+
+# COUNT AND PROPORTION ROWS ####
+#' @export
+get_count_prop_rows <- function(ct, round_to = COUNT_PROP_ROUND_TO, long = F, long_out_col = COUNT_PROP_COL_NAME, keep_na_vars = F) {
+    validate_input_get_count_prop_rows(ct, long, long_out_col, round_to)
+    validate_input_col_names(ct, long_out_col, long)
+
+
+    # If there is a clash in the long_out_col, change it
+    if (!long) long_out_col <- get_non_matching(long_out_col, c(desc_name(ct), cohort_name(ct), var_name(ct)))
+
+    # Get values and rename variable column to description column
+    counts <- get_count_prop(ct, out_col_name = long_out_col, round_to = round_to, keep_na_vars = keep_na_vars)
+    names(counts)[names(counts) == var_name(ct)] <- desc_name(ct)
+    counts <- counts[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
+
+    if (!long) {
+        counts <- to_wide(counts, desc_name(ct), cohort_name(ct), na_fill = "0 (0)")
+
+        # If there are few enough values that there are NAs when pivoting,
+        # They are automatically filled with 0 (0%). But if it's also the case that
+        # keep_na_vars = T the NA values where description is NA need to just be 0.
+        na_rows <- is.na(counts[[desc_name(ct)]])
+        if (any(na_rows)) {
+            cohort_cols <- setdiff(names(counts), desc_name(ct))
+            counts[na_rows, cohort_cols][counts[na_rows, cohort_cols] == default_na_fill] <- "0"
+        }
+    }
+    return(counts)
+}
+
+#' @export
+add_count_prop_rows <- function(ct, round_to = COUNT_PROP_ROUND_TO, keep_na_vars = F) {
+    validate_input_add_count_percent_rows(ct, round_to)
+
+    # Get the rows and add it to the running output table
+    count_percent_rows <- get_count_percent_rows(ct, long = F, round_to = round_to, keep_na_vars = keep_na_vars)
+    ct <- add_rows(ct, count_percent_rows)
+
+    return(ct)
+}
+
 # PERCENT ROWS ####
 #' @export
 get_percent_rows <- function(ct, round_to = PERCENT_ROUND_TO, long = F, long_out_col = PERCENT_COL_NAME, keep_na_vars = F, raw = F) {
@@ -536,7 +649,7 @@ add_percent_rows <- function(ct, round_to = PERCENT_ROUND_TO, keep_na_vars = F, 
 
 # COUNT AND PERCENT ROWS ####
 #' @export
-get_count_percent_rows <- function(ct, round_to = PERCENT_ROUND_TO, long = F, long_out_col = COUNT_PERCENT_COL_NAME, keep_na_vars = F) {
+get_count_percent_rows <- function(ct, round_to = COUNT_PERCENT_ROUND_TO, long = F, long_out_col = COUNT_PERCENT_COL_NAME, keep_na_vars = F) {
     validate_input_get_count_percent_rows(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -555,14 +668,16 @@ get_count_percent_rows <- function(ct, round_to = PERCENT_ROUND_TO, long = F, lo
         # They are automatically filled with 0 (0%). But if it's also the case that
         # keep_na_vars = T the NA values where description is NA need to just be 0.
         na_rows <- is.na(counts[[desc_name(ct)]])
-        cohort_cols <- setdiff(names(counts), desc_name(ct))
-        counts[na_rows, cohort_cols][counts[na_rows, cohort_cols] == "0 (0%)"] <- "0"
+        if (any(na_rows)) {
+            cohort_cols <- setdiff(names(counts), desc_name(ct))
+            counts[na_rows, cohort_cols][counts[na_rows, cohort_cols] == "0 (0%)"] <- "0"
+        }
     }
     return(counts)
 }
 
 #' @export
-add_count_percent_rows <- function(ct, round_to = PERCENT_ROUND_TO, keep_na_vars = F) {
+add_count_percent_rows <- function(ct, round_to = COUNT_PERCENT_ROUND_TO, keep_na_vars = F) {
     validate_input_add_count_percent_rows(ct, round_to)
 
     # Get the rows and add it to the running output table

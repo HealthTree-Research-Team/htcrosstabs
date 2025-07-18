@@ -551,6 +551,71 @@ test_that("add_rows() warns when adding rows with columns that don't match exist
     expect_true(all(sapply(ct, function(col) any(is.na(col)))))
 })
 
+test_that("add_rows() adds the row in the proper spot when ind is provided",{
+    ct <- crosstab(cat_test_df(col_name = "tab1"), "cohort") |> add_default_table()
+    new_ct <- crosstab(num_test_df(col_name = "tab2"), "cohort") |> add_default_table()
+    ct <- stack_crosstabs(ct, new_ct)
+
+    new_rows <- data.frame(
+        Description = c("desc1", "desc2", "desc3"),
+        All = "test All",
+        A = "test A",
+        B = "test B",
+        C = "test C",
+        D = "test D",
+        "NA" = "test NA",
+        check.names = F
+    )
+
+    expect_silent(add_rows(ct, new_rows, ind = 1))
+    result <- add_rows(ct, new_rows, ind = 1)
+    expect_equal(nrow(result), 11)
+    expect_equal(result[1:3, , drop = F] |> data.frame(check.names = F), new_rows)
+
+    expect_equal(index(result)[1], index(ct)[1] + 3)
+    expect_equal(index(result)[2], index(ct)[2])
+
+    expect_silent(add_rows(ct, new_rows, ind = NULL, index_from = "bottom"))
+    result <- add_rows(ct, new_rows, ind = NULL, index_from = "bottom")
+    expect_equal(nrow(result), 11)
+    expect_equal(result[1:3, , drop = F] |> data.frame(check.names = F), new_rows)
+
+    expect_equal(index(result)[1], index(ct)[1] + 3)
+    expect_equal(index(result)[2], index(ct)[2])
+
+    expect_silent(add_rows(ct, new_rows, ind = 10))
+    result <- add_rows(ct, new_rows, ind = 10)
+    expect_equal(nrow(result), 11)
+    expect_equal(result[9:11, , drop = F] |> data.frame(check.names = F, row.names = NULL), new_rows)
+
+    expect_equal(index(result)[1], index(ct)[1])
+    expect_equal(index(result)[2], index(ct)[2] + 3)
+
+    expect_silent(add_rows(ct, new_rows, ind = 1, index_from = "bottom"))
+    result <- add_rows(ct, new_rows, ind = 1, index_from = "bottom")
+    expect_equal(nrow(result), 11)
+    expect_equal(result[9:11, , drop = F] |> data.frame(check.names = F, row.names = NULL), new_rows)
+
+    expect_equal(index(result)[1], index(ct)[1])
+    expect_equal(index(result)[2], index(ct)[2] + 3)
+
+    expect_silent(add_rows(ct, new_rows, ind = 6, prefer_table = "bottom"))
+    result <- add_rows(ct, new_rows, ind = 6, prefer_table = "bottom")
+    expect_equal(nrow(result), 11)
+    expect_equal(result[6:8, , drop = F] |> data.frame(check.names = F, row.names = NULL), new_rows)
+
+    expect_equal(index(result)[1], index(ct)[1])
+    expect_equal(index(result)[2], index(ct)[2] + 3)
+
+    expect_silent(add_rows(ct, new_rows, ind = 6, prefer_table = "top"))
+    result <- add_rows(ct, new_rows, ind = 6, prefer_table = "top")
+    expect_equal(nrow(result), 11)
+    expect_equal(result[6:8, , drop = F] |> data.frame(check.names = F, row.names = NULL), new_rows)
+
+    expect_equal(index(result)[1], index(ct)[1] + 3)
+    expect_equal(index(result)[2], index(ct)[2])
+})
+
 # get_complete_row() ####
 test_that("get_complete_row() works given proper data",{
     ct <- crosstab(
@@ -1928,6 +1993,195 @@ test_that("add_count_rows() adds correct number of rows", {
 
     ct <- add_count_rows(ct)
     expect_equal(nrow(ct), 2 * row_count_after_first)
+})
+
+# get_prop_rows() ####
+test_that("get_prop_rows() works with proper categorical data", {
+    ct <- crosstab(
+        df = cat_test_df(),
+        cohort_col_name = "cohort"
+    )
+
+    expect_silent(get_prop_rows(ct))
+    prop_rows <- get_prop_rows(ct)
+
+    expect_true(nrow(prop_rows) >= 2)
+    expect_true(ncol(prop_rows) >= 3)
+
+    expect_true("Description" %in% names(prop_rows))
+
+    cohort_col_names <- setdiff(names(prop_rows), "Description")
+    expect_false(any(is.na(prop_rows[, cohort_col_names])))
+})
+
+test_that("get_prop_rows() long = F ignores long_out_col argument", {
+    ct <- crosstab(
+        df = cat_test_df(),
+        cohort_col_name = "cohort"
+    )
+
+    row1 <- get_prop_rows(ct)
+    row2 <- get_prop_rows(ct, long_out_col = "my_custom_prop_col")
+
+    expect_identical(row1, row2)
+})
+
+test_that("get_prop_rows() works with long = T and custom long_out_col", {
+    ct <- crosstab(
+        df = cat_test_df(),
+        cohort_col_name = "cohort"
+    )
+
+    expect_silent(get_prop_rows(ct, long = T, long_out_col = "prop_prop"))
+    prop_long <- get_prop_rows(ct, long = T, long_out_col = "prop_prop")
+
+    expect_equal(ncol(prop_long), 3)
+    expect_in("prop_prop", names(prop_long))
+    expect_in("Description", names(prop_long))
+    expect_in("cohort", names(prop_long))
+})
+
+test_that("get_prop_rows() produces 0% output when na_fill kicks in", {
+    test_df <- cat_test_df()
+
+    keep <- which(
+        !(test_df[["variable"]] == categorical_levels[1] &
+              test_df[["cohort"]] == character_levels[1])
+    )
+
+    test_df <- test_df[keep,]
+
+    ct <- crosstab(
+        df = test_df,
+        cohort_col_name = "cohort"
+    )
+
+    wide_out <- get_prop_rows(ct, long = F)
+    expect_true(any(wide_out == 0))
+})
+
+# add_prop_rows() ####
+test_that("add_prop_rows() adds correct number of rows", {
+    ct <- crosstab(
+        df = cat_test_df(),
+        cohort_col_name = "cohort"
+    )
+
+    expect_equal(nrow(ct), 0)
+    ct <- add_prop_rows(ct)
+    expect_gt(nrow(ct), 0)
+
+    row_prop_after_first <- nrow(ct)
+
+    ct <- add_prop_rows(ct)
+    expect_equal(nrow(ct), 2 * row_prop_after_first)
+})
+
+test_that("add_prop_rows() respects round_to", {
+    seed <- 4321
+    ct1 <- crosstab(df = cat_test_df(seed = seed), cohort_col_name = "cohort")
+    ct2 <- crosstab(df = cat_test_df(seed = seed), cohort_col_name = "cohort")
+
+    ct1 <- add_prop_rows(ct1, round_to = 0)
+    ct2 <- add_prop_rows(ct2, round_to = 3)
+
+    expect_false(identical(ct1, ct2))
+})
+
+# get_count_prop_rows() ####
+test_that("get_count_prop_rows() works with proper categorical data", {
+    ct <- crosstab(
+        df = cat_test_df(),
+        cohort_col_name = "cohort"
+    )
+
+    expect_silent(get_count_prop_rows(ct))
+    count_prop_rows <- get_count_prop_rows(ct)
+
+    expect_true(nrow(count_prop_rows) >= 2)
+    expect_true(ncol(count_prop_rows) >= 3)
+
+    expect_true("Description" %in% names(count_prop_rows))
+
+    cohort_col_names <- setdiff(names(count_prop_rows), "Description")
+    expect_false(any(is.na(count_prop_rows[, cohort_col_names])))
+})
+
+test_that("get_count_prop_rows() long = F ignores long_out_col argument", {
+    ct <- crosstab(
+        df = cat_test_df(),
+        cohort_col_name = "cohort"
+    )
+
+    row1 <- get_count_prop_rows(ct)
+    row2 <- get_count_prop_rows(ct, long_out_col = "my_custom_count_prop_col")
+
+    expect_identical(row1, row2)
+})
+
+test_that("get_count_prop_rows() works with long = T and custom long_out_col", {
+    ct <- crosstab(
+        df = cat_test_df(),
+        cohort_col_name = "cohort"
+    )
+
+    expect_silent(get_count_prop_rows(ct, long = T, long_out_col = "count_prop_prop"))
+    count_prop_long <- get_count_prop_rows(ct, long = T, long_out_col = "count_prop_prop")
+
+    expect_equal(ncol(count_prop_long), 3)
+    expect_in("count_prop_prop", names(count_prop_long))
+    expect_in("Description", names(count_prop_long))
+    expect_in("cohort", names(count_prop_long))
+})
+
+test_that("get_count_prop_rows() produces 0% output when na_fill kicks in", {
+    test_df <- cat_test_df()
+
+    keep <- which(
+        !(test_df[["variable"]] == categorical_levels[1] &
+              test_df[["cohort"]] == character_levels[1])
+    )
+
+    test_df <- test_df[keep,]
+
+    ct <- crosstab(
+        df = test_df,
+        cohort_col_name = "cohort"
+    )
+
+    wide_out <- get_count_prop_rows(ct, long = F)
+    expect_true(any(wide_out == "0 (0)"))
+
+    wide_out <- get_count_prop_rows(ct, long = F, round_to = 3)
+    expect_true(any(wide_out == "0 (0)"))
+})
+
+# add_count_prop_rows() ####
+test_that("add_count_prop_rows() adds correct number of rows", {
+    ct <- crosstab(
+        df = cat_test_df(),
+        cohort_col_name = "cohort"
+    )
+
+    expect_equal(nrow(ct), 0)
+    ct <- add_count_prop_rows(ct)
+    expect_gt(nrow(ct), 0)
+
+    row_count_prop_after_first <- nrow(ct)
+
+    ct <- add_count_prop_rows(ct)
+    expect_equal(nrow(ct), 2 * row_count_prop_after_first)
+})
+
+test_that("add_count_prop_rows() respects round_to", {
+    seed <- 4321
+    ct1 <- crosstab(df = cat_test_df(seed = seed), cohort_col_name = "cohort")
+    ct2 <- crosstab(df = cat_test_df(seed = seed), cohort_col_name = "cohort")
+
+    ct1 <- add_count_prop_rows(ct1, round_to = 0)
+    ct2 <- add_count_prop_rows(ct2, round_to = 3)
+
+    expect_false(identical(ct1, ct2))
 })
 
 # get_percent_rows() ####
