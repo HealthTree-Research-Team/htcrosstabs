@@ -276,12 +276,28 @@ test_that("validate_input_col_names() errors when desc_name is same as long_out_
     expect_error(validate_input_col_names(ct, long_out_col = "out_col", long = T))
 })
 
+# validate_input_get_complete_row() ####
+test_that("validate_input_get_complete_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_complete_row(ct, TRUE, "count_percent"))
+    expect_error(validate_input_get_complete_row("not_ct", TRUE, "count_percent"))
+    expect_error(validate_input_get_complete_row(ct, "TRUE", "count_percent"))
+    expect_error(validate_input_get_complete_row(ct, TRUE, 123))
+})
+
+# validate_input_add_complete_row() ####
+test_that("validate_input_add_complete_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_complete_row(ct))
+    expect_error(validate_input_add_complete_row("not_ct"))
+})
+
 # validate_input_get_total_row() ####
 test_that("validate_input_get_total_row() works with correct types", {
     ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
-    expect_silent(validate_input_get_total_row(ct, TRUE, "count"))
-    expect_error(validate_input_get_total_row("not_ct", TRUE, "count"))
-    expect_error(validate_input_get_total_row(ct, "TRUE", "count"))
+    expect_silent(validate_input_get_total_row(ct, TRUE, "count_percent"))
+    expect_error(validate_input_get_total_row("not_ct", TRUE, "count_percent"))
+    expect_error(validate_input_get_total_row(ct, "TRUE", "count_percent"))
     expect_error(validate_input_get_total_row(ct, TRUE, 123))
 })
 
@@ -290,6 +306,58 @@ test_that("validate_input_add_total_row() works with correct types", {
     ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
     expect_silent(validate_input_add_total_row(ct))
     expect_error(validate_input_add_total_row("not_ct"))
+})
+
+# validate_input_get_complete_total_row() ####
+test_that("validate_input_get_complete_total_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_complete_total_row(ct, TRUE, "count_percent"))
+    expect_error(validate_input_get_complete_total_row("not_ct", TRUE, "count_percent"))
+    expect_error(validate_input_get_complete_total_row(ct, "TRUE", "count_percent"))
+    expect_error(validate_input_get_complete_total_row(ct, TRUE, 123))
+})
+
+# validate_input_add_complete_total_row() ####
+test_that("validate_input_add_complete_total_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_complete_total_row(ct))
+    expect_error(validate_input_add_complete_total_row("not_ct"))
+})
+
+# validate_input_get_mean_row() ####
+test_that("validate_input_get_mean_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_mean_row(ct, FALSE, "mean", 1))
+    expect_error(validate_input_get_mean_row("not_ct", FALSE, "mean", 1))
+    expect_error(validate_input_get_mean_row(ct, "FALSE", "mean", 1))
+    expect_error(validate_input_get_mean_row(ct, FALSE, 999, 1))
+    expect_error(validate_input_get_mean_row(ct, FALSE, "mean", "not numeric"))
+})
+
+# validate_input_add_mean_row() ####
+test_that("validate_input_add_mean_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_mean_row(ct, 2))
+    expect_error(validate_input_add_mean_row("not_ct", 2))
+    expect_error(validate_input_add_mean_row(ct, "two"))
+})
+
+# validate_input_get_sd_row() ####
+test_that("validate_input_get_sd_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_sd_row(ct, FALSE, "sd", 1))
+    expect_error(validate_input_get_sd_row("not_ct", FALSE, "sd", 1))
+    expect_error(validate_input_get_sd_row(ct, "FALSE", "sd", 1))
+    expect_error(validate_input_get_sd_row(ct, FALSE, 999, 1))
+    expect_error(validate_input_get_sd_row(ct, FALSE, "sd", "not numeric"))
+})
+
+# validate_input_add_sd_row() ####
+test_that("validate_input_add_sd_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_sd_row(ct, 2))
+    expect_error(validate_input_add_sd_row("not_ct", 2))
+    expect_error(validate_input_add_sd_row(ct, "two"))
 })
 
 # validate_input_get_mean_sd_row() ####
@@ -310,38 +378,146 @@ test_that("validate_input_add_mean_sd_row() works with correct types", {
     expect_error(validate_input_add_mean_sd_row(ct, "two"))
 })
 
-# validate_input_get_med_iqr_row() ####
-test_that("validate_input_get_med_iqr_row() works with correct types", {
+# validate_input_get_med_row() ####
+test_that("validate_input_get_med_row() works with correct types", {
     ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
-    expect_silent(validate_input_get_med_iqr_row(ct, TRUE, "med_iqr", 0.5))
-    expect_error(validate_input_get_med_iqr_row("not_ct", TRUE, "med_iqr", 0.5))
-    expect_error(validate_input_get_med_iqr_row(ct, 1, "med_iqr", 0.5))
-    expect_error(validate_input_get_med_iqr_row(ct, TRUE, 123, 0.5))
-    expect_error(validate_input_get_med_iqr_row(ct, TRUE, "med_iqr", "NaN"))
+    expect_silent(validate_input_get_med_row(ct, TRUE, "med", 0.5))
+    expect_error(validate_input_get_med_row("not_ct", TRUE, "med", 0.5))
+    expect_error(validate_input_get_med_row(ct, 1, "med", 0.5))
+    expect_error(validate_input_get_med_row(ct, TRUE, 123, 0.5))
+    expect_error(validate_input_get_med_row(ct, TRUE, "med", "NaN"))
 })
 
-# validate_input_add_med_iqr_row() ####
-test_that("validate_input_add_med_iqr_row() works with correct types", {
+# validate_input_add_med_row() ####
+test_that("validate_input_add_med_row() works with correct types", {
     ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
-    expect_silent(validate_input_add_med_iqr_row(ct, 3))
-    expect_error(validate_input_add_med_iqr_row("not_ct", 3))
-    expect_error(validate_input_add_med_iqr_row(ct, "three"))
+    expect_silent(validate_input_add_med_row(ct, 3))
+    expect_error(validate_input_add_med_row("not_ct", 3))
+    expect_error(validate_input_add_med_row(ct, "three"))
 })
 
-# validate_input_get_count_rows() ####
-test_that("validate_input_get_count_rows() works with correct types", {
+# validate_input_get_q1_row() ####
+test_that("validate_input_get_q1_row() works with correct types", {
     ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
-    expect_silent(validate_input_get_count_rows(ct, FALSE, "count", 0))
-    expect_error(validate_input_get_count_rows("not_ct", FALSE, "count", 0))
-    expect_error(validate_input_get_count_rows(ct, "FALSE", "count", 0))
-    expect_error(validate_input_get_count_rows(ct, FALSE, 999, 0))
-    expect_error(validate_input_get_count_rows(ct, FALSE, "count", "zero"))
+    expect_silent(validate_input_get_q1_row(ct, TRUE, "q1", 0.5))
+    expect_error(validate_input_get_q1_row("not_ct", TRUE, "q1", 0.5))
+    expect_error(validate_input_get_q1_row(ct, 1, "q1", 0.5))
+    expect_error(validate_input_get_q1_row(ct, TRUE, 123, 0.5))
+    expect_error(validate_input_get_q1_row(ct, TRUE, "q1", "NaN"))
 })
 
-# validate_input_add_count_rows() ####
-test_that("validate_input_add_count_rows() works with correct types", {
+# validate_input_add_q1_row() ####
+test_that("validate_input_add_q1_row() works with correct types", {
     ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
-    expect_silent(validate_input_add_count_rows(ct, 4))
-    expect_error(validate_input_add_count_rows("not_ct", 4))
-    expect_error(validate_input_add_count_rows(ct, "four"))
+    expect_silent(validate_input_add_q1_row(ct, 3))
+    expect_error(validate_input_add_q1_row("not_ct", 3))
+    expect_error(validate_input_add_q1_row(ct, "three"))
+})
+
+# validate_input_get_q3_row() ####
+test_that("validate_input_get_q3_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_q3_row(ct, TRUE, "q3", 0.5))
+    expect_error(validate_input_get_q3_row("not_ct", TRUE, "q3", 0.5))
+    expect_error(validate_input_get_q3_row(ct, 1, "q3", 0.5))
+    expect_error(validate_input_get_q3_row(ct, TRUE, 123, 0.5))
+    expect_error(validate_input_get_q3_row(ct, TRUE, "q3", "NaN"))
+})
+
+# validate_input_add_q3_row() ####
+test_that("validate_input_add_q3_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_q3_row(ct, 3))
+    expect_error(validate_input_add_q3_row("not_ct", 3))
+    expect_error(validate_input_add_q3_row(ct, "three"))
+})
+
+# validate_input_get_q1_q3_row() ####
+test_that("validate_input_get_q1_q3_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_q1_q3_row(ct, TRUE, "q1_q3", 0.5))
+    expect_error(validate_input_get_q1_q3_row("not_ct", TRUE, "q1_q3", 0.5))
+    expect_error(validate_input_get_q1_q3_row(ct, 1, "q1_q3", 0.5))
+    expect_error(validate_input_get_q1_q3_row(ct, TRUE, 123, 0.5))
+    expect_error(validate_input_get_q1_q3_row(ct, TRUE, "q1_q3", "NaN"))
+})
+
+# validate_input_add_q1_q3_row() ####
+test_that("validate_input_add_q1_q3_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_q1_q3_row(ct, 3))
+    expect_error(validate_input_add_q1_q3_row("not_ct", 3))
+    expect_error(validate_input_add_q1_q3_row(ct, "three"))
+})
+
+# validate_input_get_iqr_row() ####
+test_that("validate_input_get_iqr_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_iqr_row(ct, TRUE, "iqr", 0.5))
+    expect_error(validate_input_get_iqr_row("not_ct", TRUE, "iqr", 0.5))
+    expect_error(validate_input_get_iqr_row(ct, 1, "iqr", 0.5))
+    expect_error(validate_input_get_iqr_row(ct, TRUE, 123, 0.5))
+    expect_error(validate_input_get_iqr_row(ct, TRUE, "iqr", "NaN"))
+})
+
+# validate_input_add_iqr_row() ####
+test_that("validate_input_add_iqr_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_iqr_row(ct, 3))
+    expect_error(validate_input_add_iqr_row("not_ct", 3))
+    expect_error(validate_input_add_iqr_row(ct, "three"))
+})
+
+# validate_input_get_iqr_q3_q1_row() ####
+test_that("validate_input_get_iqr_q3_q1_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_iqr_q3_q1_row(ct, TRUE, "iqr_q3_q1", 0.5))
+    expect_error(validate_input_get_iqr_q3_q1_row("not_ct", TRUE, "iqr_q3_q1", 0.5))
+    expect_error(validate_input_get_iqr_q3_q1_row(ct, 1, "iqr_q3_q1", 0.5))
+    expect_error(validate_input_get_iqr_q3_q1_row(ct, TRUE, 123, 0.5))
+    expect_error(validate_input_get_iqr_q3_q1_row(ct, TRUE, "iqr_q3_q1", "NaN"))
+})
+
+# validate_input_add_iqr_q3_q1_row() ####
+test_that("validate_input_add_iqr_q3_q1_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_iqr_q3_q1_row(ct, 3))
+    expect_error(validate_input_add_iqr_q3_q1_row("not_ct", 3))
+    expect_error(validate_input_add_iqr_q3_q1_row(ct, "three"))
+})
+
+# validate_input_get_med_q1_q3_row() ####
+test_that("validate_input_get_med_q1_q3_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_med_q1_q3_row(ct, TRUE, "med_q1_q3", 0.5))
+    expect_error(validate_input_get_med_q1_q3_row("not_ct", TRUE, "med_q1_q3", 0.5))
+    expect_error(validate_input_get_med_q1_q3_row(ct, 1, "med_q1_q3", 0.5))
+    expect_error(validate_input_get_med_q1_q3_row(ct, TRUE, 123, 0.5))
+    expect_error(validate_input_get_med_q1_q3_row(ct, TRUE, "med_q1_q3", "NaN"))
+})
+
+# validate_input_add_med_q1_q3_row() ####
+test_that("validate_input_add_med_q1_q3_row() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_med_q1_q3_row(ct, 3))
+    expect_error(validate_input_add_med_q1_q3_row("not_ct", 3))
+    expect_error(validate_input_add_med_q1_q3_row(ct, "three"))
+})
+
+# validate_input_get_count_percent_rows() ####
+test_that("validate_input_get_count_percent_rows() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_get_count_percent_rows(ct, FALSE, "count_percent", 0))
+    expect_error(validate_input_get_count_percent_rows("not_ct", FALSE, "count_percent", 0))
+    expect_error(validate_input_get_count_percent_rows(ct, "FALSE", "count_percent", 0))
+    expect_error(validate_input_get_count_percent_rows(ct, FALSE, 999, 0))
+    expect_error(validate_input_get_count_percent_rows(ct, FALSE, "count_percent", "zero"))
+})
+
+# validate_input_add_count_percent_rows() ####
+test_that("validate_input_add_count_percent_rows() works with correct types", {
+    ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
+    expect_silent(validate_input_add_count_percent_rows(ct, 4))
+    expect_error(validate_input_add_count_percent_rows("not_ct", 4))
+    expect_error(validate_input_add_count_percent_rows(ct, "four"))
 })
