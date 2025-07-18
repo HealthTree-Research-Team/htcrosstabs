@@ -207,7 +207,7 @@ add_mean_row <- function(ct, round_to = MEAN_ROUND_TO) {
 
 # SD ROW ####
 #' @export
-get_sd_row <- function(ct, round_to = ROUND_SD_TO, long = F, long_out_col = SD_COL_NAME) {
+get_sd_row <- function(ct, round_to = SD_ROUND_TO, long = F, long_out_col = SD_COL_NAME) {
     validate_input_get_sd_row(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -224,7 +224,7 @@ get_sd_row <- function(ct, round_to = ROUND_SD_TO, long = F, long_out_col = SD_C
 }
 
 #' @export
-add_sd_row <- function(ct, round_to = ROUND_SD_TO) {
+add_sd_row <- function(ct, round_to = SD_ROUND_TO) {
     validate_input_add_sd_row(ct, round_to)
 
     # Get the row and add it to the running output table
@@ -236,7 +236,7 @@ add_sd_row <- function(ct, round_to = ROUND_SD_TO) {
 
 # MEAN AND SD ROW ####
 #' @export
-get_mean_sd_row <- function(ct, round_to = ROUND_MEAN_SD_TO, long = F, long_out_col = MEAN_SD_COL_NAME) {
+get_mean_sd_row <- function(ct, round_to = MEAN_SD_ROUND_TO, long = F, long_out_col = MEAN_SD_COL_NAME) {
     validate_input_get_mean_sd_row(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -253,7 +253,7 @@ get_mean_sd_row <- function(ct, round_to = ROUND_MEAN_SD_TO, long = F, long_out_
 }
 
 #' @export
-add_mean_sd_row <- function(ct, round_to = ROUND_MEAN_SD_TO) {
+add_mean_sd_row <- function(ct, round_to = MEAN_SD_ROUND_TO) {
     validate_input_add_mean_sd_row(ct, round_to)
 
     # Get the row and add it to the running output table
@@ -265,17 +265,17 @@ add_mean_sd_row <- function(ct, round_to = ROUND_MEAN_SD_TO) {
 
 # MEDIAN ROW ####
 #' @export
-get_median_row <- function(ct, round_to = ROUND_MEDIAN_TO, long = F, long_out_col = MED_COL_NAME) {
+get_median_row <- function(ct, round_to = MEDIAN_ROUND_TO, long = F, long_out_col = MED_COL_NAME) {
     get_med_row(ct, round_to = round_to, long = long, long_out_col = long_out_col)
 }
 
 #' @export
-add_median_row <- function(ct, round_to = ROUND_MEDIAN_TO) {
+add_median_row <- function(ct, round_to = MEDIAN_ROUND_TO) {
     add_med_row(ct, round_to = round_to)
 }
 
 #' @export
-get_med_row <- function(ct, round_to = ROUND_MEDIAN_TO, long = F, long_out_col = MED_COL_NAME) {
+get_med_row <- function(ct, round_to = MEDIAN_ROUND_TO, long = F, long_out_col = MED_COL_NAME) {
     validate_input_get_med_row(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -292,7 +292,7 @@ get_med_row <- function(ct, round_to = ROUND_MEDIAN_TO, long = F, long_out_col =
 }
 
 #' @export
-add_med_row <- function(ct, round_to = ROUND_MEDIAN_TO) {
+add_med_row <- function(ct, round_to = MEDIAN_ROUND_TO) {
     validate_input_add_med_row(ct, round_to)
 
     # Get the row and add it to the running output column
@@ -304,7 +304,7 @@ add_med_row <- function(ct, round_to = ROUND_MEDIAN_TO) {
 
 # Q1 ROW ####
 #' @export
-get_q1_row <- function(ct, round_to = ROUND_Q1_TO, long = F, long_out_col = Q1_COL_NAME) {
+get_q1_row <- function(ct, round_to = Q1_ROUND_TO, long = F, long_out_col = Q1_COL_NAME) {
     validate_input_get_q1_row(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -321,7 +321,7 @@ get_q1_row <- function(ct, round_to = ROUND_Q1_TO, long = F, long_out_col = Q1_C
 }
 
 #' @export
-add_q1_row <- function(ct, round_to = ROUND_Q1_TO) {
+add_q1_row <- function(ct, round_to = Q1_ROUND_TO) {
     validate_input_add_q1_row(ct, round_to)
 
     # Get the row and add it to the running output column
@@ -333,7 +333,7 @@ add_q1_row <- function(ct, round_to = ROUND_Q1_TO) {
 
 # Q3 ROW ####
 #' @export
-get_q3_row <- function(ct, round_to = ROUND_Q3_TO, long = F, long_out_col = Q3_COL_NAME) {
+get_q3_row <- function(ct, round_to = Q3_ROUND_TO, long = F, long_out_col = Q3_COL_NAME) {
     validate_input_get_q3_row(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -350,7 +350,7 @@ get_q3_row <- function(ct, round_to = ROUND_Q3_TO, long = F, long_out_col = Q3_C
 }
 
 #' @export
-add_q3_row <- function(ct, round_to = ROUND_Q3_TO) {
+add_q3_row <- function(ct, round_to = Q3_ROUND_TO) {
     validate_input_add_q3_row(ct, round_to)
 
     # Get the row and add it to the running output column
@@ -362,7 +362,7 @@ add_q3_row <- function(ct, round_to = ROUND_Q3_TO) {
 
 # Q1-Q3 ROW ####
 #' @export
-get_q1_q3_row <- function(ct, round_to = ROUND_Q1_Q3_TO, long = F, long_out_col = Q1_Q3_COL_NAME) {
+get_q1_q3_row <- function(ct, round_to = Q1_Q3_ROUND_TO, long = F, long_out_col = Q1_Q3_COL_NAME) {
     validate_input_get_q1_q3_row(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -379,7 +379,7 @@ get_q1_q3_row <- function(ct, round_to = ROUND_Q1_Q3_TO, long = F, long_out_col 
 }
 
 #' @export
-add_q1_q3_row <- function(ct, round_to = ROUND_Q1_Q3_TO) {
+add_q1_q3_row <- function(ct, round_to = Q1_Q3_ROUND_TO) {
     validate_input_add_q1_q3_row(ct, round_to)
 
     # Get the row and add it to the running output column
@@ -391,7 +391,7 @@ add_q1_q3_row <- function(ct, round_to = ROUND_Q1_Q3_TO) {
 
 # IQR ROW ####
 #' @export
-get_iqr_row <- function(ct, round_to = ROUND_IQR_TO, long = F, long_out_col = IQR_COL_NAME) {
+get_iqr_row <- function(ct, round_to = IQR_ROUND_TO, long = F, long_out_col = IQR_COL_NAME) {
     validate_input_get_iqr_row(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -408,7 +408,7 @@ get_iqr_row <- function(ct, round_to = ROUND_IQR_TO, long = F, long_out_col = IQ
 }
 
 #' @export
-add_iqr_row <- function(ct, round_to = ROUND_IQR_TO) {
+add_iqr_row <- function(ct, round_to = IQR_ROUND_TO) {
     validate_input_add_iqr_row(ct, round_to)
 
     # Get the row and add it to the running output column
@@ -420,7 +420,7 @@ add_iqr_row <- function(ct, round_to = ROUND_IQR_TO) {
 
 # IQR Q3-Q1 ROW ####
 #' @export
-get_iqr_q3_q1_row <- function(ct, round_to = ROUND_IQR_Q3_Q1_TO, long = F, long_out_col = IQR_Q3_Q1_COL_NAME) {
+get_iqr_q3_q1_row <- function(ct, round_to = IQR_Q3_Q1_ROUND_TO, long = F, long_out_col = IQR_Q3_Q1_COL_NAME) {
     validate_input_get_iqr_q3_q1_row(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -437,7 +437,7 @@ get_iqr_q3_q1_row <- function(ct, round_to = ROUND_IQR_Q3_Q1_TO, long = F, long_
 }
 
 #' @export
-add_iqr_q3_q1_row <- function(ct, round_to = ROUND_IQR_Q3_Q1_TO) {
+add_iqr_q3_q1_row <- function(ct, round_to = IQR_Q3_Q1_ROUND_TO) {
     validate_input_add_iqr_q3_q1_row(ct, round_to)
 
     # Get the row and add it to the running output column
@@ -449,7 +449,7 @@ add_iqr_q3_q1_row <- function(ct, round_to = ROUND_IQR_Q3_Q1_TO) {
 
 # MEDIAN AND Q1-Q3 ROW ####
 #' @export
-get_med_q1_q3_row <- function(ct, round_to = ROUND_MED_Q1_Q3_TO, long = F, long_out_col = MED_Q1_Q3_COL_NAME) {
+get_med_q1_q3_row <- function(ct, round_to = MED_Q1_Q3_ROUND_TO, long = F, long_out_col = MED_Q1_Q3_COL_NAME) {
     validate_input_get_med_q1_q3_row(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -466,7 +466,7 @@ get_med_q1_q3_row <- function(ct, round_to = ROUND_MED_Q1_Q3_TO, long = F, long_
 }
 
 #' @export
-add_med_q1_q3_row <- function(ct, round_to = ROUND_MED_Q1_Q3_TO) {
+add_med_q1_q3_row <- function(ct, round_to = MED_Q1_Q3_ROUND_TO) {
     validate_input_add_med_q1_q3_row(ct, round_to)
 
     # Get the row and add it to the running output column
@@ -507,7 +507,7 @@ add_count_rows <- function(ct, keep_na_vars = F) {
 
 # PERCENT ROWS ####
 #' @export
-get_percent_rows <- function(ct, round_to = ROUND_PERCENT_TO, long = F, long_out_col = PERCENT_COL_NAME, keep_na_vars = F, raw = F) {
+get_percent_rows <- function(ct, round_to = PERCENT_ROUND_TO, long = F, long_out_col = PERCENT_COL_NAME, keep_na_vars = F, raw = F) {
     validate_input_get_percent_rows(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -524,7 +524,7 @@ get_percent_rows <- function(ct, round_to = ROUND_PERCENT_TO, long = F, long_out
 }
 
 #' @export
-add_percent_rows <- function(ct, round_to = ROUND_PERCENT_TO, keep_na_vars = F, raw = F) {
+add_percent_rows <- function(ct, round_to = PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
     validate_input_add_percent_rows(ct, round_to)
 
     # Get the rows and add it to the running output table
@@ -536,7 +536,7 @@ add_percent_rows <- function(ct, round_to = ROUND_PERCENT_TO, keep_na_vars = F, 
 
 # COUNT AND PERCENT ROWS ####
 #' @export
-get_count_percent_rows <- function(ct, round_to = ROUND_PERCENT_TO, long = F, long_out_col = COUNT_PERCENT_COL_NAME, keep_na_vars = F) {
+get_count_percent_rows <- function(ct, round_to = PERCENT_ROUND_TO, long = F, long_out_col = COUNT_PERCENT_COL_NAME, keep_na_vars = F) {
     validate_input_get_count_percent_rows(ct, long, long_out_col, round_to)
     validate_input_col_names(ct, long_out_col, long)
 
@@ -562,7 +562,7 @@ get_count_percent_rows <- function(ct, round_to = ROUND_PERCENT_TO, long = F, lo
 }
 
 #' @export
-add_count_percent_rows <- function(ct, round_to = ROUND_PERCENT_TO, keep_na_vars = F) {
+add_count_percent_rows <- function(ct, round_to = PERCENT_ROUND_TO, keep_na_vars = F) {
     validate_input_add_count_percent_rows(ct, round_to)
 
     # Get the rows and add it to the running output table

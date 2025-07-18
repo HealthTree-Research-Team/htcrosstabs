@@ -139,17 +139,17 @@ get_mean.crosstab_data <- function(ct_data, out_col_name = MEAN_COL_NAME, round_
 
 # GET SD ####
 #' @export
-get_sd <- function(ct_data, out_col_name = SD_COL_NAME, round_to = ROUND_SD_TO) {
+get_sd <- function(ct_data, out_col_name = SD_COL_NAME, round_to = SD_ROUND_TO) {
     UseMethod("get_sd", ct_data)
 }
 
 #' @export
-get_sd.crosstab <- function(ct_data, out_col_name = SD_COL_NAME, round_to = ROUND_SD_TO) {
+get_sd.crosstab <- function(ct_data, out_col_name = SD_COL_NAME, round_to = SD_ROUND_TO) {
     get_sd(data_table(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
 #' @export
-get_sd.crosstab_data_num <- function(ct_data, out_col_name = SD_COL_NAME, round_to = ROUND_SD_TO) {
+get_sd.crosstab_data_num <- function(ct_data, out_col_name = SD_COL_NAME, round_to = SD_ROUND_TO) {
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
     result <- ct_data |>
@@ -171,23 +171,23 @@ get_sd.crosstab_data_num <- function(ct_data, out_col_name = SD_COL_NAME, round_
 }
 
 #' @export
-get_sd.crosstab_data <- function(ct_data, out_col_name = SD_COL_NAME, round_to = ROUND_SD_TO) {
+get_sd.crosstab_data <- function(ct_data, out_col_name = SD_COL_NAME, round_to = SD_ROUND_TO) {
     get_sd(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
 # GET MEAN SD STRING ####
 #' @export
-get_mean_sd <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = ROUND_MEAN_SD_TO, raw = F) {
+get_mean_sd <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = MEAN_SD_ROUND_TO, raw = F) {
     UseMethod("get_mean_sd", ct_data)
 }
 
 #' @export
-get_mean_sd.crosstab <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = ROUND_MEAN_SD_TO, raw = F) {
+get_mean_sd.crosstab <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = MEAN_SD_ROUND_TO, raw = F) {
     get_mean_sd(data_table(ct_data), out_col_name = out_col_name, round_to = round_to, raw = raw)
 }
 
 #' @export
-get_mean_sd.crosstab_data <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = ROUND_MEAN_SD_TO, raw = F) {
+get_mean_sd.crosstab_data <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = MEAN_SD_ROUND_TO, raw = F) {
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
 
@@ -214,22 +214,22 @@ get_mean_sd.crosstab_data <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, 
 
 # GET MEDIAN ####
 #' @export
-get_median <- function(ct_data, out_col_name = MED_COL_NAME, round_to = ROUND_MEDIAN_TO) {
+get_median <- function(ct_data, out_col_name = MED_COL_NAME, round_to = MEDIAN_ROUND_TO) {
     get_med(ct_data = ct_data, out_col_name = out_col_name, round_to = round_to)
 }
 
 #' @export
-get_med <- function(ct_data, out_col_name = MED_COL_NAME, round_to = ROUND_MEDIAN_TO) {
+get_med <- function(ct_data, out_col_name = MED_COL_NAME, round_to = MEDIAN_ROUND_TO) {
     UseMethod("get_med", ct_data)
 }
 
 #' @export
-get_med.crosstab <- function(ct_data, out_col_name = MED_COL_NAME, round_to = ROUND_MEDIAN_TO) {
+get_med.crosstab <- function(ct_data, out_col_name = MED_COL_NAME, round_to = MEDIAN_ROUND_TO) {
     get_med(data_table(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
 #' @export
-get_med.crosstab_data_num <- function(ct_data, out_col_name = MED_COL_NAME, round_to = ROUND_MEDIAN_TO) {
+get_med.crosstab_data_num <- function(ct_data, out_col_name = MED_COL_NAME, round_to = MEDIAN_ROUND_TO) {
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
     result <- ct_data |>
@@ -251,23 +251,23 @@ get_med.crosstab_data_num <- function(ct_data, out_col_name = MED_COL_NAME, roun
 }
 
 #' @export
-get_med.crosstab_data <- function(ct_data, out_col_name = MED_COL_NAME, round_to = ROUND_MEDIAN_TO) {
+get_med.crosstab_data <- function(ct_data, out_col_name = MED_COL_NAME, round_to = MEDIAN_ROUND_TO) {
     get_med(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
 # GET Q1 ####
 #' @export
-get_q1 <- function(ct_data, out_col_name = Q1_COL_NAME, round_to = ROUND_Q1_TO) {
+get_q1 <- function(ct_data, out_col_name = Q1_COL_NAME, round_to = Q1_ROUND_TO) {
     UseMethod("get_q1", ct_data)
 }
 
 #' @export
-get_q1.crosstab <- function(ct_data, out_col_name = Q1_COL_NAME, round_to = ROUND_Q1_TO) {
+get_q1.crosstab <- function(ct_data, out_col_name = Q1_COL_NAME, round_to = Q1_ROUND_TO) {
     get_q1(data_table(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
 #' @export
-get_q1.crosstab_data_num <- function(ct_data, out_col_name = Q1_COL_NAME, round_to = ROUND_Q1_TO) {
+get_q1.crosstab_data_num <- function(ct_data, out_col_name = Q1_COL_NAME, round_to = Q1_ROUND_TO) {
     validate_out_col_name(out_col_name, ct_data)
     validate_round_to(round_to)
     result <- ct_data |>
@@ -290,23 +290,23 @@ get_q1.crosstab_data_num <- function(ct_data, out_col_name = Q1_COL_NAME, round_
 }
 
 #' @export
-get_q1.crosstab_data <- function(ct_data, out_col_name = Q1_COL_NAME, round_to = ROUND_Q1_TO) {
+get_q1.crosstab_data <- function(ct_data, out_col_name = Q1_COL_NAME, round_to = Q1_ROUND_TO) {
     get_q1(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
 # GET Q3 ####
 #' @export
-get_q3 <- function(ct_data, out_col_name = Q3_COL_NAME, round_to = ROUND_Q3_TO) {
+get_q3 <- function(ct_data, out_col_name = Q3_COL_NAME, round_to = Q3_ROUND_TO) {
     UseMethod("get_q3", ct_data)
 }
 
 #' @export
-get_q3.crosstab <- function(ct_data, out_col_name = Q3_COL_NAME, round_to = ROUND_Q3_TO) {
+get_q3.crosstab <- function(ct_data, out_col_name = Q3_COL_NAME, round_to = Q3_ROUND_TO) {
     get_q3(data_table(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
 #' @export
-get_q3.crosstab_data_num <- function(ct_data, out_col_name = Q3_COL_NAME, round_to = ROUND_Q3_TO) {
+get_q3.crosstab_data_num <- function(ct_data, out_col_name = Q3_COL_NAME, round_to = Q3_ROUND_TO) {
     validate_out_col_name(out_col_name, ct_data)
     validate_round_to(round_to)
     result <- ct_data |>
@@ -329,23 +329,23 @@ get_q3.crosstab_data_num <- function(ct_data, out_col_name = Q3_COL_NAME, round_
 }
 
 #' @export
-get_q3.crosstab_data <- function(ct_data, out_col_name = Q3_COL_NAME, round_to = ROUND_Q3_TO) {
+get_q3.crosstab_data <- function(ct_data, out_col_name = Q3_COL_NAME, round_to = Q3_ROUND_TO) {
     get_q3(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
 # GET Q1 Q3 STRING ####
 #' @export
-get_q1_q3 <- function(ct_data, out_col_name = Q1_Q3_COL_NAME, round_to = ROUND_Q1_Q3_TO, raw = F) {
+get_q1_q3 <- function(ct_data, out_col_name = Q1_Q3_COL_NAME, round_to = Q1_Q3_ROUND_TO, raw = F) {
     UseMethod("get_q1_q3", ct_data)
 }
 
 #' @export
-get_q1_q3.crosstab <- function(ct_data, out_col_name = Q1_Q3_COL_NAME, round_to = ROUND_Q1_Q3_TO, raw = F) {
+get_q1_q3.crosstab <- function(ct_data, out_col_name = Q1_Q3_COL_NAME, round_to = Q1_Q3_ROUND_TO, raw = F) {
     get_q1_q3(data_table(ct_data), out_col_name = out_col_name, round_to = round_to, raw = raw)
 }
 
 #' @export
-get_q1_q3.crosstab_data <- function(ct_data, out_col_name = Q1_Q3_COL_NAME, round_to = ROUND_Q1_Q3_TO, raw = F) {
+get_q1_q3.crosstab_data <- function(ct_data, out_col_name = Q1_Q3_COL_NAME, round_to = Q1_Q3_ROUND_TO, raw = F) {
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
 
@@ -372,17 +372,17 @@ get_q1_q3.crosstab_data <- function(ct_data, out_col_name = Q1_Q3_COL_NAME, roun
 
 # GET IQR ####
 #' @export
-get_iqr <- function(ct_data, out_col_name = IQR_COL_NAME, round_to = ROUND_IQR_TO) {
+get_iqr <- function(ct_data, out_col_name = IQR_COL_NAME, round_to = IQR_ROUND_TO) {
     UseMethod("get_iqr", ct_data)
 }
 
 #' @export
-get_iqr.crosstab <- function(ct_data, out_col_name = IQR_COL_NAME, round_to = ROUND_IQR_TO) {
+get_iqr.crosstab <- function(ct_data, out_col_name = IQR_COL_NAME, round_to = IQR_ROUND_TO) {
     get_iqr(data_table(ct_data), out_col_name = out_col_name, round_to = round_to)
 }
 
 #' @export
-get_iqr.crosstab_data <- function(ct_data, out_col_name = IQR_COL_NAME, round_to = ROUND_IQR_TO) {
+get_iqr.crosstab_data <- function(ct_data, out_col_name = IQR_COL_NAME, round_to = IQR_ROUND_TO) {
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
 
@@ -403,17 +403,17 @@ get_iqr.crosstab_data <- function(ct_data, out_col_name = IQR_COL_NAME, round_to
 
 # GET IQR Q3-Q1 COL ####
 #' @export
-get_iqr_q3_q1 <- function(ct_data, out_col_name = IQR_Q3_Q1_COL_NAME, round_to = ROUND_IQR_Q3_Q1_TO, raw = F) {
+get_iqr_q3_q1 <- function(ct_data, out_col_name = IQR_Q3_Q1_COL_NAME, round_to = IQR_Q3_Q1_ROUND_TO, raw = F) {
     UseMethod("get_iqr_q3_q1", ct_data)
 }
 
 #' @export
-get_iqr_q3_q1.crosstab <- function(ct_data, out_col_name = IQR_Q3_Q1_COL_NAME, round_to = ROUND_IQR_Q3_Q1_TO, raw = F) {
+get_iqr_q3_q1.crosstab <- function(ct_data, out_col_name = IQR_Q3_Q1_COL_NAME, round_to = IQR_Q3_Q1_ROUND_TO, raw = F) {
     get_iqr_q3_q1(data_table(ct_data), out_col_name = out_col_name, round_to = round_to, raw = raw)
 }
 
 #' @export
-get_iqr_q3_q1.crosstab_data <- function(ct_data, out_col_name = IQR_Q3_Q1_COL_NAME, round_to = ROUND_IQR_Q3_Q1_TO, raw = F) {
+get_iqr_q3_q1.crosstab_data <- function(ct_data, out_col_name = IQR_Q3_Q1_COL_NAME, round_to = IQR_Q3_Q1_ROUND_TO, raw = F) {
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
 
@@ -443,17 +443,17 @@ get_iqr_q3_q1.crosstab_data <- function(ct_data, out_col_name = IQR_Q3_Q1_COL_NA
 
 # GET MED Q1 Q3 STRING ####
 #' @export
-get_med_q1_q3 <- function(ct_data, out_col_name = MED_Q1_Q3_COL_NAME, round_to = ROUND_MED_Q1_Q3_TO, raw = F) {
+get_med_q1_q3 <- function(ct_data, out_col_name = MED_Q1_Q3_COL_NAME, round_to = MED_Q1_Q3_ROUND_TO, raw = F) {
     UseMethod("get_med_q1_q3", ct_data)
 }
 
 #' @export
-get_med_q1_q3.crosstab <- function(ct_data, out_col_name = MED_Q1_Q3_COL_NAME, round_to = ROUND_MED_Q1_Q3_TO, raw = F) {
+get_med_q1_q3.crosstab <- function(ct_data, out_col_name = MED_Q1_Q3_COL_NAME, round_to = MED_Q1_Q3_ROUND_TO, raw = F) {
     get_med_q1_q3(data_table(ct_data), out_col_name = out_col_name, round_to = round_to, raw = raw)
 }
 
 #' @export
-get_med_q1_q3.crosstab_data <- function(ct_data, out_col_name = MED_Q1_Q3_COL_NAME, round_to = ROUND_MED_Q1_Q3_TO, raw = F) {
+get_med_q1_q3.crosstab_data <- function(ct_data, out_col_name = MED_Q1_Q3_COL_NAME, round_to = MED_Q1_Q3_ROUND_TO, raw = F) {
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
 
@@ -520,17 +520,17 @@ get_count.crosstab_data <- function(ct_data, out_col_name = COUNT_COL_NAME, keep
 
 # GET PERCENT ####
 #' @export
-get_percent <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = ROUND_PERCENT_TO, keep_na_vars = F, raw = F) {
+get_percent <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
     UseMethod("get_percent", ct_data)
 }
 
 #' @export
-get_percent.crosstab <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = ROUND_PERCENT_TO, keep_na_vars = F, raw = F) {
+get_percent.crosstab <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
     get_percent(data_table(ct_data), round_to = round_to, out_col_name = out_col_name, keep_na_vars = keep_na_vars, raw = raw)
 }
 
 #' @export
-get_percent.crosstab_data_cat <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = ROUND_PERCENT_TO, keep_na_vars = F, raw = F) {
+get_percent.crosstab_data_cat <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
     # Don't check for types a) because there's no need, it's a polymorphic
     # function, and b) because I need to pass other types in like multi.
     validate_round_to(round_to)
@@ -572,28 +572,28 @@ get_percent.crosstab_data_cat <- function(ct_data, out_col_name = PERCENT_COL_NA
 }
 
 #' @export
-get_percent.crosstab_data_multi <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = ROUND_PERCENT_TO, keep_na_vars = F, raw = F) {
+get_percent.crosstab_data_multi <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
     get_percent.crosstab_data_cat(ct_data, round_to = round_to, out_col_name = out_col_name, keep_na_vars = keep_na_vars, raw = raw)
 }
 
 #' @export
-get_percent.crosstab_data <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = ROUND_PERCENT_TO, keep_na_vars = F, raw = F) {
+get_percent.crosstab_data <- function(ct_data, out_col_name = PERCENT_COL_NAME, round_to = PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
     get_percent(as.crosstab.cat(ct_data), round_to = round_to, out_col_name = out_col_name, keep_na_vars = keep_na_vars, raw = raw)
 }
 
 # GET COUNT PERCENT STRING ####
 #' @export
-get_count_percent <- function(ct_data, out_col_name = COUNT_PERCENT_COL_NAME, round_to = ROUND_COUNT_PERCENT_TO, keep_na_vars = F, raw = F) {
+get_count_percent <- function(ct_data, out_col_name = COUNT_PERCENT_COL_NAME, round_to = COUNT_PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
     UseMethod("get_count_percent", ct_data)
 }
 
 #' @export
-get_count_percent.crosstab <- function(ct_data, out_col_name = COUNT_PERCENT_COL_NAME, round_to = ROUND_COUNT_PERCENT_TO, keep_na_vars = F, raw = F) {
+get_count_percent.crosstab <- function(ct_data, out_col_name = COUNT_PERCENT_COL_NAME, round_to = COUNT_PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
     get_count_percent(data_table(ct_data), out_col_name = out_col_name, round_to = round_to, keep_na_vars = keep_na_vars, raw = raw)
 }
 
 #' @export
-get_count_percent.crosstab_data <- function(ct_data, out_col_name = COUNT_PERCENT_COL_NAME, round_to = ROUND_COUNT_PERCENT_TO, keep_na_vars = F, raw = F) {
+get_count_percent.crosstab_data <- function(ct_data, out_col_name = COUNT_PERCENT_COL_NAME, round_to = COUNT_PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
 
