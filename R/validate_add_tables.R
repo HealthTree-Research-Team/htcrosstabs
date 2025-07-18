@@ -1,6 +1,25 @@
+validate_input_add_categorical_table <- function(ct, keep_na_vars, round_percent_to) {
+    assert_crosstab(ct, strict = T)
+    assert_that(is.logical(keep_na_vars))
+    assert_that(is.numeric(round_percent_to))
+}
 
-validate_input_add_default_table <- function(ct, round_mean_sd_to, round_med_iqr_to, round_percent_to) {
-    assert_crosstab(ct)
+validate_input_add_numeric_table <- function(ct, round_mean_sd_to, round_med_iqr_to) {
+    assert_crosstab(ct, strict = T)
+    assert_that(is.numeric(round_mean_sd_to))
+    assert_that(is.numeric(round_med_iqr_to))
+}
+
+validate_input_add_likert_table <- function(ct, keep_na_vars, round_mean_sd_to, round_percent_to) {
+    assert_crosstab(ct, strict = T)
+    assert_that(is.logical(keep_na_vars))
+    assert_that(is.numeric(round_mean_sd_to))
+    assert_that(is.numeric(round_percent_to))
+}
+
+validate_input_add_default_table <- function(ct, keep_na_vars, round_mean_sd_to, round_med_iqr_to, round_percent_to) {
+    assert_crosstab(ct, strict = T)
+    assert_that(is.logical(keep_na_vars))
     assert_that(is.numeric(round_mean_sd_to))
     assert_that(is.numeric(round_med_iqr_to))
     assert_that(is.numeric(round_percent_to))

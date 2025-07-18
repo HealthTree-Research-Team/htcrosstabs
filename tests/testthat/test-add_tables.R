@@ -1,3 +1,123 @@
+# add_categorical_table() ####
+test_that("add_categorical_table() works when given proper data",{
+    test_ct <- cat_test_df() |> crosstab("cohort")
+    expect_silent(add_categorical_table(test_ct))
+    result <- add_categorical_table(test_ct)
+
+    expect_equal(nrow(result), 5)
+    expect_equal(ncol(result), 7)
+
+    test_ct <- cat_test_df() |> crosstab("cohort")
+    expect_silent(add_categorical_table(test_ct))
+    result <- add_categorical_table(test_ct, keep_na_vars = T)
+
+    expect_equal(nrow(result), 6)
+    expect_equal(ncol(result), 7)
+
+})
+
+test_that("add_categorical_table() works when given other types of data",{
+    test_df <- num_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+    expect_silent(add_categorical_table(test_ct))
+    result <- add_categorical_table(test_ct)
+
+    expect_gt(nrow(result), 3)
+    expect_equal(ncol(result), 7)
+
+    test_df <- multi_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+    expect_silent(add_categorical_table(test_ct))
+    result <- add_categorical_table(test_ct)
+
+    expect_equal(nrow(result), 7)
+    expect_equal(ncol(result), 7)
+
+    test_df <- lik_test_df()
+    test_map <- default_var_map(test_df[["variable"]])
+    test_ct <- crosstab(test_df, "cohort", test_map)
+    expect_silent(add_categorical_table(test_ct))
+    result <- add_categorical_table(test_ct)
+
+    expect_equal(nrow(result), 6)
+    expect_equal(ncol(result), 7)
+})
+
+# add_numeric_table() ####
+test_that("add_numeric_table() works when given proper data",{
+    test_ct <- num_test_df() |> crosstab("cohort")
+    expect_silent(add_numeric_table(test_ct))
+    result <- add_numeric_table(test_ct)
+
+    expect_equal(nrow(result), 3)
+    expect_equal(ncol(result), 7)
+})
+
+test_that("add_numeric_table() works when given other types of data",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+    expect_silent(add_numeric_table(test_ct))
+    result <- add_numeric_table(test_ct)
+
+    expect_equal(nrow(result), 3)
+    expect_equal(ncol(result), 7)
+
+    test_df <- multi_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+    expect_silent(add_numeric_table(test_ct))
+    result <- add_numeric_table(test_ct)
+
+    expect_equal(nrow(result), 3)
+    expect_equal(ncol(result), 7)
+
+    test_df <- lik_test_df()
+    test_map <- default_var_map(test_df[["variable"]])
+    test_ct <- crosstab(test_df, "cohort", test_map)
+    expect_silent(add_numeric_table(test_ct))
+    result <- add_numeric_table(test_ct)
+
+    expect_equal(nrow(result), 3)
+    expect_equal(ncol(result), 7)
+})
+
+# add_likert_table() ####
+test_that("add_likert_table() works when given proper data",{
+    test_df <- lik_test_df()
+    test_map <- default_var_map(test_df[["variable"]])
+    test_ct <- crosstab(test_df, "cohort", test_map)
+    expect_silent(add_likert_table(test_ct))
+    result <- add_likert_table(test_ct)
+
+    expect_equal(nrow(result), 7)
+    expect_equal(ncol(result), 7)
+})
+
+test_that("add_likert_table() works when given other types of data",{
+    test_df <- cat_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+    expect_silent(add_likert_table(test_ct))
+    result <- add_likert_table(test_ct)
+
+    expect_equal(nrow(result), 6)
+    expect_equal(ncol(result), 7)
+
+    test_df <- multi_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+    expect_silent(add_likert_table(test_ct))
+    result <- add_likert_table(test_ct)
+
+    expect_equal(nrow(result), 8)
+    expect_equal(ncol(result), 7)
+
+    test_df <- num_test_df()
+    test_ct <- crosstab(test_df, "cohort")
+    expect_silent(add_likert_table(test_ct))
+    result <- add_likert_table(test_ct)
+
+    expect_gt(nrow(result), 7)
+    expect_equal(ncol(result), 7)
+})
+
 # add_default_table() ####
 test_that("add_default_table() functions when given ungrouped categorical data",{
     test_df <- cat_test_df(gr = F)

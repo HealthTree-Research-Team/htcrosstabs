@@ -1,4 +1,4 @@
-# FUNCTIONS ####
+# FUNCTIONS
 pass <- function(obj) obj
 
 remove_na <- function(obj) {
