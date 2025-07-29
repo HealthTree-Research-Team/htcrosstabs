@@ -1,13 +1,12 @@
 # UTILITIES ####
 p_value_categories <- function(p_value, cutoff = 0.05, round_to = 3) {
     if (is.na(p_value)) "NA"
-    else if (p_value < 0.001) "< 0.001"
+    else if (p_value < 0.001 & cutoff >= 0.001) "< 0.001"
     else if (p_value <= cutoff) round(p_value, digits = round_to)
     else sprintf("NS (%s)", round(p_value, digits = round_to))
 }
 
 remove_zero_rows <- function(df) {
-    if (all(df == 0)) return(data.frame())
     keep <- !apply(df, 1, function(row) all(row == 0))
     df <- df[keep, , drop = F]
     df
@@ -55,7 +54,7 @@ fill_stat_row_skeleton <- function(new_rows, data, posthoc, overall_p_value, cut
 }
 
 get_markers <- function(num_markers, marker_type = NULL, superscript = T) {
-    if (is.null(marker_type)) marker_type == "symbol"
+    if (is.null(marker_type)) marker_type <- "symbol"
     assert_that(
         is.character(marker_type),
         length(marker_type) == 1,
@@ -80,11 +79,12 @@ get_alphabet <- function(num_markers, superscript = T) {
     return(alphabet)
 }
 
-get_numbers <- function(num_markers, superscript = T) {
+get_numbers <- function(num_markers, superscript = T, as.character = T) {
     assert_that(is.numeric(num_markers), num_markers >= 0, msg = "num_markers must be a non-zero number")
     if (num_markers == 0) return(NULL)
     numbers <- 1:num_markers
     if (superscript) numbers <- sprintf("<sup>%s</sup>", numbers)
+    if (as.character) numbers <- as.character(numbers)
     return(numbers)
 }
 
@@ -234,22 +234,22 @@ get_tukey_posthoc.aov <- function(data) {
 
 # get_anova_markers() ####
 #' @export
-get_anova_markers <- function(posthoc, cohorts, as_str = F, marker_type = NULL, superscript = T, cutoff = 0.05) {
+get_anova_markers <- function(posthoc, cohorts, as_str = F, marker_type = NULL, superscript = F, cutoff = 0.05) {
     UseMethod("get_anova_markers", posthoc)
 }
 
 #' @export
-get_anova_markers.crosstab <- function(posthoc, cohorts, as_str = F, marker_type = NULL, superscript = T, cutoff = 0.05) {
+get_anova_markers.crosstab <- function(posthoc, cohorts, as_str = F, marker_type = NULL, superscript = F, cutoff = 0.05) {
     get_anova_markers(data_table(posthoc), cohorts = cohorts, as_str = as_str, marker_type = marker_type, superscript = superscript, cutoff = cutoff)
 }
 
 #' @export
-get_anova_markers.crosstab_data <- function(posthoc, cohorts, as_str = F, marker_type = NULL, superscript = T, cutoff = 0.05) {
+get_anova_markers.crosstab_data <- function(posthoc, cohorts, as_str = F, marker_type = NULL, superscript = F, cutoff = 0.05) {
     get_anova_markers(get_tukey_posthoc(posthoc), cohorts = cohorts, as_str = as_str, marker_type = marker_type, superscript = superscript, cutoff = cutoff)
 }
 
 #' @export
-get_anova_markers.posthoc <- function(posthoc, cohorts, as_str = T, marker_type = NULL, superscript = T, cutoff = 0.05) {
+get_anova_markers.posthoc <- function(posthoc, cohorts, as_str = T, marker_type = NULL, superscript = F, cutoff = 0.05) {
     assert_that(inherits(posthoc, "posthoc"))
     assert_that(is.character(cohorts) | is.factor(cohorts))
 
@@ -314,7 +314,7 @@ get_chisq_p_value <- function(data) {
 
 #' @export
 get_chisq_p_value.crosstab <- function(data) {
-    get_chisq_p_value(data_table(data), round_to = round_to)
+    get_chisq_p_value(data_table(data))
 }
 
 #' @export
