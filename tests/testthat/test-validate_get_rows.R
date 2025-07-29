@@ -134,8 +134,7 @@ test_that("validate_input_to_long() works when given proper data", {
         wide_df = wide_df,
         description_col = "description",
         cohorts_to = "cohort",
-        values_to = "value",
-        convert_NA_cohort = TRUE
+        values_to = "value"
     ))
 })
 
@@ -144,8 +143,7 @@ test_that("validate_input_to_long() errors when wide_df is not a data frame", {
         wide_df = "not a df",
         description_col = "description",
         cohorts_to = "cohort",
-        values_to = "value",
-        convert_NA_cohort = TRUE
+        values_to = "value"
     ))
 })
 
@@ -155,8 +153,7 @@ test_that("validate_input_to_long() errors when description_col is not character
         wide_df = df,
         description_col = 123,
         cohorts_to = "cohort",
-        values_to = "value",
-        convert_NA_cohort = TRUE
+        values_to = "value"
     ))
 })
 
@@ -166,8 +163,7 @@ test_that("validate_input_to_long() errors when cohorts_to is not character", {
         wide_df = df,
         description_col = "description",
         cohorts_to = 456,
-        values_to = "value",
-        convert_NA_cohort = TRUE
+        values_to = "value"
     ))
 })
 
@@ -177,19 +173,7 @@ test_that("validate_input_to_long() errors when values_to is not character", {
         wide_df = df,
         description_col = "description",
         cohorts_to = "cohort",
-        values_to = 789,
-        convert_NA_cohort = TRUE
-    ))
-})
-
-test_that("validate_input_to_long() errors when convert_NA_cohort is not logical", {
-    df <- data.frame(description = "x", group = 1)
-    expect_error(validate_input_to_long(
-        wide_df = df,
-        description_col = "description",
-        cohorts_to = "cohort",
-        values_to = "value",
-        convert_NA_cohort = "not logical"
+        values_to = 789
     ))
 })
 
@@ -199,8 +183,7 @@ test_that("validate_input_to_long() errors when description_col is not in wide_d
         wide_df = df,
         description_col = "description",
         cohorts_to = "cohort",
-        values_to = "value",
-        convert_NA_cohort = TRUE
+        values_to = "value"
     ))
 })
 
@@ -210,22 +193,19 @@ test_that("validate_input_to_long() errors when description_col, cohorts_to, val
         wide_df = df,
         description_col = "x",
         cohorts_to = "x",
-        values_to = "y",
-        convert_NA_cohort = TRUE
+        values_to = "y"
     ))
     expect_error(validate_input_to_long(
         wide_df = df,
         description_col = "x",
         cohorts_to = "y",
-        values_to = "x",
-        convert_NA_cohort = TRUE
+        values_to = "x"
     ))
     expect_error(validate_input_to_long(
         wide_df = df,
         description_col = "x",
         cohorts_to = "y",
-        values_to = "y",
-        convert_NA_cohort = TRUE
+        values_to = "y"
     ))
 })
 
@@ -337,9 +317,9 @@ test_that("validate_input_get_mean_row() works with correct types", {
 # validate_input_add_mean_row() ####
 test_that("validate_input_add_mean_row() works with correct types", {
     ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
-    expect_silent(validate_input_add_mean_row(ct, 2))
-    expect_error(validate_input_add_mean_row("not_ct", 2))
-    expect_error(validate_input_add_mean_row(ct, "two"))
+    expect_silent(validate_input_add_mean_row(ct, 2, F, "symbol", F))
+    expect_error(validate_input_add_mean_row("not_ct", 2, F, "symbol", F))
+    expect_error(validate_input_add_mean_row(ct, "two", F, "symbol", F))
 })
 
 # validate_input_get_sd_row() ####
@@ -373,9 +353,9 @@ test_that("validate_input_get_mean_sd_row() works with correct types", {
 # validate_input_add_mean_sd_row() ####
 test_that("validate_input_add_mean_sd_row() works with correct types", {
     ct <- structure(data.frame(x = 1), class = c("crosstab", "data.frame"))
-    expect_silent(validate_input_add_mean_sd_row(ct, 2))
-    expect_error(validate_input_add_mean_sd_row("not_ct", 2))
-    expect_error(validate_input_add_mean_sd_row(ct, "two"))
+    expect_silent(validate_input_add_mean_sd_row(ct, 2, F, "symbol", F))
+    expect_error(validate_input_add_mean_sd_row("not_ct", 2, F, "symbol", F))
+    expect_error(validate_input_add_mean_sd_row(ct, "two", F, "symbol", F))
 })
 
 # validate_input_get_med_row() ####

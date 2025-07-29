@@ -344,7 +344,7 @@ test_that("validate_crosstab() fails when index attribute is malformed",{
     test_ct <- crosstab(test_df, "cohort")
     attr(test_ct, "index") <- c(1, 2, 3)
     expect_error(validate_crosstab(test_ct))
-    attr(test_ct, "index") <- c(a = "a", b = "b", c = "c")
+    attr(test_ct, "index") <- c(a = 1, b = 2, c = 3)
     expect_error(validate_crosstab(test_ct))
     attr(test_ct, "index") <- NULL
     expect_error(validate_crosstab(test_ct))
@@ -532,10 +532,11 @@ test_that("validate_input_index_setter() works when given proper data",{
         add_total_row() |>
         add_total_row()
 
-    expect_silent(validate_input_index_setter(test_ct, c(a = 2, b = 2)))
-    expect_silent(validate_input_index_setter(test_ct, c(a = 3, b = 1)))
-    expect_silent(validate_input_index_setter(test_ct, c(a = 0, b = 4)))
-    expect_silent(validate_input_index_setter(test_ct, c(a = 4, b = 0, c = 0)))
+    expect_silent(validate_input_index_setter(test_ct, c(rep("test1", 4))))
+    expect_silent(validate_input_index_setter(test_ct, c(rep("test1", 3), rep("test2", 1))))
+    expect_silent(validate_input_index_setter(test_ct, c(rep("test1", 2), rep("test2", 2))))
+    expect_silent(validate_input_index_setter(test_ct, c(rep("test1", 1), rep("test2", 3))))
+    expect_silent(validate_input_index_setter(test_ct, c("test1", "test2", "test3", "test4")))
 })
 
 test_that("validate_input_index_setter() fails when ct is not a crosstab",{

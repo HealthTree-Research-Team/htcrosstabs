@@ -40,12 +40,11 @@ validate_input_to_wide <- function(long_df, description_col, cohort_col, na_fill
     ))
 }
 
-validate_input_to_long <- function(wide_df, description_col, cohorts_to, values_to, convert_NA_cohort) {
+validate_input_to_long <- function(wide_df, description_col, cohorts_to, values_to) {
     assert_that(is.data.frame(wide_df))
     assert_that(is.character(description_col))
     assert_that(is.character(cohorts_to))
     assert_that(is.character(values_to))
-    assert_that(is.logical(convert_NA_cohort))
     assert_that(
         description_col %in% names(wide_df),
         msg = "Description column name not found in wide_df"
@@ -56,7 +55,7 @@ validate_input_to_long <- function(wide_df, description_col, cohorts_to, values_
     )
 }
 
-validate_input_add_rows <- function(ct, rows, index, index_from, prefer_table) {
+validate_input_add_rows <- function(ct, rows, index, index_from, table_name) {
     assert_crosstab(ct)
     assert_that(is.data.frame(rows))
     if (!is.null(index))
@@ -69,9 +68,7 @@ validate_input_add_rows <- function(ct, rows, index, index_from, prefer_table) {
     assert_that(is.character(index_from))
     assert_that(length(index_from) == 1, msg = "index_from must only have one value")
     assert_that(index_from %in% c("top", "bottom"), msg = "index_from must be either \"top\" or \"bottom\"")
-    assert_that(is.character(prefer_table))
-    assert_that(length(prefer_table) == 1, msg = "prefer_table must only have one value")
-    assert_that(prefer_table %in% c("top", "bottom"), msg = "prefer_table must be either \"top\" or \"bottom\"")
+    assert_that(is.null(table_name) | is.character(table_name), msg = "table_name must be either NULL or a character value")
 }
 
 validate_input_col_names <- function(ct, long_out_col, long) {
@@ -125,9 +122,22 @@ validate_input_get_mean_row <- function(ct, long, long_out_col, round_to) {
     assert_that(is.numeric(round_to))
 }
 
-validate_input_add_mean_row <- function(ct, round_to) {
+validate_input_add_mean_row <- function(ct, round_to, anova_markers, marker_type, superscript) {
     assert_crosstab(ct)
     assert_that(is.numeric(round_to))
+    assert_that(is.logical(anova_markers))
+    if (!is.null(marker_type)) {
+        assert_that(
+            is.character(marker_type),
+            length(marker_type) == 1,
+            marker_type %in% c("symbol", "alphabet", "number"),
+            msg = "marker_type must be either \"symbol\", \"alphabet\", or \"number\""
+        )
+    }
+    assert_that(is.logical(superscript))
+    if (superscript) {
+        warning("When \"superscript = TRUE\", the \"Viewer\" window in RStudio may not display the table correctly. See docs for details.")
+    }
 }
 
 validate_input_get_sd_row <- function(ct, long, long_out_col, round_to) {
@@ -149,9 +159,29 @@ validate_input_get_mean_sd_row <- function(ct, long, long_out_col, round_to) {
     assert_that(is.numeric(round_to))
 }
 
-validate_input_add_mean_sd_row <- function(ct, round_to) {
+validate_input_add_mean_sd_row <- function(ct, round_to, anova_markers, marker_type, superscript) {
     assert_crosstab(ct)
     assert_that(is.numeric(round_to))
+    assert_that(is.logical(anova_markers))
+    if (!is.null(marker_type)) {
+        assert_that(
+            is.character(marker_type),
+            length(marker_type) == 1,
+            marker_type %in% c("symbol", "alphabet", "number"),
+            msg = "marker_type must be either \"symbol\", \"alphabet\", or \"number\""
+        )
+    }
+    assert_that(is.logical(superscript))
+    if (superscript) {
+        warning(paste(
+            "When setting \"superscript = TRUE\", the \"Viewer\" window in",
+            "RStudio may not display the table correctly, BUT IT WILL DISPLAY",
+            "CORRECTLY WHEN KNITTING TO PDF. LaTeX \"special characters\" like",
+            "% will have a \\ in front of them, and some mathematical symbols",
+            "like < may be replaced with a $.",
+            collapse = " "
+        ))
+    }
 }
 
 validate_input_get_med_row <- function(ct, long, long_out_col, round_to) {
@@ -294,4 +324,60 @@ validate_input_get_count_percent_rows <- function(ct, long, long_out_col, round_
 validate_input_add_count_percent_rows <- function(ct, round_to) {
     assert_crosstab(ct)
     assert_that(is.numeric(round_to))
+}
+
+validate_input_get_anova_rows <- function(ct, cutoff, round_to) {
+    assert_crosstab_grouped(ct)
+    assert_that(is.numeric(cutoff))
+    assert_that(cutoff > 0)
+    assert_that(is.numeric(round_to))
+    assert_that(round_to >= 0)
+}
+
+validate_input_add_anova_rows <- function(ct, cutoff, round_to) {
+    assert_crosstab_grouped(ct)
+    assert_that(is.numeric(cutoff))
+    assert_that(cutoff > 0)
+    assert_that(is.numeric(round_to))
+    assert_that(round_to >= 0)
+}
+
+validate_input_get_chisq_rows <- function(ct, p.adj, method, cutoff, round_to) {
+    assert_crosstab_grouped(ct)
+    assert_that(is.logical(p.adj))
+    assert_that(is.character(method))
+    assert_that(is.numeric(cutoff))
+    assert_that(cutoff > 0)
+    assert_that(is.numeric(round_to))
+    assert_that(round_to >= 0)
+}
+
+validate_input_add_chisq_rows <- function(ct, p.adj, method, cutoff, round_to) {
+    assert_crosstab_grouped(ct)
+    assert_that(is.logical(p.adj))
+    assert_that(is.character(method))
+    assert_that(is.numeric(cutoff))
+    assert_that(cutoff > 0)
+    assert_that(is.numeric(round_to))
+    assert_that(round_to >= 0)
+}
+
+validate_input_get_rao_scott_rows <- function(ct, p.adj, method, cutoff, round_to) {
+    assert_crosstab_grouped(ct)
+    assert_that(is.logical(p.adj))
+    assert_that(is.character(method))
+    assert_that(is.numeric(cutoff))
+    assert_that(cutoff > 0)
+    assert_that(is.numeric(round_to))
+    assert_that(round_to >= 0)
+}
+
+validate_input_add_rao_scott_rows <- function(ct, p.adj, method, cutoff, round_to) {
+    assert_crosstab_grouped(ct)
+    assert_that(is.logical(p.adj))
+    assert_that(is.character(method))
+    assert_that(is.numeric(cutoff))
+    assert_that(cutoff > 0)
+    assert_that(is.numeric(round_to))
+    assert_that(round_to >= 0)
 }

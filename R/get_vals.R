@@ -188,6 +188,11 @@ get_mean_sd.crosstab <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round
 
 #' @export
 get_mean_sd.crosstab_data <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = MEAN_SD_ROUND_TO, raw = F) {
+    get_mean_sd(as.crosstab.num(ct_data), out_col_name = out_col_name, round_to = round_to, raw = raw)
+}
+
+#' @export
+get_mean_sd.crosstab_data_num <- function(ct_data, out_col_name = MEAN_SD_COL_NAME, round_to = MEAN_SD_ROUND_TO, raw = F) {
     validate_round_to(round_to)
     validate_out_col_name(out_col_name, ct_data)
 
@@ -493,6 +498,11 @@ get_count.crosstab <- function(ct_data, out_col_name = COUNT_COL_NAME, keep_na_v
 }
 
 #' @export
+get_count.crosstab_data <- function(ct_data, out_col_name = COUNT_COL_NAME, keep_na_vars = F) {
+    get_count(suppressWarnings(as.crosstab.cat(ct_data)), out_col_name = out_col_name, keep_na_vars = keep_na_vars)
+}
+
+#' @export
 get_count.crosstab_data_cat <- function(ct_data, out_col_name = COUNT_COL_NAME, keep_na_vars = F) {
     validate_input_get_count(ct_data, out_col_name, keep_na_vars)
 
@@ -501,7 +511,7 @@ get_count.crosstab_data_cat <- function(ct_data, out_col_name = COUNT_COL_NAME, 
         ct_data <- ct_data[keep, , drop = F]
     }
 
-    ct_data |>
+    result <- ct_data |>
         dplyr::group_by(
             .data[[cohort_name(ct_data)]],
             .data[[var_name(ct_data)]],
@@ -511,11 +521,8 @@ get_count.crosstab_data_cat <- function(ct_data, out_col_name = COUNT_COL_NAME, 
             name = out_col_name
         ) |>
         data.frame(check.names = F)
-}
 
-#' @export
-get_count.crosstab_data <- function(ct_data, out_col_name = COUNT_COL_NAME, keep_na_vars = F) {
-    get_count(as.crosstab.cat(ct_data), out_col_name = out_col_name, keep_na_vars = keep_na_vars)
+    return(result)
 }
 
 # GET PROPORTION ####
@@ -548,7 +555,7 @@ get_prop.crosstab_data_cat <- function(ct_data, out_col_name = PROP_COL_NAME, ro
         get_complete(ct_data, out_col_name = complete_col)
     )
 
-    props[[out_col_name]] <- props[[count_col]] / props[[complete_col]]
+    props[[out_col_name]] <- ifelse(props[[complete_col]] == 0, 0, props[[count_col]] / props[[complete_col]])
 
     # Round if applicable
     if (!is.null(round_to))
@@ -559,6 +566,7 @@ get_prop.crosstab_data_cat <- function(ct_data, out_col_name = PROP_COL_NAME, ro
     # NA variables shouldn't have a prop, because props are calculated
     # out of those who completed the question, and if they are NA then they
     # aren't part of that count.
+
     na_answers <- is.na(props[[var_name(ct_data)]])
     props[[out_col_name]][na_answers] <- NA
 
@@ -572,7 +580,7 @@ get_prop.crosstab_data_multi <- function(ct_data, out_col_name = PROP_COL_NAME, 
 
 #' @export
 get_prop.crosstab_data <- function(ct_data, out_col_name = PROP_COL_NAME, round_to = PROP_ROUND_TO, keep_na_vars = F) {
-    get_prop(as.crosstab.cat(ct_data), round_to = round_to, out_col_name = out_col_name, keep_na_vars = keep_na_vars)
+    get_prop(suppressWarnings(as.crosstab.cat(ct_data)), round_to = round_to, out_col_name = out_col_name, keep_na_vars = keep_na_vars)
 }
 
 # GET COUNT PROPORTION ####

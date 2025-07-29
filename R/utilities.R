@@ -104,3 +104,51 @@ determine_col_type <- function(col, var_map = NULL) {
     else
         CT_DATA_CLASS_CAT
 }
+
+insert_at <- function(vec, pos, values) {
+    stopifnot(pos >= 1, pos <= length(vec) + 1)
+    if (pos == 1) {
+        return(c(values, vec))
+    } else if (pos == length(vec) + 1) {
+        return(c(vec, values))
+    } else {
+        return(c(vec[1:pos-1], values, vec[(pos):length(vec)]))
+    }
+}
+
+escape_table = function(table) {
+    escape_str = function(str) {
+        # Combine HTML tags and entities
+        html_pattern <- "(&[a-zA-Z0-9#]+;|<[^>]+>)"
+
+        sapply(str, function(single_str) {
+            # Split on HTML to isolate plain text parts
+            pieces <- strsplit(single_str, html_pattern, perl = TRUE)[[1]]
+
+            # Extract the HTML bits
+            matches <- gregexpr(html_pattern, single_str, perl = TRUE)[[1]]
+            html_parts <- if (matches[1] != -1) regmatches(single_str, list(matches))[[1]] else character(0)
+
+            # Escape the plain text parts
+            escaped_pieces <- sapply(pieces, Hmisc::latexTranslate)
+
+            # Interleave escaped text and HTML parts
+            result <- character(length = length(escaped_pieces) + length(html_parts))
+            result[seq(1, length(result), by = 2)] <- escaped_pieces
+            if (length(html_parts)) {
+                result[seq(2, length(result), by = 2)] <- html_parts
+            }
+
+            paste(result, collapse = "")
+        }, USE.NAMES = FALSE)
+    }
+
+    table[] <- lapply(table, function(col) {
+        if (is.character(col) || is.factor(col)) {
+            escape_str(as.character(col))
+        } else {
+            col
+        }
+    })
+    table
+}

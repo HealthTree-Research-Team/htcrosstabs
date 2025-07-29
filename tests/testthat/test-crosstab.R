@@ -285,7 +285,7 @@ test_that("crosstab() works when given ungrouped categorical data",{
     expect_equal(ct_data[["variable"]], test_df[["variable"]])
 })
 
-test_that("crosstab() works when given ungrouped categorical data",{
+test_that("crosstab() works when given grouped categorical data",{
     test_df <- cat_test_df(gr = T)
     expect_silent(crosstab(test_df, "cohort"))
     ct <- crosstab(test_df, "cohort")
@@ -323,7 +323,7 @@ test_that("crosstab() works when given ungrouped numeric data",{
     expect_equal(ct_data[["variable"]], test_df[["variable"]])
 })
 
-test_that("crosstab() works when given ungrouped numeric data",{
+test_that("crosstab() works when given grouped numeric data",{
     test_df <- num_test_df(gr = T)
     expect_silent(crosstab(test_df, "cohort"))
     ct <- crosstab(test_df, "cohort")
@@ -362,7 +362,7 @@ test_that("crosstab() works when given ungrouped likert data",{
     expect_equal(ct_data[["variable"]], test_df[["variable"]])
 })
 
-test_that("crosstab() works when given ungrouped likert data",{
+test_that("crosstab() works when given grouped likert data",{
     test_df <- lik_test_df(gr = T)
     test_map <- default_var_map(test_df[["variable"]])
     expect_silent(crosstab(test_df, "cohort", var_map = test_map))
@@ -401,7 +401,7 @@ test_that("crosstab() works when given ungrouped multianswer data",{
     expect_equal(ct_data[["variable"]], test_df[["variable"]])
 })
 
-test_that("crosstab() works when given ungrouped multianswer data",{
+test_that("crosstab() works when given grouped multianswer data",{
     test_df <- multi_test_df(gr = T)
     expect_silent(crosstab(test_df, "cohort"))
     ct <- crosstab(test_df, "cohort")
@@ -418,6 +418,14 @@ test_that("crosstab() works when given ungrouped multianswer data",{
 
     ct_data <- data_table(ct, raw = T)
     expect_equal(ct_data[["variable"]], test_df[["variable"]])
+})
+
+test_that("crosstab() respects new_var_col_name",{
+    test_df <- cat_test_df(col_name = "orig_var")
+    expect_silent(crosstab(test_df, "cohort", new_var_col_name = "new_var"))
+    test_ct <- crosstab(test_df, "cohort", new_var_col_name = "new_var")
+    expect_in("new_var", names(data_table(test_ct)))
+    expect_equal("new_var", var_name(test_ct))
 })
 
 # GETTERS ####
@@ -597,27 +605,6 @@ test_that("data_table<-() sets the data object to the new object",{
     expect_equal(data_table(test_ct), new_data)
 })
 
-test_that("data_table<-() correctly adds a 0 to the index vector",{
-    test_df <- cat_test_df()
-    test_ct <- crosstab(test_df, "cohort") |>
-        add_total_row() |>
-        add_total_row() |>
-        add_total_row() |>
-        add_total_row() |>
-        add_total_row()
-    new_df <- num_test_df()
-    new_data <- crosstab_data(new_df, "cohort")
-
-    orig_index <- attr(test_ct, "index")
-    data_table(test_ct) <- new_data
-    new_index <- attr(test_ct, "index")
-
-    expect_true(all(orig_index %in% new_index))
-    expect_equal(length(orig_index) + 1, length(new_index))
-    expect_true(new_index[length(new_index)] == 0)
-    expect_equal(sum(orig_index), sum(new_index))
-})
-
 test_that("data_table<-() can take a crosstab in value and pass the call onto its data table",{
     test_df <- cat_test_df()
     test_ct <- crosstab(test_df, "cohort")
@@ -761,9 +748,10 @@ test_that("index<-() sets the new index attribute",{
         add_total_row()
 
     expect_equal(index(test_ct), c("variable" = 4))
-    expect_silent(`index<-`(test_ct, c(a = 2, b = 2)))
-    index(test_ct) <- c(a = 2, b = 2)
-    expect_equal(index(test_ct), c(a = 2, b = 2))
+    expect_silent(`index<-`(test_ct, c("test1", "test2", "test3", "test4")))
+    index(test_ct) <- c("test1", "test2", "test3", "test4")
+    expect_equal(index(test_ct, long = T), c("test1", "test2", "test3", "test4"))
+    expect_equal(index(test_ct), c("test1" = 1, "test2" = 1, "test3" = 1, "test4" = 1))
 })
 
 test_that("var_name<-() passes the call onto the data object",{
@@ -869,13 +857,13 @@ test_that("stack_crosstabs() works when given proper data",{
     )
 
     result <- stack_crosstabs(
-        crosstab(test_df1, "cohort") |> add_default_table(),
-        crosstab(test_df2, "cohort") |> add_default_table(),
-        crosstab(test_df3, "cohort") |> add_default_table(),
-        crosstab(test_df4, "cohort") |> add_default_table()
+        crosstab(test_df1, "cohort") |> add_default_table(anova = F, chisq = F),
+        crosstab(test_df2, "cohort") |> add_default_table(anova = F, chisq = F),
+        crosstab(test_df3, "cohort") |> add_default_table(anova = F, chisq = F),
+        crosstab(test_df4, "cohort") |> add_default_table(anova = F, chisq = F)
     )
 
-    expect_equal(ncol(result), 7)
+    expect_equal(ncol(result), 6)
     expect_equal(nrow(result), 21)
     expect_equal(index(result), c(cat = 5, num = 3, lik = 6, mul = 7))
 })

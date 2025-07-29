@@ -1,37 +1,43 @@
 # CONSTRUCTORS ####
-new_crosstab <- function(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name) {
+new_crosstab <- function(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name, new_var_col_name = NULL) {
     validate_input_new_crosstab(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name)
     data <- crosstab_data(
         df = df,
         cohort_col_name = cohort_col_name,
         var_map = var_map,
+        new_var_col_name = new_var_col_name,
         combined_cohort_name = combined_cohort_name,
         desc_col_name = desc_col_name
     )
 
-    index <- c(0)
-    names(index) <- c(var_name(data))
-
     structure(
         data.frame(), # Output table
         data = data,  # crosstab_data
-        index = index,
+        index = character(0),
+        table_id = numeric(0),
+        footnotes = list(),
+        manual_escape = F,
         class = c(CT_CLASS, class(data.frame()))
     )
 }
 
 # HELPERS ####
 #' @export
-crosstab <- function(df, cohort_col_name = NULL, var_map = NULL, combined_cohort_name = "All", desc_col_name = "Description") {
+crosstab <- function(df, cohort_col_name = NULL, var_map = NULL, new_var_col_name = NULL, combined_cohort_name = "All", desc_col_name = "Description") {
     ct <- new_crosstab(
         df = df,
         cohort_col_name = cohort_col_name,
         var_map = var_map,
+        new_var_col_name = new_var_col_name,
         combined_cohort_name = combined_cohort_name,
         desc_col_name = desc_col_name
     )
 
     validate_crosstab(ct)
+
+    if (!is.null(var_map))
+        ct <- add_likert_map_footnotes(ct, var_map)
+
     return(ct)
 }
 
@@ -48,8 +54,38 @@ data_table <- function(ct, raw = F) {
 index <- function(ct, long = F) {
     validate_input_index_getter(ct, long)
     out <- attr(ct, "index")
-    if (long) out <- rep(names(out), times = out)
-    return(out)
+
+    if (is.null(out) | long) {
+        return(out)
+    } else if (length(out) == 0) {
+        return(setNames(numeric(0), character(0)))
+    } else {
+        rle_result <- rle(out)
+        return(setNames(rle_result$lengths, rle_result$values))
+    }
+}
+
+table_id <- function(ct, long = F) {
+    validate_input_table_id_getter(ct, long)
+    out <- attr(ct, "table_id")
+
+    if (is.null(out) | long) {
+        return(out)
+    } else if (length(out) == 0) {
+        return(setNames(numeric(0), character(0)))
+    } else {
+        rle_result <- rle(out)
+        return(setNames(rle_result$lengths, rle_result$values))
+    }
+
+}
+
+footnotes <- function(ct) {
+    attr(ct, "footnotes")
+}
+
+manual_escape <- function(ct) {
+    attr(ct, "manual_escape")
 }
 
 #' @export
@@ -118,9 +154,6 @@ get_raw_data.crosstab <- function(ct_data) {
 `data_table<-.crosstab_data` <- function(ct, value) {
     validate_input_data_table_setter(ct, value)
     attr(ct, "data") <- value
-    new_index_val <- 0
-    names(new_index_val) <- var_name(value)
-    attr(ct, "index") <- c(attr(ct, "index"), new_index_val)
     return(ct)
 }
 
@@ -138,6 +171,8 @@ set_new_data <- function(ct, tbl, var_map = NULL) {
 #' @export
 set_new_data.crosstab <- function(ct, tbl, var_map = NULL) {
     set_new_data(ct, data_table(tbl), var_map = var_map)
+
+    # FIXME: Update likert footnotes
 }
 
 #' @export
@@ -164,6 +199,18 @@ set_new_data.data.frame <- function(ct, tbl, var_map = NULL) {
 `index<-` <- function(ct, value) {
     validate_input_index_setter(ct, value)
     attr(ct, "index") <- value
+    return(ct)
+}
+
+`table_id<-` <- function(ct, value) {
+    validate_input_table_id_setter(ct, value)
+    attr(ct, "table_id") <- value
+    return(ct)
+}
+
+`manual_escape<-` <- function(ct, value) {
+    validate_input_manual_escape_setter(ct, value)
+    attr(ct, "manual_escape") <- value
     return(ct)
 }
 
@@ -211,6 +258,13 @@ stack_crosstabs <- function(...) {
     output_table <- Reduce(function(ct1, ct2) {
         ct1 <- set_new_data(ct1, ct2)
         ct1 <- add_rows(ct1, ct2)
+
+        footnotes1 <- attr(ct1, "footnotes")
+        footnotes2 <- attr(ct2, "footnotes")
+        new_footnotes <- c(footnotes1, footnotes2)
+        new_footnotes[["likert"]] <- c(footnotes1[["likert"]], footnotes2[["likert"]])
+
+        attr(ct1, "footnotes") <- new_footnotes
         return(ct1)
     }, cts)
 

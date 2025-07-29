@@ -21,8 +21,8 @@ new_crosstab_data <- function(df, var_col_name, cohort_col_name, cohort_levels, 
 
 # HELPERS ####
 #' @export
-crosstab_data <- function(df, cohort_col_name = NULL, var_map = NULL, combined_cohort_name = "All", desc_col_name = "Description") {
-    validate_input_crosstab_data(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name)
+crosstab_data <- function(df, cohort_col_name = NULL, var_map = NULL, new_var_col_name = NULL, combined_cohort_name = "All", desc_col_name = "Description") {
+    validate_input_crosstab_data(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name, new_var_col_name)
     grouped <- !is.null(cohort_col_name)
 
     # Add grouping column if it doesn't exist
@@ -34,8 +34,13 @@ crosstab_data <- function(df, cohort_col_name = NULL, var_map = NULL, combined_c
     # Factorize cohort and variable (if non-numeric)
     df[[cohort_col_name]] <- factor(df[[cohort_col_name]])
     var_col_name <- names(df)[names(df) != cohort_col_name]
-    if (!is.numeric(df[[var_col_name]]))
+    if (!is.null(new_var_col_name)) {
+        names(df)[names(df) == var_col_name] <- new_var_col_name
+        var_col_name <- new_var_col_name
+    }
+    if (!is.numeric(df[[var_col_name]])) {
         df[[var_col_name]] <- factor(df[[var_col_name]])
+    }
 
     # Extract levels (var_levels will be NULL for numeric variables)
     var_levels <- levels(df[[var_col_name]])

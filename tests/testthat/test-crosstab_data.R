@@ -402,6 +402,14 @@ test_that("crosstab_data() works when given grouped multianswer data",{
     expect_s3_class(result, "data.frame")
 })
 
+test_that("crosstab_data() respects new_var_col_name",{
+    test_df <- cat_test_df(col_name = "orig_var")
+    expect_silent(crosstab_data(test_df, "cohort", new_var_col_name = "new_var"))
+    test_ct <- crosstab_data(test_df, "cohort", new_var_col_name = "new_var")
+    expect_in("new_var", names(test_ct))
+    expect_equal("new_var", var_name(test_ct))
+})
+
 # GETTERS ####
 test_that("var_name() returns correct value", {
     test_ct_data <- crosstab_data(cat_test_df(), "cohort")

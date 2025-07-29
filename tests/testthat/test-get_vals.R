@@ -8,7 +8,7 @@ test_that("get_total() works when provided proper data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
 
     total_col <- result[["total"]]
     expect_equal(total_col[1], sum(total_col[2:length(total_col)]))
@@ -36,7 +36,7 @@ test_that("get_complete() works when provided proper data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
 
     total_col <- result[["complete"]]
     expect_equal(total_col[1], sum(total_col[2:length(total_col)]))
@@ -64,7 +64,7 @@ test_that("get_complete_total() works when provided proper data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
 })
 
 test_that("get_complete_total() respects out_col_name",{
@@ -89,7 +89,7 @@ test_that("get_mean() works when provided proper data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
 
     expect_true(is.numeric(result[["mean"]]))
 })
@@ -145,7 +145,7 @@ test_that("get_sd() works when provided proper data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
 
     expect_true(is.numeric(result[["sd"]]))
 })
@@ -201,7 +201,7 @@ test_that("get_mean_sd() works when provided numeric data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
     expect_true(is.character(result[["mean_sd"]]))
 })
 
@@ -215,7 +215,7 @@ test_that("get_mean_sd() works when provided likert data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
     expect_true(is.character(result[["mean_sd"]]))
 })
 
@@ -271,7 +271,7 @@ test_that("get_med() works when provided proper data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
 
     expect_true(is.numeric(result[["med"]]))
 })
@@ -328,7 +328,7 @@ test_that("get_q1() works when provided proper data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
 
     expect_true(is.numeric(result[["q1"]]))
 })
@@ -384,7 +384,7 @@ test_that("get_q3() works when provided proper data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
 
     expect_true(is.numeric(result[["q3"]]))
 })
@@ -440,7 +440,7 @@ test_that("get_q1_q3() works when provided numeric data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
     expect_true(is.character(result[["q1_q3"]]))
 })
 
@@ -454,7 +454,7 @@ test_that("get_q1_q3() works when provided likert data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
     expect_true(is.character(result[["q1_q3"]]))
 })
 
@@ -510,7 +510,7 @@ test_that("get_iqr() works when provided numeric data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
     expect_true(is.numeric(result[["iqr"]]))
 })
 
@@ -524,7 +524,7 @@ test_that("get_iqr() works when provided likert data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
     expect_true(is.numeric(result[["iqr"]]))
 })
 
@@ -580,7 +580,7 @@ test_that("get_iqr_q3_q1() works when provided numeric data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
     expect_true(is.character(result[["iqr_q3_q1"]]))
 })
 
@@ -594,7 +594,7 @@ test_that("get_iqr_q3_q1() works when provided likert data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
     expect_true(is.character(result[["iqr_q3_q1"]]))
 })
 
@@ -650,7 +650,7 @@ test_that("get_med_q1_q3() works when provided numeric data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
     expect_true(is.character(result[["med_q1_q3"]]))
 })
 
@@ -664,7 +664,7 @@ test_that("get_med_q1_q3() works when provided likert data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 2)
-    expect_equal(nrow(result), 6)
+    expect_equal(nrow(result), 5)
     expect_true(is.character(result[["med_q1_q3"]]))
 })
 
@@ -720,12 +720,12 @@ test_that("get_count() works when provided categorical data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 24)
+    expect_equal(nrow(result), 20)
     expect_true(is.numeric(result[["count"]]))
 
     wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
     wide_all <- wide_result[["All"]]
-    wide_cohort <- rowSums(wide_result[c(character_levels, "NA")])
+    wide_cohort <- rowSums(wide_result[, character_levels])
     expect_equal(wide_all, wide_cohort)
 })
 
@@ -738,12 +738,12 @@ test_that("get_count() works when provided multianswer data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 36)
+    expect_equal(nrow(result), 30)
     expect_true(is.numeric(result[["count"]]))
 
     wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
     wide_all <- wide_result[["All"]]
-    wide_cohort <- rowSums(wide_result[c(character_levels, "NA")])
+    wide_cohort <- rowSums(wide_result[, character_levels])
     expect_equal(wide_all, wide_cohort)
 
     expect_gt(sum(wide_all), nrow(test_df))
@@ -771,13 +771,13 @@ test_that("get_prop() works when provided categorical data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 24)
+    expect_equal(nrow(result), 20)
     expect_true(is.numeric(result[["prop"]]))
 
     wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
     keep <- !is.na(wide_result[["variable"]])
     wide_result <- wide_result[keep, , drop = F]
-    totals <- sapply(wide_result[c("All", character_levels, "NA")], sum)
+    totals <- sapply(wide_result[, c("All", character_levels)], sum)
     expect_true(all(totals > 0.98 & totals < 1.02))
 })
 
@@ -790,13 +790,13 @@ test_that("get_prop() works when provided multianswer data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 36)
+    expect_equal(nrow(result), 30)
     expect_true(is.numeric(result[["prop"]]))
 
     wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
     keep <- !is.na(wide_result[["variable"]])
     wide_result <- wide_result[keep, , drop = F]
-    totals <- sapply(wide_result[c("All", character_levels, "NA")], sum)
+    totals <- sapply(wide_result[, c("All", character_levels)], sum)
     expect_false(all(totals > 98 & totals < 102))
 })
 
@@ -852,7 +852,7 @@ test_that("get_count_prop() works when provided categorical data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 24)
+    expect_equal(nrow(result), 20)
     expect_true(is.character(result[["count_prop"]]))
 })
 
@@ -865,7 +865,7 @@ test_that("get_count_prop() works when provided multianswer data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 36)
+    expect_equal(nrow(result), 30)
     expect_true(is.character(result[["count_prop"]]))
 })
 
@@ -921,7 +921,7 @@ test_that("get_percent() works when provided categorical data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 24)
+    expect_equal(nrow(result), 20)
     expect_true(is.character(result[["percent"]]))
 
     test_df <- cat_test_df()
@@ -932,13 +932,13 @@ test_that("get_percent() works when provided categorical data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 24)
+    expect_equal(nrow(result), 20)
     expect_true(is.numeric(result[["percent"]]))
 
     wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
     keep <- !is.na(wide_result[["variable"]])
     wide_result <- wide_result[keep, , drop = F]
-    totals <- sapply(wide_result[c("All", character_levels, "NA")], sum)
+    totals <- sapply(wide_result[, c("All", character_levels)], sum)
     expect_true(all(totals > 98 & totals < 102))
 })
 
@@ -951,7 +951,7 @@ test_that("get_percent() works when provided multianswer data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 36)
+    expect_equal(nrow(result), 30)
     expect_true(is.character(result[["percent"]]))
 
     test_df <- multi_test_df()
@@ -962,13 +962,13 @@ test_that("get_percent() works when provided multianswer data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 36)
+    expect_equal(nrow(result), 30)
     expect_true(is.numeric(result[["percent"]]))
 
     wide_result <- to_wide(result, desc_col = "variable", cohort_col = "cohort")
     keep <- !is.na(wide_result[["variable"]])
     wide_result <- wide_result[keep, , drop = F]
-    totals <- sapply(wide_result[c("All", character_levels, "NA")], sum)
+    totals <- sapply(wide_result[, c("All", character_levels)], sum)
     expect_false(all(totals > 98 & totals < 102))
 })
 
@@ -1024,7 +1024,7 @@ test_that("get_count_percent() works when provided categorical data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 24)
+    expect_equal(nrow(result), 20)
     expect_true(is.character(result[["count_percent"]]))
 })
 
@@ -1037,7 +1037,7 @@ test_that("get_count_percent() works when provided multianswer data",{
 
     expect_s3_class(result, "data.frame")
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 36)
+    expect_equal(nrow(result), 30)
     expect_true(is.character(result[["count_percent"]]))
 })
 

@@ -55,13 +55,13 @@ add_group_col <- function(df, name = "cohort", value = "Response") {
     df
 }
 
-num_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE, factorize = TRUE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
+num_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE, factorize = TRUE, group_type = "c", nrows = 200, w_na_var = TRUE, w_na_cohort = FALSE, seed = NULL) {
     if (!is.null(seed)) set.seed(seed)
     data_col <- sample(1:100, nrows, replace = TRUE)
-    data_col <- spatter_missing(data_col, w_na)
+    data_col <- spatter_missing(data_col, w_na_var)
 
     if (gr) {
-        group_col <- generate_group_col(nrows, group_type, w_na)
+        group_col <- generate_group_col(nrows, group_type, w_na_cohort)
         df <- data.frame(col_name = data_col, group_name = group_col, stringsAsFactors = FALSE)
     } else {
         df <- data.frame(col_name = data_col, stringsAsFactors = FALSE)
@@ -80,13 +80,13 @@ num_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE,
     df
 }
 
-cat_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE, factorize = TRUE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
+cat_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE, factorize = TRUE, group_type = "c", nrows = 200, w_na_var = TRUE, w_na_cohort = FALSE, seed = NULL) {
     if (!is.null(seed)) set.seed(seed)
     data_col <- sample(categorical_levels, nrows, replace = TRUE)
-    data_col <- spatter_missing(data_col, w_na)
+    data_col <- spatter_missing(data_col, w_na_var)
 
     if (gr) {
-        group_col <- generate_group_col(nrows, group_type, w_na)
+        group_col <- generate_group_col(nrows, group_type, w_na_cohort)
         df <- data.frame(col_name = data_col, group_name = group_col, stringsAsFactors = FALSE)
     } else {
         df <- data.frame(col_name = data_col, stringsAsFactors = FALSE)
@@ -108,13 +108,13 @@ cat_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE,
     df
 }
 
-lik_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE, factorize = TRUE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
+lik_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE, factorize = TRUE, group_type = "c", nrows = 200, w_na_var = TRUE, w_na_cohort = FALSE, seed = NULL) {
     if (!is.null(seed)) set.seed(seed)
     data_col <- sample(likert_levels, nrows, replace = TRUE)
-    data_col <- spatter_missing(data_col, w_na)
+    data_col <- spatter_missing(data_col, w_na_var)
 
     if (gr) {
-        group_col <- generate_group_col(nrows, group_type, w_na)
+        group_col <- generate_group_col(nrows, group_type, w_na_cohort)
         df <- data.frame(col_name = data_col, group_name = group_col, stringsAsFactors = FALSE)
     } else {
         df <- data.frame(col_name = data_col, stringsAsFactors = FALSE)
@@ -136,7 +136,7 @@ lik_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE,
     df
 }
 
-multi_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE, factorize = TRUE, group_type = "c", nrows = 200, w_na = TRUE, seed = NULL) {
+multi_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRUE, factorize = TRUE, group_type = "c", nrows = 200, w_na_var = TRUE, w_na_cohort = FALSE, seed = NULL) {
     if (!is.null(seed)) set.seed(seed)
 
     get_sample <- function() {
@@ -145,10 +145,10 @@ multi_test_df <- function(col_name = "variable", group_name = "cohort", gr = TRU
     }
 
     data_col <- replicate(nrows, get_sample(), simplify = FALSE)
-    data_col <- spatter_missing(data_col, w_na)
+    data_col <- spatter_missing(data_col, w_na_var)
 
     if (gr) {
-        group_col <- generate_group_col(nrows, group_type, w_na)
+        group_col <- generate_group_col(nrows, group_type, w_na_cohort)
         df <- data.frame(col_name = I(data_col), group_name = group_col, stringsAsFactors = FALSE)
     } else {
         df <- data.frame(col_name = I(data_col), stringsAsFactors = FALSE)

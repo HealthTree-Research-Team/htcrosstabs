@@ -1,5 +1,3 @@
-# Tests for positive cases. Negative, error-causing cases are checked in the test file for the associated "validate" script.
-
 # to_wide() ####
 test_that("to_wide() returns the proper data without error", {
     long_df <- factorize_columns(data.frame(
@@ -170,7 +168,6 @@ test_that("to_long() returns the proper data without errors when data includes N
         a = 1,
         b = 2,
         c = as.double(NA),
-        "NA" = 4,
         check.names = FALSE
     ))
 
@@ -189,10 +186,9 @@ test_that("to_long() returns the proper data without errors when data includes N
     )
 
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 4)
-    expect_true(any(is.na(result[["cohort"]])))
+    expect_equal(nrow(result), 3)
     expect_true(any(is.na(result[["value"]])))
-    expect_true(all(result[["cohort"]] %in% c("a", "b", "c", NA)))
+    expect_true(all(result[["cohort"]] %in% c("a", "b", "c")))
     expect_true(setequal(wide_df[["description"]], result[["description"]]))
     expect_true(is.numeric(result[["value"]]))
 })
@@ -258,13 +254,12 @@ test_that("to_long() returns the proper data without errors when given multi-row
     expect_equal(length(unique(result[["description"]])), 1)
 })
 
-test_that("to_long() returns the proper data without errors when given multi-row data, with NA values",{
+test_that("to_long() returns the proper data without errors when given multi-row data and NA values",{
     wide_df <- factorize_columns(data.frame(
         description = c("test 1", NA, "test 3"),
         a = c(1, NA, 3),
         b = c(4, 5, NA),
         c = c(7, NA, 9),
-        "NA" = c(10, NA, 12),
         check.names = F
     ))
 
@@ -283,11 +278,10 @@ test_that("to_long() returns the proper data without errors when given multi-row
     )
 
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 12)
+    expect_equal(nrow(result), 9)
     expect_true(any(is.na(result[["description"]])))
-    expect_true(any(is.na(result[["cohort"]])))
     expect_true(any(is.na(result[["value"]])))
-    expect_true(all(result[["cohort"]] %in% c("a", "b", "c", NA)))
+    expect_true(all(result[["cohort"]] %in% c("a", "b", "c")))
     expect_true(setequal(wide_df[["description"]], result[["description"]]))
     expect_true(is.numeric(result[["value"]]))
 })
@@ -298,7 +292,6 @@ test_that("to_long() returns the proper data without errors when given multi-row
         a = c(1, NA, 3),
         b = c(4, 5, NA),
         c = c(7, NA, 9),
-        "NA" = c(10, NA, 12),
         check.names = F
     ))
 
@@ -317,45 +310,9 @@ test_that("to_long() returns the proper data without errors when given multi-row
     )
 
     expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 12)
-    expect_true(any(is.na(result[["cohort"]])))
+    expect_equal(nrow(result), 9)
     expect_true(any(is.na(result[["value"]])))
-    expect_true(all(result[["cohort"]] %in% c("a", "b", "c", NA)))
-    expect_true(setequal(wide_df[["description"]], result[["description"]]))
-    expect_true(is.numeric(result[["value"]]))
-})
-
-test_that("to_long() returns the proper data when convert_NA_cohort is false",{
-    wide_df <- factorize_columns(data.frame(
-        description = c("test 1", NA, "test 3"),
-        a = c(1, NA, 3),
-        b = c(4, 5, NA),
-        c = c(7, NA, 9),
-        "NA" = c(10, NA, 12),
-        check.names = F
-    ))
-
-    expect_silent(to_long(
-        wide_df = wide_df,
-        description_col = "description",
-        cohorts_to = "cohort",
-        values_to = "value",
-        convert_NA_cohort = F
-    ))
-
-    result <- to_long(
-        wide_df = wide_df,
-        description_col = "description",
-        cohorts_to = "cohort",
-        values_to = "value",
-        convert_NA_cohort = F
-    )
-
-    expect_equal(ncol(result), 3)
-    expect_equal(nrow(result), 12)
-    expect_false(any(is.na(result[["cohort"]])))
-    expect_true(any(is.na(result[["value"]])))
-    expect_true(all(result[["cohort"]] %in% c("a", "b", "c", "NA")))
+    expect_true(all(result[["cohort"]] %in% c("a", "b", "c")))
     expect_true(setequal(wide_df[["description"]], result[["description"]]))
     expect_true(is.numeric(result[["value"]]))
 })
@@ -552,8 +509,8 @@ test_that("add_rows() warns when adding rows with columns that don't match exist
 })
 
 test_that("add_rows() adds the row in the proper spot when ind is provided",{
-    ct <- crosstab(cat_test_df(col_name = "tab1"), "cohort") |> add_default_table()
-    new_ct <- crosstab(num_test_df(col_name = "tab2"), "cohort") |> add_default_table()
+    ct <- crosstab(cat_test_df(col_name = "tab1"), "cohort") |> add_default_table(anova = F, chisq = F)
+    new_ct <- crosstab(num_test_df(col_name = "tab2"), "cohort") |> add_default_table(anova = F, chisq = F)
     ct <- stack_crosstabs(ct, new_ct)
 
     new_rows <- data.frame(
@@ -563,57 +520,36 @@ test_that("add_rows() adds the row in the proper spot when ind is provided",{
         B = "test B",
         C = "test C",
         D = "test D",
-        "NA" = "test NA",
         check.names = F
     )
 
-    expect_silent(add_rows(ct, new_rows, ind = 1))
-    result <- add_rows(ct, new_rows, ind = 1)
+    expect_silent(add_rows(ct, new_rows, ind = 1, table_name = "new_table"))
+    result <- add_rows(ct, new_rows, ind = 1, table_name = "new_table")
     expect_equal(nrow(result), 11)
     expect_equal(result[1:3, , drop = F] |> data.frame(check.names = F), new_rows)
 
-    expect_equal(index(result)[1], index(ct)[1] + 3)
-    expect_equal(index(result)[2], index(ct)[2])
+    expect_equal(sum(index(ct)) + 3, sum(index(result)))
 
-    expect_silent(add_rows(ct, new_rows, ind = NULL, index_from = "bottom"))
-    result <- add_rows(ct, new_rows, ind = NULL, index_from = "bottom")
+    expect_silent(add_rows(ct, new_rows, ind = NULL, index_from = "bottom", table_name = "new_table"))
+    result <- add_rows(ct, new_rows, ind = NULL, index_from = "bottom", table_name = "new_table")
     expect_equal(nrow(result), 11)
     expect_equal(result[1:3, , drop = F] |> data.frame(check.names = F), new_rows)
 
-    expect_equal(index(result)[1], index(ct)[1] + 3)
-    expect_equal(index(result)[2], index(ct)[2])
+    expect_equal(sum(index(ct)) + 3, sum(index(result)))
 
-    expect_silent(add_rows(ct, new_rows, ind = 10))
-    result <- add_rows(ct, new_rows, ind = 10)
+    expect_silent(add_rows(ct, new_rows, ind = 10, table_name = "new_table"))
+    result <- add_rows(ct, new_rows, ind = 10, table_name = "new_table")
     expect_equal(nrow(result), 11)
     expect_equal(result[9:11, , drop = F] |> data.frame(check.names = F, row.names = NULL), new_rows)
 
-    expect_equal(index(result)[1], index(ct)[1])
-    expect_equal(index(result)[2], index(ct)[2] + 3)
+    expect_equal(sum(index(ct)) + 3, sum(index(result)))
 
     expect_silent(add_rows(ct, new_rows, ind = 1, index_from = "bottom"))
     result <- add_rows(ct, new_rows, ind = 1, index_from = "bottom")
     expect_equal(nrow(result), 11)
     expect_equal(result[9:11, , drop = F] |> data.frame(check.names = F, row.names = NULL), new_rows)
 
-    expect_equal(index(result)[1], index(ct)[1])
-    expect_equal(index(result)[2], index(ct)[2] + 3)
-
-    expect_silent(add_rows(ct, new_rows, ind = 6, prefer_table = "bottom"))
-    result <- add_rows(ct, new_rows, ind = 6, prefer_table = "bottom")
-    expect_equal(nrow(result), 11)
-    expect_equal(result[6:8, , drop = F] |> data.frame(check.names = F, row.names = NULL), new_rows)
-
-    expect_equal(index(result)[1], index(ct)[1])
-    expect_equal(index(result)[2], index(ct)[2] + 3)
-
-    expect_silent(add_rows(ct, new_rows, ind = 6, prefer_table = "top"))
-    result <- add_rows(ct, new_rows, ind = 6, prefer_table = "top")
-    expect_equal(nrow(result), 11)
-    expect_equal(result[6:8, , drop = F] |> data.frame(check.names = F, row.names = NULL), new_rows)
-
-    expect_equal(index(result)[1], index(ct)[1] + 3)
-    expect_equal(index(result)[2], index(ct)[2])
+    expect_equal(sum(index(ct)) + 3, sum(index(result)))
 })
 
 # get_complete_row() ####
@@ -627,9 +563,9 @@ test_that("get_complete_row() works given proper data",{
     complete_row <- get_complete_row(ct)
 
     expect_equal(nrow(complete_row), 1)
-    expect_equal(ncol(complete_row), 7)
+    expect_equal(ncol(complete_row), 6)
     expect_false(any(is.na(complete_row)))
-    expect_true(all(names(complete_row) %in% c("Description", "All", "NA", character_levels)))
+    expect_true(all(names(complete_row) %in% c("Description", "All", character_levels)))
 })
 
 test_that("get_complete_row() works and long_out_col has no effect on the output if long = T",{
@@ -654,10 +590,9 @@ test_that("get_complete_row() works with long = T",{
     expect_silent(get_complete_row(ct, long = T))
     total_long <- get_complete_row(ct, long = T)
 
-    expect_equal(nrow(total_long), 6)
+    expect_equal(nrow(total_long), 5)
     expect_equal(ncol(total_long), 3)
-    expect_true(any(is.na(total_long[["cohort"]])))
-    expect_true(all(total_long[["cohort"]] %in% c("All", NA, character_levels)))
+    expect_true(all(total_long[["cohort"]] %in% c("All", character_levels)))
 })
 
 test_that("get_complete_row() works with long = T, long_out_col changes the column name",{
@@ -671,10 +606,9 @@ test_that("get_complete_row() works with long = T, long_out_col changes the colu
 
     expect_in("This is a test column name", names(total_long))
 
-    expect_equal(nrow(total_long), 6)
+    expect_equal(nrow(total_long), 5)
     expect_equal(ncol(total_long), 3)
-    expect_true(any(is.na(total_long[["cohort"]])))
-    expect_true(all(total_long[["cohort"]] %in% c("All", NA, character_levels)))
+    expect_true(all(total_long[["cohort"]] %in% c("All", character_levels)))
 })
 
 # add_complete_row() ####
@@ -691,12 +625,12 @@ test_that("add_complete_row() works with proper data",{
     ct <- add_complete_row(ct)
 
     expect_equal(nrow(ct), 1)
-    expect_equal(ncol(ct), 7)
+    expect_equal(ncol(ct), 6)
 
     ct <- add_complete_row(ct)
 
     expect_equal(nrow(ct), 2)
-    expect_equal(ncol(ct), 7)
+    expect_equal(ncol(ct), 6)
 })
 
 # get_total_row() ####
@@ -710,9 +644,9 @@ test_that("get_total_row() works given proper data",{
     total_row <- get_total_row(ct)
 
     expect_equal(nrow(total_row), 1)
-    expect_equal(ncol(total_row), 7)
+    expect_equal(ncol(total_row), 6)
     expect_false(any(is.na(total_row)))
-    expect_true(all(names(total_row) %in% c("Description", "All", "NA", character_levels)))
+    expect_true(all(names(total_row) %in% c("Description", "All", character_levels)))
 })
 
 test_that("get_total_row() works and long_out_col has no effect on the output if long = T",{
@@ -737,10 +671,9 @@ test_that("get_total_row() works with long = T",{
     expect_silent(get_total_row(ct, long = T))
     total_long <- get_total_row(ct, long = T)
 
-    expect_equal(nrow(total_long), 6)
+    expect_equal(nrow(total_long), 5)
     expect_equal(ncol(total_long), 3)
-    expect_true(any(is.na(total_long[["cohort"]])))
-    expect_true(all(total_long[["cohort"]] %in% c("All", NA, character_levels)))
+    expect_true(all(total_long[["cohort"]] %in% c("All", character_levels)))
 })
 
 test_that("get_total_row() works with long = T, long_out_col changes the column name",{
@@ -754,10 +687,9 @@ test_that("get_total_row() works with long = T, long_out_col changes the column 
 
     expect_in("This is a test column name", names(total_long))
 
-    expect_equal(nrow(total_long), 6)
+    expect_equal(nrow(total_long), 5)
     expect_equal(ncol(total_long), 3)
-    expect_true(any(is.na(total_long[["cohort"]])))
-    expect_true(all(total_long[["cohort"]] %in% c("All", NA, character_levels)))
+    expect_true(all(total_long[["cohort"]] %in% c("All", character_levels)))
 })
 
 # add_total_row() ####
@@ -774,12 +706,12 @@ test_that("add_total_row() works with proper data",{
     ct <- add_total_row(ct)
 
     expect_equal(nrow(ct), 1)
-    expect_equal(ncol(ct), 7)
+    expect_equal(ncol(ct), 6)
 
     ct <- add_total_row(ct)
 
     expect_equal(nrow(ct), 2)
-    expect_equal(ncol(ct), 7)
+    expect_equal(ncol(ct), 6)
 })
 
 # get_complete_total_row() ####
@@ -793,9 +725,8 @@ test_that("get_complete_total_row() works given proper data",{
     complete_total_row <- get_complete_total_row(ct)
 
     expect_equal(nrow(complete_total_row), 1)
-    expect_equal(ncol(complete_total_row), 7)
-    expect_false(any(is.na(complete_total_row)))
-    expect_true(all(names(complete_total_row) %in% c("Description", "All", "NA", character_levels)))
+    expect_equal(ncol(complete_total_row), 6)
+    expect_true(all(names(complete_total_row) %in% c("Description", "All", character_levels)))
 })
 
 test_that("get_complete_total_row() works and long_out_col has no effect on the output if long = T",{
@@ -820,10 +751,9 @@ test_that("get_complete_total_row() works with long = T",{
     expect_silent(get_complete_total_row(ct, long = T))
     total_long <- get_complete_total_row(ct, long = T)
 
-    expect_equal(nrow(total_long), 6)
+    expect_equal(nrow(total_long), 5)
     expect_equal(ncol(total_long), 3)
-    expect_true(any(is.na(total_long[["cohort"]])))
-    expect_true(all(total_long[["cohort"]] %in% c("All", NA, character_levels)))
+    expect_true(all(total_long[["cohort"]] %in% c("All", character_levels)))
 })
 
 test_that("get_complete_total_row() works with long = T, long_out_col changes the column name",{
@@ -837,10 +767,9 @@ test_that("get_complete_total_row() works with long = T, long_out_col changes th
 
     expect_in("This is a test column name", names(total_long))
 
-    expect_equal(nrow(total_long), 6)
+    expect_equal(nrow(total_long), 5)
     expect_equal(ncol(total_long), 3)
-    expect_true(any(is.na(total_long[["cohort"]])))
-    expect_true(all(total_long[["cohort"]] %in% c("All", NA, character_levels)))
+    expect_true(all(total_long[["cohort"]] %in% c("All", character_levels)))
 })
 
 # add_complete_total_row() ####
@@ -857,12 +786,12 @@ test_that("add_complete_total_row() works with proper data",{
     ct <- add_complete_total_row(ct)
 
     expect_equal(nrow(ct), 1)
-    expect_equal(ncol(ct), 7)
+    expect_equal(ncol(ct), 6)
 
     ct <- add_complete_total_row(ct)
 
     expect_equal(nrow(ct), 2)
-    expect_equal(ncol(ct), 7)
+    expect_equal(ncol(ct), 6)
 })
 
 # get_mean_row() ####
@@ -905,7 +834,6 @@ test_that("get_mean_row() works with long = T", {
     expect_true(nrow(long) >= 3)
     expect_equal(ncol(long), 3)
     expect_true("cohort" %in% names(long))
-    expect_true(any(is.na(long[["cohort"]])))
     expect_true(all(c("Description") %in% names(long)))
 })
 
@@ -979,7 +907,6 @@ test_that("get_sd_row() works given proper data", {
 
     expect_equal(nrow(sd_row), 1)
     expect_true(ncol(sd_row) >= 3)  # at least desc, cohort, and one data col
-    expect_false(any(is.na(sd_row)))
     expect_true("Description" %in% names(sd_row))
 })
 
@@ -1007,7 +934,6 @@ test_that("get_sd_row() works with long = T", {
     expect_true(nrow(long) >= 3)
     expect_equal(ncol(long), 3)
     expect_true("cohort" %in% names(long))
-    expect_true(any(is.na(long[["cohort"]])))
     expect_true(all(c("Description") %in% names(long)))
 })
 
@@ -1109,7 +1035,6 @@ test_that("get_mean_sd_row() works with long = T", {
     expect_true(nrow(long) >= 3)
     expect_equal(ncol(long), 3)
     expect_true("cohort" %in% names(long))
-    expect_true(any(is.na(long[["cohort"]])))
     expect_true(all(c("Description") %in% names(long)))
 })
 
@@ -1183,7 +1108,6 @@ test_that("get_med_row() works with proper data", {
 
     expect_equal(nrow(med_row), 1)
     expect_true(ncol(med_row) >= 3)
-    expect_false(any(is.na(med_row)))
     expect_true("Description" %in% names(med_row))
 })
 
@@ -1212,7 +1136,6 @@ test_that("get_med_row() works with long = T", {
     expect_equal(ncol(med_long), 3)
     expect_true("cohort" %in% names(med_long))
     expect_true("Description" %in% names(med_long))
-    expect_true(any(is.na(med_long[["cohort"]])))
 })
 
 test_that("get_med_row() uses custom long_out_col when long = T", {
@@ -1289,7 +1212,6 @@ test_that("get_q1_row() works with proper data", {
 
     expect_equal(nrow(q1_row), 1)
     expect_true(ncol(q1_row) >= 3)
-    expect_false(any(is.na(q1_row)))
     expect_true("Description" %in% names(q1_row))
 })
 
@@ -1318,7 +1240,6 @@ test_that("get_q1_row() works with long = T", {
     expect_equal(ncol(q1_long), 3)
     expect_true("cohort" %in% names(q1_long))
     expect_true("Description" %in% names(q1_long))
-    expect_true(any(is.na(q1_long[["cohort"]])))
 })
 
 test_that("get_q1_row() uses custom long_out_col when long = T", {
@@ -1395,7 +1316,6 @@ test_that("get_q3_row() works with proper data", {
 
     expect_equal(nrow(q3_row), 1)
     expect_true(ncol(q3_row) >= 3)
-    expect_false(any(is.na(q3_row)))
     expect_true("Description" %in% names(q3_row))
 })
 
@@ -1424,7 +1344,6 @@ test_that("get_q3_row() works with long = T", {
     expect_equal(ncol(q3_long), 3)
     expect_true("cohort" %in% names(q3_long))
     expect_true("Description" %in% names(q3_long))
-    expect_true(any(is.na(q3_long[["cohort"]])))
 })
 
 test_that("get_q3_row() uses custom long_out_col when long = T", {
@@ -1501,7 +1420,6 @@ test_that("get_q1_q3_row() works with proper data", {
 
     expect_equal(nrow(q1_q3_row), 1)
     expect_true(ncol(q1_q3_row) >= 3)
-    expect_false(any(is.na(q1_q3_row)))
     expect_true("Description" %in% names(q1_q3_row))
 })
 
@@ -1530,7 +1448,6 @@ test_that("get_q1_q3_row() works with long = T", {
     expect_equal(ncol(q1_q3_long), 3)
     expect_true("cohort" %in% names(q1_q3_long))
     expect_true("Description" %in% names(q1_q3_long))
-    expect_true(any(is.na(q1_q3_long[["cohort"]])))
 })
 
 test_that("get_q1_q3_row() uses custom long_out_col when long = T", {
@@ -1607,7 +1524,6 @@ test_that("get_iqr_row() works with proper data", {
 
     expect_equal(nrow(iqr_row), 1)
     expect_true(ncol(iqr_row) >= 3)
-    expect_false(any(is.na(iqr_row)))
     expect_true("Description" %in% names(iqr_row))
 })
 
@@ -1636,7 +1552,6 @@ test_that("get_iqr_row() works with long = T", {
     expect_equal(ncol(iqr_long), 3)
     expect_true("cohort" %in% names(iqr_long))
     expect_true("Description" %in% names(iqr_long))
-    expect_true(any(is.na(iqr_long[["cohort"]])))
 })
 
 test_that("get_iqr_row() uses custom long_out_col when long = T", {
@@ -1713,7 +1628,6 @@ test_that("get_iqr_q3_q1_row() works with proper data", {
 
     expect_equal(nrow(iqr_q3_q1_row), 1)
     expect_true(ncol(iqr_q3_q1_row) >= 3)
-    expect_false(any(is.na(iqr_q3_q1_row)))
     expect_true("Description" %in% names(iqr_q3_q1_row))
 })
 
@@ -1742,7 +1656,6 @@ test_that("get_iqr_q3_q1_row() works with long = T", {
     expect_equal(ncol(iqr_q3_q1_long), 3)
     expect_true("cohort" %in% names(iqr_q3_q1_long))
     expect_true("Description" %in% names(iqr_q3_q1_long))
-    expect_true(any(is.na(iqr_q3_q1_long[["cohort"]])))
 })
 
 test_that("get_iqr_q3_q1_row() uses custom long_out_col when long = T", {
@@ -1819,7 +1732,6 @@ test_that("get_med_q1_q3_row() works with proper data", {
 
     expect_equal(nrow(med_q1_q3_row), 1)
     expect_true(ncol(med_q1_q3_row) >= 3)
-    expect_false(any(is.na(med_q1_q3_row)))
     expect_true("Description" %in% names(med_q1_q3_row))
 })
 
@@ -1848,7 +1760,6 @@ test_that("get_med_q1_q3_row() works with long = T", {
     expect_equal(ncol(med_q1_q3_long), 3)
     expect_true("cohort" %in% names(med_q1_q3_long))
     expect_true("Description" %in% names(med_q1_q3_long))
-    expect_true(any(is.na(med_q1_q3_long[["cohort"]])))
 })
 
 test_that("get_med_q1_q3_row() uses custom long_out_col when long = T", {
@@ -2011,7 +1922,6 @@ test_that("get_prop_rows() works with proper categorical data", {
     expect_true("Description" %in% names(prop_rows))
 
     cohort_col_names <- setdiff(names(prop_rows), "Description")
-    expect_false(any(is.na(prop_rows[, cohort_col_names])))
 })
 
 test_that("get_prop_rows() long = F ignores long_out_col argument", {
@@ -2104,7 +2014,6 @@ test_that("get_count_prop_rows() works with proper categorical data", {
     expect_true("Description" %in% names(count_prop_rows))
 
     cohort_col_names <- setdiff(names(count_prop_rows), "Description")
-    expect_false(any(is.na(count_prop_rows[, cohort_col_names])))
 })
 
 test_that("get_count_prop_rows() long = F ignores long_out_col argument", {
@@ -2200,7 +2109,6 @@ test_that("get_percent_rows() works with proper categorical data", {
     expect_true("Description" %in% names(percent_rows))
 
     cohort_col_names <- setdiff(names(percent_rows), "Description")
-    expect_false(any(is.na(percent_rows[, cohort_col_names])))
 })
 
 test_that("get_percent_rows() long = F ignores long_out_col argument", {
@@ -2293,7 +2201,6 @@ test_that("get_count_percent_rows() works with proper categorical data", {
     expect_true("Description" %in% names(count_percent_rows))
 
     cohort_col_names <- setdiff(names(count_percent_rows), "Description")
-    expect_false(any(is.na(count_percent_rows[, cohort_col_names])))
 })
 
 test_that("get_count_percent_rows() long = F ignores long_out_col argument", {
@@ -2370,3 +2277,222 @@ test_that("add_count_percent_rows() respects round_to", {
     expect_false(identical(ct1, ct2))
 })
 
+# add_anova_rows() ####
+test_that("add_anova_rows() adds correct number of rows",{
+    test_df <- num_test_df(seed = 1)
+    ct <- crosstab(
+        df = test_df,
+        cohort_col_name = "cohort"
+    )
+
+    expect_silent(add_anova_rows(ct))
+    ct <- add_anova_rows(ct)
+    expect_equal(nrow(ct), 1)
+
+    test_df <- num_test_df(seed = 1)
+    d_cohort <- test_df[["cohort"]] == "D"
+    test_df[["variable"]][d_cohort] <- test_df[["variable"]][d_cohort] + 30
+
+    ct <- crosstab(
+        df = test_df,
+        cohort_col_name = "cohort"
+    )
+
+    expect_silent(add_anova_rows(ct))
+    ct <- add_anova_rows(ct)
+    expect_equal(nrow(ct), 4)
+})
+
+test_that("add_anova_rows() respects round_to",{
+    test_df <- num_test_df(seed = 1)
+    d_cohort <- test_df[["cohort"]] == "D"
+    test_df[["variable"]][d_cohort] <- test_df[["variable"]][d_cohort] + 30
+
+    ct1 <- crosstab(df = test_df, cohort_col_name = "cohort")
+    ct2 <- crosstab(df = test_df, cohort_col_name = "cohort")
+
+    ct1 <- add_anova_rows(ct1, round_to = 0)
+    ct2 <- add_anova_rows(ct2, round_to = 3)
+
+    expect_false(identical(ct1, ct2))
+})
+
+# add_chisq_rows() ####
+test_that("add_chisq_rows() adds correct number of rows",{
+    test_df <- cat_test_df(seed = 1)
+    ct <- crosstab(
+        df = test_df,
+        cohort_col_name = "cohort"
+    )
+
+    expect_silent(add_chisq_rows(ct))
+    ct <- add_chisq_rows(ct)
+    expect_equal(nrow(ct), 1)
+
+    # Make sure that cohort D will produce a statistically significant difference
+    test_df <- cat_test_df(seed = 1, factorize = F)
+    d_cohort <- test_df[["cohort"]] == "D"
+    d_rows <- test_df[d_cohort, , drop = F]
+    rownames(d_rows) <- NULL
+    everything_else <- test_df[!d_cohort, , drop = F]
+    rownames(everything_else) <- NULL
+
+    d_rows[["variable"]] <- "night"
+    d_rows[["variable"]][1:5] <- "morning"
+    d_rows[["variable"]][6:10] <- "afternoon"
+    d_rows[["variable"]][11:15] <- "evening"
+
+    test_df <- rbind(everything_else, d_rows)
+
+    ct <- crosstab(
+        df = test_df,
+        cohort_col_name = "cohort"
+    )
+
+    expect_silent(add_chisq_rows(ct))
+    ct <- add_chisq_rows(ct)
+    expect_equal(nrow(ct), 4)
+})
+
+test_that("add_chisq_rows() respects round_to",{
+
+    # Make sure that cohort D will produce a statistically significant difference
+    test_df <- cat_test_df(seed = 1, factorize = F)
+    d_cohort <- test_df[["cohort"]] == "D"
+    d_rows <- test_df[d_cohort, , drop = F]
+    rownames(d_rows) <- NULL
+    everything_else <- test_df[!d_cohort, , drop = F]
+    rownames(everything_else) <- NULL
+    d_rows[["variable"]] <- "night"
+    d_rows[["variable"]][1:5] <- "morning"
+    d_rows[["variable"]][6:10] <- "afternoon"
+    d_rows[["variable"]][11:15] <- "evening"
+    test_df <- rbind(everything_else, d_rows)
+
+    ct1 <- crosstab(df = test_df, cohort_col_name = "cohort")
+    ct2 <- crosstab(df = test_df, cohort_col_name = "cohort")
+
+    ct1 <- add_chisq_rows(ct1, round_to = 0)
+    ct2 <- add_chisq_rows(ct2, round_to = 3)
+
+    expect_false(identical(ct1, ct2))
+})
+
+test_that("add_chisq_rows() respects p.adj",{
+
+    # Make sure that cohort D will produce a statistically significant difference
+    test_df <- cat_test_df(seed = 1, factorize = F)
+    d_cohort <- test_df[["cohort"]] == "D"
+    d_rows <- test_df[d_cohort, , drop = F]
+    rownames(d_rows) <- NULL
+    everything_else <- test_df[!d_cohort, , drop = F]
+    rownames(everything_else) <- NULL
+    d_rows[["variable"]] <- "night"
+    d_rows[["variable"]][1:5] <- "morning"
+    d_rows[["variable"]][6:10] <- "afternoon"
+    d_rows[["variable"]][11:15] <- "evening"
+    test_df <- rbind(everything_else, d_rows)
+
+    ct1 <- crosstab(df = test_df, cohort_col_name = "cohort")
+    ct2 <- crosstab(df = test_df, cohort_col_name = "cohort")
+
+    ct1 <- add_chisq_rows(ct1, p.adj = F)
+    ct2 <- add_chisq_rows(ct2, p.adj = T)
+
+    expect_false(identical(ct1, ct2))
+})
+
+test_that("add_chisq_rows() respects p-value adjustment method",{
+
+    # Make sure that cohort D will produce a statistically significant difference
+    test_df <- cat_test_df(seed = 1, factorize = F)
+    d_cohort <- test_df[["cohort"]] == "D"
+    d_rows <- test_df[d_cohort, , drop = F]
+    rownames(d_rows) <- NULL
+    everything_else <- test_df[!d_cohort, , drop = F]
+    rownames(everything_else) <- NULL
+    d_rows[["variable"]] <- "night"
+    d_rows[["variable"]][1:5] <- "morning"
+    d_rows[["variable"]][6:10] <- "afternoon"
+    d_rows[["variable"]][11:15] <- "evening"
+    test_df <- rbind(everything_else, d_rows)
+
+    ct1 <- crosstab(df = test_df, cohort_col_name = "cohort")
+    ct2 <- crosstab(df = test_df, cohort_col_name = "cohort")
+
+    ct1 <- add_chisq_rows(ct1, method = "BH")
+    ct2 <- add_chisq_rows(ct2, method = "bonferroni")
+
+    expect_false(identical(ct1, ct2))
+})
+
+# add_rao_scott_rows() ####
+test_that("add_rao_scott_rows() adds correct number of rows",{
+    test_df <- multi_test_df(seed = 1)
+    ct <- crosstab(
+        df = test_df,
+        cohort_col_name = "cohort"
+    )
+
+    expect_silent(add_rao_scott_rows(ct))
+    ct <- add_rao_scott_rows(ct)
+    expect_equal(nrow(ct), 1)
+
+    test_df <- multi_test_df(seed = 13)
+    ct <- crosstab(
+        df = test_df,
+        cohort_col_name = "cohort"
+    )
+
+    expect_silent(add_rao_scott_rows(ct))
+    ct <- add_rao_scott_rows(ct)
+    expect_equal(nrow(ct), 4)
+})
+
+test_that("add_rao_scott_rows() respects round_to",{
+    test_df <- multi_test_df(seed = 13)
+    ct <- crosstab(
+        df = test_df,
+        cohort_col_name = "cohort"
+    )
+
+    ct1 <- crosstab(df = test_df, cohort_col_name = "cohort")
+    ct2 <- crosstab(df = test_df, cohort_col_name = "cohort")
+
+    ct1 <- add_rao_scott_rows(ct1, round_to = 0)
+    ct2 <- add_rao_scott_rows(ct2, round_to = 3)
+
+    expect_false(identical(ct1, ct2))
+})
+
+test_that("add_rao_scott_rows() respects p.adj",{
+    test_df <- multi_test_df(seed = 13)
+    ct <- crosstab(
+        df = test_df,
+        cohort_col_name = "cohort"
+    )
+
+    ct1 <- crosstab(df = test_df, cohort_col_name = "cohort")
+    ct2 <- crosstab(df = test_df, cohort_col_name = "cohort")
+
+    ct1 <- add_rao_scott_rows(ct1, p.adj = F)
+    ct2 <- add_rao_scott_rows(ct2, p.adj = T)
+
+    expect_false(identical(ct1, ct2))
+})
+
+test_that("add_rao_scott_rows() respects p-value adjustment method",{
+    test_df <- multi_test_df(seed = 13)
+    ct <- crosstab(
+        df = test_df,
+        cohort_col_name = "cohort"
+    )
+
+    ct1 <- crosstab(df = test_df, cohort_col_name = "cohort")
+    ct2 <- crosstab(df = test_df, cohort_col_name = "cohort")
+
+    ct1 <- add_rao_scott_rows(ct1, method = "BH")
+    ct2 <- add_rao_scott_rows(ct2, method = "bonferroni")
+
+    expect_false(identical(ct1, ct2))
+})

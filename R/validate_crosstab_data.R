@@ -24,7 +24,7 @@ validate_input_new_crosstab_data <- function(df, var_col_name, cohort_col_name, 
         assert_that(is.character(subclass))
 }
 
-validate_input_crosstab_data <- function(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name) {
+validate_input_crosstab_data <- function(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name, new_var_col_name = NULL) {
     assert_that(is.data.frame(df))
     if (!is.null(cohort_col_name))
         assert_that(is.character(cohort_col_name))
@@ -69,6 +69,13 @@ validate_input_crosstab_data <- function(df, cohort_col_name, var_map, combined_
             )
         assert_that(ncol(df) == 1, msg = error_msg)
     }
+
+    if (!is.null(new_var_col_name)) {
+        assert_that(is.character(new_var_col_name))
+        if (!is.null(cohort_col_name)) {
+            assert_that(new_var_col_name != cohort_col_name, msg = "Can not rename variable column to the same name as the cohort column")
+        }
+    }
 }
 
 #' @export
@@ -93,6 +100,11 @@ validate_crosstab_data.crosstab_data <- function(ct_data) {
     if (has_attr(ct_data, "combined_cohort_name")) {
         assert_that(is.character(combined_cohort_name(ct_data)), msg = "Provided combined_cohort_name must be a character")
     }
+
+    assert_that(!any(is.na(cohort(ct_data))), msg = sprintf(
+        "Detected NA values in cohort column \"%s\", may cause unpredictable behavior. If you wish to keep NA values, it is preferred that you use a placeholder value like \"NA\" or \"Unknown\".",
+        cohort_col_name
+    ))
 
     assert_that(!is.list(cohort(ct_data)), msg = sprintf(
         "Cohort column \"%s\" can not be a list",

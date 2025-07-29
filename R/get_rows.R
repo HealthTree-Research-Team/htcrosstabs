@@ -36,8 +36,8 @@ to_wide <- function(long_df, desc_col, cohort_col, na_fill = NA) {
 }
 
 #' @export
-to_long <- function(wide_df, description_col, cohorts_to, values_to, convert_NA_cohort = TRUE) {
-    validate_input_to_long(wide_df, description_col, cohorts_to, values_to, convert_NA_cohort)
+to_long <- function(wide_df, description_col, cohorts_to, values_to) {
+    validate_input_to_long(wide_df, description_col, cohorts_to, values_to)
 
     # Get the columns to pivot longer
     cohort_cols <- names(wide_df)[names(wide_df) != description_col]
@@ -50,9 +50,6 @@ to_long <- function(wide_df, description_col, cohorts_to, values_to, convert_NA_
             values_to = values_to
         )
 
-    if (convert_NA_cohort)
-        long_df[[cohorts_to]][long_df[[cohorts_to]] == "NA"] <- NA
-
     # Convert to data frame and re-factorize
     long_df <- data.frame(long_df, check.names = F)
     long_df[[cohorts_to]] <- factor(long_df[[cohorts_to]], levels = cohort_cols)
@@ -61,8 +58,13 @@ to_long <- function(wide_df, description_col, cohorts_to, values_to, convert_NA_
 }
 
 #' @export
-add_rows <- function(ct, rows, ind = NULL, index_from = "top", prefer_table = "bottom") {
-    validate_input_add_rows(ct, rows, ind, index_from, prefer_table)
+add_rows <- function(ct, rows, ind = NULL, index_from = "top", table_name = NULL) {
+    validate_input_add_rows(ct, rows, ind, index_from, table_name)
+
+    to_character_cols <- function(df) {
+        assert_that(is.data.frame(df))
+        dplyr::mutate(df, dplyr::across(dplyr::everything(), as.character))
+    }
 
     # Calculate index
     if (is.null(ind))
@@ -71,13 +73,16 @@ add_rows <- function(ct, rows, ind = NULL, index_from = "top", prefer_table = "b
     if (index_from == "bottom")
         ind <- nrow(ct) - ind + 2
 
+    char_rows <- to_character_cols(rows)
+    orig_rows <- to_character_cols(ct)
+
     # Insert rows
-    if (nrow(ct) == 0) {
+    if (nrow(orig_rows) == 0) {
         combined <- rows
     } else {
-        top <- if (ind > 1) ct[1:(ind - 1), , drop = FALSE] else NULL
-        bottom <- if (ind <= nrow(ct)) ct[ind:nrow(ct), , drop = FALSE] else NULL
-        combined <- dplyr::bind_rows(top, rows, bottom)
+        top <- if (ind > 1) orig_rows[1:(ind - 1), , drop = FALSE] else NULL
+        bottom <- if (ind <= nrow(orig_rows)) orig_rows[ind:nrow(orig_rows), , drop = FALSE] else NULL
+        combined <- dplyr::bind_rows(top, char_rows, bottom)
     }
 
     # Check number of columns
@@ -95,29 +100,36 @@ add_rows <- function(ct, rows, ind = NULL, index_from = "top", prefer_table = "b
     # Restore class
     class(combined) <- orig_attrs[["class"]]
 
-    # Add the number of new rows to the proper index value
-    num_new_rows <- nrow(rows)
-    cur_index <- index(combined)
-    if (ind == 1) {
-        # If it's at the beginning, just add the number to the first one
-        cur_index[1] <- cur_index[1] + num_new_rows
-    } else if (ind > nrow(ct)) {
-        # If it's at the end, just add the number to the last one
-        cur_index[length(cur_index)] <- cur_index[length(cur_index)] + num_new_rows
+    # Get what to add to index
+    if (is.null(table_name) & is.crosstab(rows)) {
+        new_index <- index(rows, long = T)
+    } else if (is.null(table_name)) {
+        new_index <- rep(var_name(ct), nrow(rows))
     } else {
-        # Otherwise, take steps to figure out which one to increment
-        for (i in 1:length(cur_index)) {
-            ind <- ind - cur_index[i]
-            # Prefer_table means if you inserted at an index between two tables,
-            # should it be joined with the one above or below? This defaults to
-            # below, preferring the most recent data.
-            if ((prefer_table == "bottom" & ind < 1) | (prefer_table == "top" & ind <= 1)) {
-                cur_index[i] <- cur_index[i] + num_new_rows
-                break
-            }
+        new_index <- rep(table_name, nrow(rows))
+    }
+
+    # Add the new index values to index
+    index(combined) <- insert_at(index(combined, long = T), ind, new_index)
+
+    # Extend table_id
+    cur_id <- table_id(combined, long = T)
+    if (is.crosstab(rows)) {
+        if (length(cur_id) == 0) {
+            new_id <- table_id(rows)
+        } else {
+            last_id <- cur_id[length(cur_id)]
+            new_id <- c(cur_id, (table_id(rows, long = T) + last_id))
+        }
+    } else {
+        if (length(cur_id) == 0) {
+            new_id <- rep(1, nrow(rows))
+        } else {
+            last_id <- cur_id[length(cur_id)]
+            new_id <- c(cur_id, rep(last_id, nrow(rows)))
         }
     }
-    attr(combined, "index") <- cur_index
+    table_id(combined) <- new_id
 
     return(combined)
 }
@@ -205,7 +217,6 @@ add_complete_total_row <- function(ct) {
     # Get the row and add it to the running output table
     comp_total_row <- get_complete_total_row(ct, long = F)
     ct <- add_rows(ct, comp_total_row)
-
     return(ct)
 }
 
@@ -228,11 +239,29 @@ get_mean_row <- function(ct, round_to = MEAN_ROUND_TO, long = F, long_out_col = 
 }
 
 #' @export
-add_mean_row <- function(ct, round_to = MEAN_ROUND_TO) {
-    validate_input_add_mean_row(ct, round_to)
+add_mean_row <- function(ct, round_to = MEAN_ROUND_TO, anova_markers = F, marker_type = NULL, superscript = F, cutoff = 0.05) {
+    validate_input_add_mean_row(ct, round_to, anova_markers, marker_type, superscript)
 
-    # Get the row and add it to the running output table
     mean_row <- get_mean_row(ct, round_to = round_to, long = F)
+
+    # If anova_markers = TRUE, add the markers before adding the row
+    if (anova_markers) {
+        marker_list <- get_anova_markers(
+            posthoc = ct,
+            cohorts = cohort_levels(ct),
+            as_str = T,
+            marker_type = marker_type,
+            superscript = superscript,
+            cutoff = cutoff
+        )
+        for (cohort in names(marker_list)) {
+            mean_row[[cohort]] <- paste0(mean_row[[cohort]], marker_list[[cohort]])
+        }
+
+        manual_escape(ct) <- manual_escape(ct) | superscript
+        ct <- add_anova_marker_footnotes(ct, type = marker_type, cutoff = cutoff)
+    }
+
     ct <- add_rows(ct, mean_row)
 
     return(ct)
@@ -286,11 +315,29 @@ get_mean_sd_row <- function(ct, round_to = MEAN_SD_ROUND_TO, long = F, long_out_
 }
 
 #' @export
-add_mean_sd_row <- function(ct, round_to = MEAN_SD_ROUND_TO) {
-    validate_input_add_mean_sd_row(ct, round_to)
+add_mean_sd_row <- function(ct, round_to = MEAN_SD_ROUND_TO, anova_markers = F, marker_type = NULL, superscript = F, cutoff = 0.05) {
+    validate_input_add_mean_sd_row(ct, round_to, anova_markers, marker_type, superscript)
 
-    # Get the row and add it to the running output table
     mean_sd_row <- get_mean_sd_row(ct, long = F, round_to = round_to)
+
+    # If anova_markers = TRUE, add the markers before adding the row
+    if (anova_markers) {
+        marker_list <- get_anova_markers(
+            posthoc = ct,
+            cohorts = cohort_levels(ct),
+            as_str = T,
+            marker_type = marker_type,
+            superscript = superscript,
+            cutoff = cutoff
+        )
+        for (cohort in names(marker_list)) {
+            mean_sd_row[[cohort]] <- paste0(mean_sd_row[[cohort]], marker_list[[cohort]])
+        }
+
+        manual_escape(ct) <- manual_escape(ct) | superscript
+        ct <- add_anova_marker_footnotes(ct, type = marker_type, cutoff = cutoff)
+    }
+
     ct <- add_rows(ct, mean_sd_row)
 
     return(ct)
@@ -523,7 +570,7 @@ get_count_rows <- function(ct, long = F, long_out_col = COUNT_COL_NAME, keep_na_
     names(counts)[names(counts) == var_name(ct)] <- desc_name(ct)
     counts <- counts[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
 
-    if (!long) counts <- to_wide(counts, desc_name(ct), cohort_name(ct), na_fill = "0 (0%)")
+    if (!long) counts <- to_wide(counts, desc_name(ct), cohort_name(ct), na_fill = 0)
     return(counts)
 }
 
@@ -531,7 +578,6 @@ get_count_rows <- function(ct, long = F, long_out_col = COUNT_COL_NAME, keep_na_
 add_count_rows <- function(ct, keep_na_vars = F) {
     validate_input_add_count_rows(ct)
 
-    # Get the rows and add it to the running output table
     count_rows <- get_count_rows(ct, long = F, keep_na_vars = keep_na_vars)
     ct <- add_rows(ct, count_rows)
 
@@ -570,7 +616,6 @@ get_prop_rows <- function(ct, round_to = PROP_ROUND_TO, long = F, long_out_col =
 add_prop_rows <- function(ct, round_to = PROP_ROUND_TO, keep_na_vars = F) {
     validate_input_add_prop_rows(ct, round_to)
 
-    # Get the rows and add it to the running output table
     prop_rows <- get_prop_rows(ct, long = F, round_to = round_to, keep_na_vars = keep_na_vars)
     ct <- add_rows(ct, prop_rows)
 
@@ -592,26 +637,14 @@ get_count_prop_rows <- function(ct, round_to = COUNT_PROP_ROUND_TO, long = F, lo
     names(counts)[names(counts) == var_name(ct)] <- desc_name(ct)
     counts <- counts[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
 
-    if (!long) {
-        counts <- to_wide(counts, desc_name(ct), cohort_name(ct), na_fill = "0 (0)")
-
-        # If there are few enough values that there are NAs when pivoting,
-        # They are automatically filled with 0 (0%). But if it's also the case that
-        # keep_na_vars = T the NA values where description is NA need to just be 0.
-        na_rows <- is.na(counts[[desc_name(ct)]])
-        if (any(na_rows)) {
-            cohort_cols <- setdiff(names(counts), desc_name(ct))
-            counts[na_rows, cohort_cols][counts[na_rows, cohort_cols] == default_na_fill] <- "0"
-        }
-    }
+    if (!long) counts <- to_wide(counts, desc_name(ct), cohort_name(ct), na_fill = "0 (0)")
     return(counts)
 }
 
 #' @export
 add_count_prop_rows <- function(ct, round_to = COUNT_PROP_ROUND_TO, keep_na_vars = F) {
-    validate_input_add_count_percent_rows(ct, round_to)
+    validate_input_add_count_prop_rows(ct, round_to)
 
-    # Get the rows and add it to the running output table
     count_percent_rows <- get_count_percent_rows(ct, long = F, round_to = round_to, keep_na_vars = keep_na_vars)
     ct <- add_rows(ct, count_percent_rows)
 
@@ -640,7 +673,6 @@ get_percent_rows <- function(ct, round_to = PERCENT_ROUND_TO, long = F, long_out
 add_percent_rows <- function(ct, round_to = PERCENT_ROUND_TO, keep_na_vars = F, raw = F) {
     validate_input_add_percent_rows(ct, round_to)
 
-    # Get the rows and add it to the running output table
     percent_rows <- get_percent_rows(ct, long = F, round_to = round_to, keep_na_vars = keep_na_vars, raw = raw)
     ct <- add_rows(ct, percent_rows)
 
@@ -661,18 +693,7 @@ get_count_percent_rows <- function(ct, round_to = COUNT_PERCENT_ROUND_TO, long =
     names(counts)[names(counts) == var_name(ct)] <- desc_name(ct)
     counts <- counts[, c(desc_name(ct), cohort_name(ct), long_out_col), drop = FALSE]
 
-    if (!long) {
-        counts <- to_wide(counts, desc_name(ct), cohort_name(ct), na_fill = "0 (0%)")
-
-        # If there are few enough values that there are NAs when pivoting,
-        # They are automatically filled with 0 (0%). But if it's also the case that
-        # keep_na_vars = T the NA values where description is NA need to just be 0.
-        na_rows <- is.na(counts[[desc_name(ct)]])
-        if (any(na_rows)) {
-            cohort_cols <- setdiff(names(counts), desc_name(ct))
-            counts[na_rows, cohort_cols][counts[na_rows, cohort_cols] == "0 (0%)"] <- "0"
-        }
-    }
+    if (!long) counts <- to_wide(counts, desc_name(ct), cohort_name(ct), na_fill = "0 (0%)")
     return(counts)
 }
 
@@ -680,9 +701,148 @@ get_count_percent_rows <- function(ct, round_to = COUNT_PERCENT_ROUND_TO, long =
 add_count_percent_rows <- function(ct, round_to = COUNT_PERCENT_ROUND_TO, keep_na_vars = F) {
     validate_input_add_count_percent_rows(ct, round_to)
 
-    # Get the rows and add it to the running output table
     count_percent_rows <- get_count_percent_rows(ct, long = F, round_to = round_to, keep_na_vars = keep_na_vars)
     ct <- add_rows(ct, count_percent_rows)
 
+    return(ct)
+}
+
+# ANOVA ROWS ####
+#' @export
+get_anova_rows <- function(ct, cutoff = 0.05, round_to = 3) {
+    UseMethod("get_anova_rows", ct)
+}
+
+#' @export
+get_anova_rows.crosstab <- function(ct, cutoff = 0.05, round_to = 3) {
+    get_anova_rows(data_table(ct), cutoff = cutoff, round_to = round_to)
+}
+
+#' @export
+get_anova_rows.crosstab_data <- function(ct, cutoff = 0.05, round_to = 3) {
+    validate_input_get_anova_rows(ct, cutoff, round_to)
+
+    # Create skeleton for new rows
+    new_rows <- create_stat_row_skeleton(ct)
+
+    # Fill the matrix with p-values
+    new_rows <- fill_stat_row_skeleton(
+        new_rows = new_rows,
+        data = ct,
+        posthoc = get_tukey_posthoc(ct),
+        overall_p_value = get_anova_p_value(ct),
+        cutoff = cutoff,
+        round_to = round_to
+    )
+
+    return(new_rows)
+}
+
+#' @export
+add_anova_rows <- function(ct, cutoff = 0.05, round_to = 3) {
+    validate_input_add_anova_rows(ct, cutoff, round_to)
+
+    anova_rows <- get_anova_rows(ct, cutoff = cutoff, round_to = round_to)
+
+    ct <- add_anova_row_footnotes(ct, cutoff = cutoff)
+    ct <- add_rows(ct, anova_rows, table_name = "ANOVA Results")
+    return(ct)
+}
+
+# CHI-SQUARE ROWS ####
+#' @export
+get_chisq_rows <- function(ct, p.adj = TRUE, method = "BH", cutoff = 0.05, round_to = 3) {
+    UseMethod("get_chisq_rows", ct)
+}
+
+#' @export
+get_chisq_rows.crosstab <- function(ct, p.adj = TRUE, method = "BH", cutoff = 0.05, round_to = 3) {
+    get_chisq_rows(data_table(ct), p.adj = p.adj, method = method, cutoff = cutoff, round_to = round_to)
+}
+
+#' @export
+get_chisq_rows.crosstab_data_multi <- function(ct, p.adj = TRUE, method = "BH", cutoff = 0.05, round_to = 3) {
+    get_rao_scott_rows(ct, p.adj = p.adj, method = method, cutoff = cutoff, round_to = round_to)
+}
+
+#' @export
+get_chisq_rows.crosstab_data <- function(ct, p.adj = TRUE, method = "BH", cutoff = 0.05, round_to = 3) {
+    validate_input_get_chisq_rows(ct, p.adj, method, cutoff, round_to)
+
+    new_rows <- create_stat_row_skeleton(ct)
+    new_rows <- fill_stat_row_skeleton(
+        new_rows = new_rows,
+        data = ct,
+        posthoc = get_chisq_posthoc(ct, p.adj = p.adj, method = method),
+        overall_p_value = get_chisq_p_value(ct),
+        cutoff = cutoff,
+        round_to = round_to
+    )
+    return(new_rows)
+}
+
+#' @export
+add_chisq_rows <- function(ct, p.adj = T, method = "BH", cutoff = 0.05, round_to = 3) {
+    validate_input_add_chisq_rows(ct, p.adj, method, cutoff, round_to)
+
+    if (is.crosstab.multi(ct))
+        return(add_rao_scott_rows(ct, p.adj = p.adj, method = method, cutoff = cutoff, round_to = round_to))
+
+    chisq_rows <- get_chisq_rows(
+        ct,
+        p.adj = p.adj,
+        method = method,
+        cutoff = cutoff,
+        round_to = round_to
+    )
+
+    ct <- add_chisq_row_footnotes(ct, p.adj = p.adj, method = method, cutoff = cutoff)
+
+    ct <- add_rows(ct, chisq_rows, table_name = "Pearson Chi-Square Results")
+    return(ct)
+}
+
+# RAO-SCOTT ROWS ####
+#' @export
+get_rao_scott_rows <- function(ct, p.adj = TRUE, method = "BH", cutoff = 0.05, round_to = 3) {
+    UseMethod("get_rao_scott_rows", ct)
+}
+
+#' @export
+get_rao_scott_rows.crosstab <- function(ct, p.adj = TRUE, method = "BH", cutoff = 0.05, round_to = 3) {
+    get_rao_scott_rows(data_table(ct), p.adj = p.adj, method = method, cutoff = cutoff, round_to = round_to)
+}
+
+#' @export
+get_rao_scott_rows.crosstab_data <- function(ct, p.adj = TRUE, method = "BH", cutoff = 0.05, round_to = 3) {
+    validate_input_get_rao_scott_rows(ct, p.adj, method, cutoff, round_to)
+
+    new_rows <- create_stat_row_skeleton(ct)
+    new_rows <- fill_stat_row_skeleton(
+        new_rows = new_rows,
+        data = ct,
+        posthoc = get_rao_scott_posthoc(ct, p.adj = p.adj, method = method),
+        overall_p_value = get_rao_scott_p_value(ct),
+        cutoff = cutoff,
+        round_to = round_to
+    )
+    return(new_rows)
+}
+
+#' @export
+add_rao_scott_rows <- function(ct, p.adj = TRUE, method = "BH", cutoff = 0.05, round_to = 3) {
+    validate_input_add_rao_scott_rows(ct, p.adj, method, cutoff, round_to)
+
+    rao_scott_rows <- get_rao_scott_rows(
+        ct,
+        p.adj = p.adj,
+        method = method,
+        cutoff = cutoff,
+        round_to = round_to
+    )
+
+    ct <- add_rao_scott_row_footnotes(ct, p.adj = p.adj, method = method, cutoff = cutoff)
+
+    ct <- add_rows(ct, rao_scott_rows, table_name = "Rao-Scott Chi-Square Results")
     return(ct)
 }
