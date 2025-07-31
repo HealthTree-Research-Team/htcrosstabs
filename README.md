@@ -29,6 +29,7 @@ A simple crosstab can be created from a one-column data frame.
 
 ``` r
 head(sports, 5)
+<<<<<<< HEAD
 #>        sport
 #> 1     Hockey
 #> 2 Basketball
@@ -36,6 +37,14 @@ head(sports, 5)
 #> 4     Soccer
 #> 5   Baseball
 
+=======
+#>      sport
+#> 1   Hockey
+#> 2   Hockey
+#> 3   Hockey
+#> 4 Football
+#> 5 Football
+>>>>>>> 45fab16d69d07638aa0803a5199a4bb386458b42
 new_crosstab <- crosstab(sports)
 ```
 
@@ -46,6 +55,7 @@ of the cohort column when creating it.
 ``` r
 head(sports_by_age, 5)
 #>        sport   age
+<<<<<<< HEAD
 #> 1   Baseball  Teen
 #> 2     Soccer Child
 #> 3 Basketball  Teen
@@ -59,6 +69,20 @@ new_crosstab <- crosstab(sports_by_age, cohort_col_name = "age")
 
 Crosstabs can hold multiple data types: \* Numeric \* Categorical \*
 Likert-like \* Multi-response
+=======
+#> 1   Baseball Adult
+#> 2     Hockey Adult
+#> 3 Basketball Adult
+#> 4 Basketball Child
+#> 5     Hockey Child
+new_crosstab <- crosstab(sports_by_age, cohort_col_name = "age")
+```
+
+## Crosstab Types
+
+Crosstabs can hold multiple data types: - Numeric - Categorical -
+Likert-like - Multi-response
+>>>>>>> 45fab16d69d07638aa0803a5199a4bb386458b42
 
 The data type is automatically determined when you create the crosstab.
 
@@ -70,12 +94,20 @@ logical values, and factors will all be counted as categorical.
 ``` r
 head(sports_by_age, 5) # Categorical
 #>        sport   age
+<<<<<<< HEAD
 #> 1   Baseball  Teen
 #> 2     Soccer Child
 #> 3 Basketball  Teen
 #> 4     Soccer Adult
 #> 5 Basketball Child
 
+=======
+#> 1   Baseball Adult
+#> 2     Hockey Adult
+#> 3 Basketball Adult
+#> 4 Basketball Child
+#> 5     Hockey Child
+>>>>>>> 45fab16d69d07638aa0803a5199a4bb386458b42
 new_crosstab <- crosstab(sports_by_age, "age")
 ```
 
@@ -91,7 +123,10 @@ head(length_by_species, 5)
 #> 3          1.3  setosa
 #> 4          1.5  setosa
 #> 5          1.4  setosa
+<<<<<<< HEAD
 
+=======
+>>>>>>> 45fab16d69d07638aa0803a5199a4bb386458b42
 new_crosstab <- crosstab(length_by_species, "species")
 ```
 
@@ -103,12 +138,20 @@ with a named vector to map values to numbers.
 ``` r
 head(licorice_by_age, 5)
 #>    opinion   age
+<<<<<<< HEAD
 #> 1    Likes Child
 #> 2    Likes Child
 #> 3  Neither  Teen
 #> 4  Neither Child
 #> 5 Dislikes Adult
 
+=======
+#> 1 Dislikes  Teen
+#> 2  Neither Child
+#> 3    Likes Adult
+#> 4 Dislikes  Teen
+#> 5  Neither  Teen
+>>>>>>> 45fab16d69d07638aa0803a5199a4bb386458b42
 likert_map <- c("Likes" = 1, "Neither" = 0, "Dislikes" = -1)
 
 new_crosstab <- crosstab(licorice_by_age, "age", var_map = likert_map)
@@ -122,11 +165,34 @@ multiple answers per row.
 ``` r
 head(allergies_by_school, 5)
 #>      allergies          school
+<<<<<<< HEAD
 #> 1 Gluten, .... Cottonwood High
 #> 2 Milk, Eg.... Cottonwood High
 #> 3 Eggs, Gl....   Brighton High
 #> 4         Nuts   Brighton High
 #> 5         Milk       Alta High
 
+=======
+#> 1 Eggs, Gluten   Brighton High
+#> 2         Eggs    Olympus High
+#> 3   Eggs, Nuts Cottonwood High
+#> 4 Eggs, Gl....       Alta High
+#> 5 Gluten, Nuts Cottonwood High
+head(allergies_by_school$allergies, 5)
+#> [[1]]
+#> [1] "Eggs"   "Gluten"
+#> 
+#> [[2]]
+#> [1] "Eggs"
+#> 
+#> [[3]]
+#> [1] "Eggs" "Nuts"
+#> 
+#> [[4]]
+#> [1] "Eggs"   "Gluten" "Nuts"  
+#> 
+#> [[5]]
+#> [1] "Gluten" "Nuts"
+>>>>>>> 45fab16d69d07638aa0803a5199a4bb386458b42
 new_crosstab <- crosstab(allergies_by_school, "school")
 ```
