@@ -18,37 +18,135 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of htcrosstabs is to ...
+The goal of htcrosstabs is to easily create printable crosstabs from raw data frames.
 
 ## Installation
 
 You can install the development version of htcrosstabs like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+devtools::install_github("HealthTree-Research-Team/htcrosstabs")
 ```
 
-## Example
+And you can load it like so:
 
-This is a basic example which shows you how to solve a common problem:
-
-```{r example}
+``` r
 library(htcrosstabs)
-## basic example code
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
+```{r, include = FALSE}
+library(htcrosstabs)
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
 
-You can also embed plots, for example:
+## Creating a Crosstab
 
-```{r pressure, echo = FALSE}
-plot(pressure)
+A simple crosstab can be created from a one-column data frame.
+
+```{r, include = FALSE}
+sport_options <- c("Basketball", "Soccer", "Football", "Hockey", "Baseball")
+
+sports <- data.frame(
+    sport = sample(sport_options, 200, replace = TRUE)
+)
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+```{r}
+head(sports, 5)
+new_crosstab <- crosstab(sports)
+```
+
+A crosstab can group data into cohorts by providing a two column data frame, one for the data and one for the cohorts. Simply provide the name of the cohort column when creating it.
+
+```{r, include = FALSE}
+age_options <- c("Child", "Teen", "Adult")
+
+# Example data
+sports_by_age <- data.frame(
+    sport = sample(sport_options, 200, replace = TRUE),
+    age = sample(age_options, 200, replace = TRUE)
+)
+```
+
+```{r}
+head(sports_by_age, 5)
+new_crosstab <- crosstab(sports_by_age, cohort_col_name = "age")
+```
+
+## Crosstab Types
+
+Crosstabs can hold multiple data types:
+- Numeric
+- Categorical
+- Likert-like
+- Multi-response
+
+The data type is automatically determined when you create the crosstab.
+
+### Categorical Crosstabs
+
+Categorical crosstabs are the default data type. Character values, logical values, and factors will all be counted as categorical.
+
+```{r}
+head(sports_by_age, 5) # Categorical
+new_crosstab <- crosstab(sports_by_age, "age")
+```
+
+### Numeric Crosstabs
+
+Numeric crosstabs are the default when the data is numbers.
+
+```{r, include = FALSE}
+length_by_species <- iris[, c("Petal.Length", "Species"), drop = FALSE]
+names(length_by_species) <- c("petal length", "species")
+```
+
+```{r}
+head(length_by_species, 5)
+new_crosstab <- crosstab(length_by_species, "species")
+```
+
+### Likert-Like Crosstabs
+
+Likert crosstabs are created when categorical data is provided, along with a named vector to map values to numbers.
+
+```{r, include = FALSE}
+like_options <- c("Likes", "Neither", "Dislikes")
+licorice_by_age <- data.frame(
+    opinion = sample(like_options, 200, replace = TRUE),
+    age = sample(age_options, 200, replace = TRUE)
+)
+```
+
+```{r}
+head(licorice_by_age, 5)
+likert_map <- c("Likes" = 1, "Neither" = 0, "Dislikes" = -1)
+
+new_crosstab <- crosstab(licorice_by_age, "age", var_map = likert_map)
+```
+
+### Multi-Response Crosstabs
+
+Multi-response crosstabs are created by providing a list-column allowing multiple answers per row.
+
+```{r, include = FALSE}
+allergy_options <- c("Nuts", "Eggs", "Milk", "Gluten")
+school_options <- c("Brighton High", "Cottonwood High", "Olympus High", "Alta High")
+
+get_allergy_sample <- function() {
+    num_choices <- sample(1:4, 1)
+    sample(allergy_options, num_choices, replace = FALSE)
+}
+
+allergies_by_school <- data.frame(
+    allergies = I(replicate(200, get_allergy_sample(), simplify = FALSE)),
+    school = sample(school_options, 200, replace = TRUE)
+)
+```
+
+```{r}
+head(allergies_by_school, 5)
+head(allergies_by_school$allergies, 5)
+new_crosstab <- crosstab(allergies_by_school, "school")
+```
+

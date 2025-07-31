@@ -6,45 +6,136 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of htcrosstabs is to …
+The goal of htcrosstabs is to easily create printable crosstabs from raw
+data frames.
 
 ## Installation
 
 You can install the development version of htcrosstabs like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+devtools::install_github("HealthTree-Research-Team/htcrosstabs")
 ```
 
-## Example
-
-This is a basic example which shows you how to solve a common problem:
+And you can load it like so:
 
 ``` r
 library(htcrosstabs)
-## basic example code
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+## Creating a Crosstab
+
+A simple crosstab can be created from a one-column data frame.
 
 ``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+head(sports, 5)
+#>      sport
+#> 1   Hockey
+#> 2   Hockey
+#> 3   Hockey
+#> 4 Football
+#> 5 Football
+new_crosstab <- crosstab(sports)
 ```
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this.
+A crosstab can group data into cohorts by providing a two column data
+frame, one for the data and one for the cohorts. Simply provide the name
+of the cohort column when creating it.
 
-You can also embed plots, for example:
+``` r
+head(sports_by_age, 5)
+#>        sport   age
+#> 1   Baseball Adult
+#> 2     Hockey Adult
+#> 3 Basketball Adult
+#> 4 Basketball Child
+#> 5     Hockey Child
+new_crosstab <- crosstab(sports_by_age, cohort_col_name = "age")
+```
 
-<img src="man/figures/README-pressure-1.png" width="100%" />
+## Crosstab Types
 
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+Crosstabs can hold multiple data types: - Numeric - Categorical -
+Likert-like - Multi-response
+
+The data type is automatically determined when you create the crosstab.
+
+### Categorical Crosstabs
+
+Categorical crosstabs are the default data type. Character values,
+logical values, and factors will all be counted as categorical.
+
+``` r
+head(sports_by_age, 5) # Categorical
+#>        sport   age
+#> 1   Baseball Adult
+#> 2     Hockey Adult
+#> 3 Basketball Adult
+#> 4 Basketball Child
+#> 5     Hockey Child
+new_crosstab <- crosstab(sports_by_age, "age")
+```
+
+### Numeric Crosstabs
+
+Numeric crosstabs are the default when the data is numbers.
+
+``` r
+head(length_by_species, 5)
+#>   petal length species
+#> 1          1.4  setosa
+#> 2          1.4  setosa
+#> 3          1.3  setosa
+#> 4          1.5  setosa
+#> 5          1.4  setosa
+new_crosstab <- crosstab(length_by_species, "species")
+```
+
+### Likert-Like Crosstabs
+
+Likert crosstabs are created when categorical data is provided, along
+with a named vector to map values to numbers.
+
+``` r
+head(licorice_by_age, 5)
+#>    opinion   age
+#> 1 Dislikes  Teen
+#> 2  Neither Child
+#> 3    Likes Adult
+#> 4 Dislikes  Teen
+#> 5  Neither  Teen
+likert_map <- c("Likes" = 1, "Neither" = 0, "Dislikes" = -1)
+
+new_crosstab <- crosstab(licorice_by_age, "age", var_map = likert_map)
+```
+
+### Multi-Response Crosstabs
+
+Multi-response crosstabs are created by providing a list-column allowing
+multiple answers per row.
+
+``` r
+head(allergies_by_school, 5)
+#>      allergies          school
+#> 1 Eggs, Gluten   Brighton High
+#> 2         Eggs    Olympus High
+#> 3   Eggs, Nuts Cottonwood High
+#> 4 Eggs, Gl....       Alta High
+#> 5 Gluten, Nuts Cottonwood High
+head(allergies_by_school$allergies, 5)
+#> [[1]]
+#> [1] "Eggs"   "Gluten"
+#> 
+#> [[2]]
+#> [1] "Eggs"
+#> 
+#> [[3]]
+#> [1] "Eggs" "Nuts"
+#> 
+#> [[4]]
+#> [1] "Eggs"   "Gluten" "Nuts"  
+#> 
+#> [[5]]
+#> [1] "Gluten" "Nuts"
+new_crosstab <- crosstab(allergies_by_school, "school")
+```
