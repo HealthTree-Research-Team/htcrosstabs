@@ -183,9 +183,7 @@ add_likert_map_footnotes <- function(ct, var_map) {
 #' @export
 #'
 #' @examples
-#'
-#' test_df <- iris[, c("Petal.Length", "Species"), drop = FALSE]
-#' test_ct <- crosstab(test_df, "Species") |>
+#' test_ct <- crosstab(length_by_species, "species") |>
 #'     add_default_table(anova_format = c("row", "marker"))
 #'
 #' printable_output <- kbl(test_ct, crosstab_footnotes = FALSE)
@@ -263,8 +261,7 @@ apply_footnotes <- function(kable_input, ct) {
 #' @export
 #'
 #' @examples
-#' test_df <- iris[, c("Petal.Length", "Species"), drop = FALSE]
-#' test_ct <- crosstab(test_df, "Species") |>
+#' test_ct <- crosstab(length_by_species, "species") |>
 #'     add_default_table(anova_format = c("row", "marker"))
 #'
 #' printable_output <- kbl(test_ct, pack_rows = FALSE)

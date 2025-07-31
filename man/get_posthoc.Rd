@@ -78,17 +78,12 @@ performed using [survey::svychisq()].
 
 \examples{
 # ANOVA test for numeric data
-num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-num_ct <- crosstab(num_df, "Species")
+num_ct <- crosstab(length_by_species, "species")
 
 get_tukey_posthoc(num_ct)
 
 # Chi-square test for categorical data
-cat_df <- data.frame(
-    Age = sample(c("Child", "Teen", "Adult"), 200, replace = TRUE),
-    Sport = sample(c("Soccer", "Basketball", "Football"), 200, replace = TRUE)
-)
-cat_ct <- crosstab(cat_df, "Age")
+cat_ct <- crosstab(sports_by_age, "age")
 
 get_chisq_posthoc(cat_ct)
 

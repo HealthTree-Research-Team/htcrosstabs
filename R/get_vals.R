@@ -12,8 +12,7 @@
 #' @export
 #'
 #' @examples
-#' test_df <- iris[, c("Petal.Length", "Species"), drop = FALSE]
-#' test_ct <- crosstab(test_df, "Species")
+#' test_ct <- crosstab(length_by_species, "species")
 #'
 #' # One cohort and one variable column each
 #' join_val(
@@ -66,8 +65,7 @@ join_val <- function(...) {
 #' @importFrom rlang .data
 #'
 #' @examples
-#' test_df <- iris[, c("Petal.Length", "Species"), drop = FALSE]
-#' test_ct <- crosstab(test_df, "Species")
+#' test_ct <- crosstab(length_by_species, "species")
 #'
 #' # Base values
 #' get_complete(test_ct)

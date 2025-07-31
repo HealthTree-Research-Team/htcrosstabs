@@ -30,16 +30,15 @@ The data passed into `long_df` should contain three columns:
 }
 \examples{
 # Original long form
-num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-num_ct <- crosstab(num_df, "Species")
+num_ct <- crosstab(length_by_species, "species")
 means <- get_mean(num_ct)
 means
 
 # With description column
-means[["Description"]] <- "Mean Sepal Length"
+means[["Description"]] <- "Mean Petal Length"
 means
 
 # Wide for output
-to_wide(means, "Description", "Species")
+to_wide(means, "Description", "species")
 
 }

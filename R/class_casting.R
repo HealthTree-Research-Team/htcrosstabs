@@ -1,4 +1,3 @@
-
 # CROSSTAB CHECKS ####
 
 #' Check or Assert Crosstab Object Types
@@ -19,30 +18,27 @@
 #'
 #' @import assertthat
 #' @examples
-#' # Create test data frame
-#' test_df1 <- iris[, "Sepal.Length", drop = FALSE]
-#' test_ct1 <- crosstab(test_df1)
+#' # Numeric, no grouping column
+#' num_ct_ungrouped <- crosstab(petal_width)
 #'
 #' is.crosstab(iris) # FALSE
-#' is.crosstab(test_ct1) # TRUE
-#' is.crosstab.categorical(test_ct1) # FALSE
-#' is.crosstab.numeric(test_ct1) # TRUE
+#' is.crosstab(num_ct_ungrouped) # TRUE
+#' is.crosstab.categorical(num_ct_ungrouped) # FALSE
+#' is.crosstab.numeric(num_ct_ungrouped) # TRUE
 #'
-#' # Differentiating grouped and ungrouped data
-#' test_df2 <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-#' test_ct2 <- crosstab(test_df2, cohort_col_name = "Species")
+#' # Numeric, grouped
+#' num_ct_grouped <- crosstab(length_by_species, "species")
 #'
-#' is.crosstab.grouped(test_ct1) # FALSE
-#' is.crosstab.grouped(test_ct2) # TRUE
+#' is.crosstab.grouped(num_ct_ungrouped) # FALSE
+#' is.crosstab.grouped(num_ct_grouped) # TRUE
 #'
 #' # Differentiating complete crosstabs from inner data objects
-#' test_df3 <- iris[, "Petal.Length", drop = FALSE]
-#' test_ct_data <- crosstab_data(test_df3)
+#' num_ct_data <- crosstab_data(length_by_species, "species")
 #'
-#' is.crosstab.data(test_ct1) # FALSE
-#' is.crosstab.data(test_ct_data) # TRUE
-#' is.crosstab(test_ct_data) # FALSE (only fully constructed crosstabs return true)
-#' is.crosstab(test_ct_data, strict = FALSE) # TRUE (any part of a crosstab returns TRUE)
+#' is.crosstab.data(num_ct_ungrouped) # FALSE
+#' is.crosstab.data(num_ct_data) # TRUE
+#' is.crosstab(num_ct_data) # FALSE (only fully constructed crosstabs return true)
+#' is.crosstab(num_ct_data, strict = FALSE) # TRUE (any part of a crosstab returns TRUE)
 NULL
 
 #' @describeIn check_crosstab Checks if the data is a crosstab object
@@ -198,18 +194,14 @@ assert_crosstab_grouped <- function(obj) {
 #' @name cast_crosstab
 #'
 #' @examples
-#' num_df <- iris[, "Sepal.Length", drop = FALSE]
-#' num_ct <- crosstab(num_df)
-#'
+#' num_ct <- crosstab(length_by_species, "species")
 #' converted_ct <- as.crosstab.cat(num_ct)
 #' is.crosstab.categorical(converted_ct) # TRUE
 #'
 #' # Likert data requires a map
-#' cat_df <- data.frame(region = state.region)
-#' cat_ct <- crosstab(cat_df)
-#'
-#' var_map <- c("South" = 1, "North Central" = 2, "Northeast" = 3, "West" = 4)
-#' converted_ct <- as.crosstab.likert(cat_ct, var_map = var_map)
+#' cat_ct <- crosstab(licorice_by_region, "region")
+#' licorice_map <- c("likes" = 1, "neither" = 0, "dislikes" = -1)
+#' converted_ct <- as.crosstab.likert(cat_ct, var_map = licorice_map)
 #' is.crosstab.likert(converted_ct) # TRUE
 NULL
 

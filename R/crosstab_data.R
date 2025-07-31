@@ -38,15 +38,10 @@ new_crosstab_data <- function(df, var_col_name, cohort_col_name, cohort_levels, 
 #' @export
 #'
 #' @examples
-#' # Ungrouped data
-#' num_df <- iris[, "Sepal.Length", drop = FALSE]
-#' num_ct <- crosstab_data(num_df)
-#' utils::tail(num_ct, 10)
-#' names(attributes(num_ct))
-#'
-#' # Grouped data
-#' num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-#' num_ct <- crosstab_data(num_df, cohort_col_name = "Species")
+#' num_ct <- crosstab_data(
+#'     length_by_species,
+#'     cohort_col_name = "species"
+#' )
 #' utils::tail(num_ct, 10)
 #' names(attributes(num_ct))
 #'
@@ -54,13 +49,13 @@ crosstab_data <- function(df, cohort_col_name = NULL, var_map = NULL, new_var_co
     validate_input_crosstab_data(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name, new_var_col_name)
     grouped <- !is.null(cohort_col_name)
 
-    # print("What about here?")
 
     # Add grouping column if it doesn't exist
     if (!grouped) {
         cohort_col_name <- get_non_matching("cohort", names(df))
         df[[cohort_col_name]] <- combined_cohort_name
     }
+
 
     # Factorize cohort and variable (if non-numeric)
     df[[cohort_col_name]] <- factor(df[[cohort_col_name]])
@@ -88,6 +83,7 @@ crosstab_data <- function(df, cohort_col_name = NULL, var_map = NULL, new_var_co
 
     # Determine subclass
     subclass <- determine_col_type(df[[var_col_name]], var_map = var_map)
+
 
     # Call the right constructor
     ct_data <- new_crosstab_data(

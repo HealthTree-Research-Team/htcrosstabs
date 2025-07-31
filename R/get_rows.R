@@ -20,17 +20,16 @@
 #'
 #' @examples
 #' # Original long form
-#' num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-#' num_ct <- crosstab(num_df, "Species")
+#' num_ct <- crosstab(length_by_species, "species")
 #' means <- get_mean(num_ct)
 #' means
 #'
 #' # With description column
-#' means[["Description"]] <- "Mean Sepal Length"
+#' means[["Description"]] <- "Mean Petal Length"
 #' means
 #'
 #' # Wide for output
-#' to_wide(means, "Description", "Species")
+#' to_wide(means, "Description", "species")
 #'
 to_wide <- function(long_df, desc_col, cohort_col, na_fill = NA) {
     validate_input_to_wide(long_df, desc_col, cohort_col, na_fill)
@@ -143,8 +142,7 @@ to_long <- function(wide_df, description_col, cohorts_to, values_to) {
 #' @export
 #'
 #' @examples
-#' num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-#' num_ct <- crosstab(num_df, cohort_col_name = "Species")
+#' num_ct <- crosstab(length_by_species, cohort_col_name = "species")
 #'
 #' complete_total_row <- get_complete_total_row(num_ct)
 #' complete_total_row
@@ -269,8 +267,7 @@ add_rows <- function(ct, rows, ind = NULL, index_from = "top", table_name = NULL
 #' @name get_formatted_rows
 #'
 #' @examples
-#' num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-#' num_ct <- crosstab(num_df, cohort_col_name = "Species")
+#' num_ct <- crosstab(length_by_species, cohort_col_name = "species")
 #'
 #' get_mean_sd_row(num_ct)
 #' get_med_q1_q3_row(num_ct)
@@ -303,8 +300,7 @@ NULL
 #' @name add_formatted_rows
 #'
 #' @examples
-#' num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-#' num_ct <- crosstab(num_df, cohort_col_name = "Species")
+#' num_ct <- crosstab(length_by_species, cohort_col_name = "species")
 #'
 #' num_ct # Empty
 #'

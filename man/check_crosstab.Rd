@@ -94,28 +94,25 @@ if the check fails.
 
 }}
 \examples{
-# Create test data frame
-test_df1 <- iris[, "Sepal.Length", drop = FALSE]
-test_ct1 <- crosstab(test_df1)
+# Numeric, no grouping column
+num_ct_ungrouped <- crosstab(petal_width)
 
 is.crosstab(iris) # FALSE
-is.crosstab(test_ct1) # TRUE
-is.crosstab.categorical(test_ct1) # FALSE
-is.crosstab.numeric(test_ct1) # TRUE
+is.crosstab(num_ct_ungrouped) # TRUE
+is.crosstab.categorical(num_ct_ungrouped) # FALSE
+is.crosstab.numeric(num_ct_ungrouped) # TRUE
 
-# Differentiating grouped and ungrouped data
-test_df2 <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-test_ct2 <- crosstab(test_df2, cohort_col_name = "Species")
+# Numeric, grouped
+num_ct_grouped <- crosstab(length_by_species, "species")
 
-is.crosstab.grouped(test_ct1) # FALSE
-is.crosstab.grouped(test_ct2) # TRUE
+is.crosstab.grouped(num_ct_ungrouped) # FALSE
+is.crosstab.grouped(num_ct_grouped) # TRUE
 
 # Differentiating complete crosstabs from inner data objects
-test_df3 <- iris[, "Petal.Length", drop = FALSE]
-test_ct_data <- crosstab_data(test_df3)
+num_ct_data <- crosstab_data(length_by_species, "species")
 
-is.crosstab.data(test_ct1) # FALSE
-is.crosstab.data(test_ct_data) # TRUE
-is.crosstab(test_ct_data) # FALSE (only fully constructed crosstabs return true)
-is.crosstab(test_ct_data, strict = FALSE) # TRUE (any part of a crosstab returns TRUE)
+is.crosstab.data(num_ct_ungrouped) # FALSE
+is.crosstab.data(num_ct_data) # TRUE
+is.crosstab(num_ct_data) # FALSE (only fully constructed crosstabs return true)
+is.crosstab(num_ct_data, strict = FALSE) # TRUE (any part of a crosstab returns TRUE)
 }

@@ -60,13 +60,11 @@ new_crosstab <- function(df, cohort_col_name, var_map, combined_cohort_name, des
 #'
 #' @examples
 #' # Ungrouped data
-#' num_df <- iris[, "Sepal.Length", drop = FALSE]
-#' num_ct <- crosstab(num_df)
+#' num_ct <- crosstab(petal_width)
 #' add_default_table(num_ct)
 #'
 #' # Grouped data
-#' num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-#' num_ct <- crosstab(num_df, cohort_col_name = "Species")
+#' num_ct <- crosstab(length_by_species, cohort_col_name = "species")
 #' add_default_table(num_ct)
 #'
 crosstab <- function(df, cohort_col_name = NULL, var_map = NULL, new_var_col_name = NULL, combined_cohort_name = "All", desc_col_name = "Description") {
@@ -121,8 +119,7 @@ as.crosstab <- function(df, cohort_col_name = NULL, var_map = NULL, new_var_col_
 #'
 #' @examples
 #' # Ungrouped data
-#' num_df <- iris[, "Sepal.Length", drop = FALSE]
-#' num_ct <- crosstab(num_df)
+#' num_ct <- crosstab(petal_width)
 #'
 #' num_data_table <- data_table(num_ct)
 #' head(num_data_table, 10) # A default cohort column is added to ungrouped data
@@ -176,8 +173,7 @@ data_table <- function(ct, raw = FALSE) {
 #' @export
 #'
 #' @examples
-#' num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-#' num_ct <- crosstab(num_df, cohort_col_name = "Species") |>
+#' num_ct <- crosstab(length_by_species, cohort_col_name = "species") |>
 #'     add_complete_total_row() |>
 #'     add_mean_sd_row() |>
 #'     add_med_q1_q3_row() |>
@@ -188,6 +184,7 @@ data_table <- function(ct, raw = FALSE) {
 #' index(num_ct, long = TRUE) # The long row groupings
 #'
 #' index(num_ct) <- c("sec1" = 2, "sec2" = 2, "sec3" = 2)
+#' index(num_ct)
 #'
 index <- function(ct, long = FALSE) {
     validate_input_index_getter(ct, long)

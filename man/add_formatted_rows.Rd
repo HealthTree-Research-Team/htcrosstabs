@@ -198,8 +198,7 @@ The rows contain some formatted combination of these variables:
 }
 
 \examples{
-num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-num_ct <- crosstab(num_df, cohort_col_name = "Species")
+num_ct <- crosstab(length_by_species, cohort_col_name = "species")
 
 num_ct # Empty
 

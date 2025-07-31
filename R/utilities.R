@@ -17,16 +17,8 @@ remove_na <- function(obj) {
 #' @export
 #'
 #' @examples
-#' orig_levels <- c("Strongly Agree", "Agree", "Neither", "Disagree", "Strongly Disagree")
-#'
-#' # Create factorized responses
-#' likert_responses <- sample(orig_levels, 200, replace = TRUE)
-#' likert_responses <- factor(likert_responses, levels = orig_levels)
-#'
-#' head(likert_responses, 10)
-#'
-#' # Create default Likert map
-#' default_var_map(likert_responses)
+#' levels(students$prof_support)
+#' default_var_map(students$prof_support)
 #'
 default_var_map <- function(fct) {
     assert_that(is.factor(fct) | is.factorlist(fct), msg = "fct must be either a factor or list of factors")
@@ -112,4 +104,51 @@ escape_table = function(table) {
         }
     })
     table
+}
+
+#' Nest Column to List of Atomic Vectors
+#'
+#' [tidyr::nest()] Condenses rows into lists of tibbles, but we need a list of
+#' atomic vectors. This function does just that. It groups by every other column
+#' and then collapses the duplicates.
+#'
+#' @param df A data frame to nest
+#' @param multi_col_name The name of the column to nest
+#'
+#' @returns A data frame with nested atomic vectors in the specified column
+#'
+#' @export
+#' @importFrom rlang !!
+#' @importFrom rlang !!!
+#' @importFrom rlang :=
+#'
+#' @examples
+#' # Create unnested data
+#' unnested_df <- allergies_by_school
+#' unnested_df[["id"]] <- 1:nrow(unnested_df)
+#' unnested_df <- tidyr::unnest(unnested_df, allergies)
+#' head(unnested_df, 5)
+#'
+#' # Nest data
+#' nested_df <- nest_multi_col(unnested_df, "allergies")
+#' head(nested_df, 5)
+#'
+nest_multi_col <- function(df, multi_col_name) {
+    assert_that(is.data.frame(df))
+    assert_that(is.character(multi_col_name))
+    assert_that(
+        multi_col_name %in% names(df),
+        msg = sprintf("\"%s\" not found in df")
+    )
+
+    if (ncol(df) > 1) {
+        other_col_names <- names(df)[names(df) != multi_col_name]
+        df <- dplyr::group_by(df, !!!rlang::syms(other_col_names))
+    }
+
+    df |>
+        dplyr::summarise(
+            !!rlang::sym(multi_col_name) := list(!!rlang::sym(multi_col_name)),
+            .groups = "drop"
+        )
 }

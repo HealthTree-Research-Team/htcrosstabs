@@ -129,7 +129,8 @@ new_crosstab <- crosstab(licorice_by_region, "region", var_map = opinion_map)
 ```
 
 Multi-response crosstabs are created by providing a list-column allowing
-multiple answers per row.
+multiple answers per row. You can nest columns into the proper format
+with `nest_multi_col()`.
 
 ``` r
 head(allergies_by_school, 5)
@@ -165,7 +166,8 @@ is.crosstab.multi(new_crosstab)
 
 You can also, if needed, cast one data type to another using the
 `as.crosstab.*()` functions. The details on how the conversion is done
-can be found in the man pages by typing `?cast_crosstab`.
+can be found at the bottom of this page, or in the man pages by typing
+`?cast_crosstab`.
 
 ``` r
 new_crosstab <- crosstab(licorice_by_region, "region", opinion_map)
@@ -196,8 +198,8 @@ data_table(new_crosstab) |> head(5)
 
 You can extract useful values with the `get_*()` functions. You can get
 values like the mean, standard deviation, median, iqr, percentages,
-counts, etc. A full list is available in the man pages with
-`?get_values`.
+counts, etc. A full list is available at the bottom of this page, or in
+the man pages with `?get_values`.
 
 ``` r
 new_crosstab <- crosstab(length_by_species, "species")
@@ -271,10 +273,11 @@ join_val(
 
 You can also do statistical analysis quickly, like an ANOVA, chi-square,
 or Rao-Scott corrected chi-square test with `get_*_p_value()` functions.
-Post hocs return a symmetric data frame/matrix of pairwise p-values,
-which are by default corrected using the Benjamini-Hochberg correction.
-You can change the correction method with `method = ...`, or you can
-disable correction completely with `p.adj = FALSE`.
+Post-hocs can be done with the `get_*_posthoc()` functions. Post-hocs
+return a symmetric data frame/matrix of pairwise p-values, which are by
+default corrected using the Benjamini-Hochberg correction. You can
+change the correction method with `method = ...`, or you can disable
+correction completely with `p.adj = FALSE`.
 
 ``` r
 new_crosstab <- crosstab(length_by_species, "species")
@@ -292,9 +295,10 @@ get_tukey_posthoc(new_crosstab)
 ## Adding Formatted Rows
 
 You can add rows with pre-formatted data by using the `add_*_row()`
-functions. A full list of functions can be found in the man pages with
-`?add_formatted_rows`. You can also extract the rows separate from the
-crosstab object with the `get_*_row()` functions.
+functions. A full list of functions can be found at the bottom of this
+page, or in the man pages with `?add_formatted_rows`. You can also
+extract the rows separate from the crosstab object with the
+`get_*_row()` functions.
 
 The order of the rows and columns is determined by the factor levels of
 the input data frame.
@@ -456,107 +460,73 @@ crosstab_stacked(iris, "Species", anova = F)
 #> 10 Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
 #> 11        Mean ± SD      1.2 ± 0.8      0.2 ± 0.1      1.3 ± 0.2        2 ± 0.3
 #> 12     Med (Q1, Q3) 1.3 (0.3, 1.8) 0.2 (0.2, 0.3) 1.3 (1.2, 1.5)   2 (1.8, 2.3)
+```
 
-crosstab_stacked(students, "university", anova = F, chisq = F)
-#>                  Description                  All                 UCLA
-#> 1           Complete / Total          3500 / 3500            500 / 500
-#> 2                       TRUE           1822 (52%)            377 (75%)
-#> 3                      FALSE           1678 (48%)            123 (25%)
-#> 4           Complete / Total          3500 / 3500            500 / 500
-#> 5                  Mean ± SD          179.5 ± 6.2          181.8 ± 5.3
-#> 6               Med (Q1, Q3) 179.6 (175.2, 183.8) 181.8 (178.1, 185.3)
-#> 7           Complete / Total          3500 / 3500            500 / 500
-#> 8                  Mean ± SD               13 ± 2           12.9 ± 2.1
-#> 9               Med (Q1, Q3)          13 (12, 14)          13 (11, 14)
-#> 10          Complete / Total          3500 / 3500            500 / 500
-#> 11 math and physical science            953 (27%)             98 (20%)
-#> 12              life science            616 (18%)             75 (15%)
-#> 13                  business            668 (19%)            109 (22%)
-#> 14                humanities            703 (20%)            111 (22%)
-#> 15                psychology            560 (16%)            107 (21%)
-#> 16          Complete / Total          3500 / 3500            500 / 500
-#> 17   overwhelmingly positive           1343 (38%)            218 (44%)
-#> 18         somewhat positive            849 (24%)             68 (14%)
-#> 19                   neutral            752 (21%)            109 (22%)
-#> 20         somewhat negative             277 (8%)              25 (5%)
-#> 21   overwhelmingly negative             279 (8%)             80 (16%)
-#> 22          Complete / Total          3500 / 3500            500 / 500
-#> 23           very supportive           1714 (49%)            292 (58%)
-#> 24       somewhat supportive            836 (24%)            105 (21%)
-#> 25                 apathetic            466 (13%)              34 (7%)
-#> 26        somewhat demeaning             271 (8%)              29 (6%)
-#> 27            very demeaning             213 (6%)              40 (8%)
-#> 28          Complete / Total          3500 / 3500            500 / 500
-#> 29             Panda Express           2135 (61%)            318 (64%)
-#> 30                McDonald's           1641 (47%)            223 (45%)
-#> 31              Panera Bread           1937 (55%)            337 (67%)
-#> 32                Chik-fil-A           1655 (47%)            181 (36%)
-#>                Berkeley             Stanford                 Yale
-#> 1             500 / 500            500 / 500            500 / 500
-#> 2             209 (42%)            308 (62%)            154 (31%)
-#> 3             291 (58%)            192 (38%)            346 (69%)
-#> 4             500 / 500            500 / 500            500 / 500
-#> 5           177.1 ± 5.5          179.9 ± 5.3          176.6 ± 5.4
-#> 6  177.1 (172.9, 180.9) 180.1 (175.9, 183.5) 176.7 (173.2, 180.4)
-#> 7             500 / 500            500 / 500            500 / 500
-#> 8                13 ± 2             13 ± 1.9             13.1 ± 2
-#> 9           13 (12, 14)          13 (12, 14)          13 (12, 14)
-#> 10            500 / 500            500 / 500            500 / 500
-#> 11            146 (29%)            127 (25%)             70 (14%)
-#> 12            116 (23%)            100 (20%)             65 (13%)
-#> 13             72 (14%)             93 (19%)             51 (10%)
-#> 14            103 (21%)            122 (24%)            177 (35%)
-#> 15             63 (13%)             58 (12%)            137 (27%)
-#> 16            500 / 500            500 / 500            500 / 500
-#> 17             90 (18%)            289 (58%)            230 (46%)
-#> 18            160 (32%)             94 (19%)            160 (32%)
-#> 19            150 (30%)             62 (12%)             57 (11%)
-#> 20             51 (10%)              30 (6%)              23 (5%)
-#> 21             49 (10%)              25 (5%)              30 (6%)
-#> 22            500 / 500            500 / 500            500 / 500
-#> 23            193 (39%)            332 (66%)            247 (49%)
-#> 24            112 (22%)             79 (16%)            159 (32%)
-#> 25            118 (24%)              42 (8%)              41 (8%)
-#> 26              47 (9%)              29 (6%)              30 (6%)
-#> 27              30 (6%)              18 (4%)              23 (5%)
-#> 28            500 / 500            500 / 500            500 / 500
-#> 29            260 (52%)            353 (71%)            301 (60%)
-#> 30            241 (48%)            172 (34%)            226 (45%)
-#> 31            273 (55%)            297 (59%)            315 (63%)
-#> 32            273 (55%)            229 (46%)            237 (47%)
-#>                   MIT           Texas Tech            Alabama
-#> 1           500 / 500            500 / 500          500 / 500
-#> 2            98 (20%)            328 (66%)          348 (70%)
-#> 3           402 (80%)            172 (34%)          152 (30%)
-#> 4           500 / 500            500 / 500          500 / 500
-#> 5           175 ± 5.3          182.5 ± 5.6        183.4 ± 5.1
-#> 6  175 (171.2, 178.5) 182.7 (178.8, 186.5) 183.4 (180, 187.1)
-#> 7           500 / 500            500 / 500          500 / 500
-#> 8          12.9 ± 2.1             13.1 ± 2             13 ± 2
-#> 9         13 (11, 14)          13 (12, 14)        13 (12, 14)
-#> 10          500 / 500            500 / 500          500 / 500
-#> 11          270 (54%)            129 (26%)          113 (23%)
-#> 12           99 (20%)            104 (21%)           57 (11%)
-#> 13           59 (12%)            123 (25%)          161 (32%)
-#> 14            28 (6%)             67 (13%)           95 (19%)
-#> 15            44 (9%)             77 (15%)           74 (15%)
-#> 16          500 / 500            500 / 500          500 / 500
-#> 17          143 (29%)            168 (34%)          205 (41%)
-#> 18           99 (20%)            139 (28%)          129 (26%)
-#> 19          162 (32%)            111 (22%)          101 (20%)
-#> 20            47 (9%)             51 (10%)           50 (10%)
-#> 21           49 (10%)              31 (6%)            15 (3%)
-#> 22          500 / 500            500 / 500          500 / 500
-#> 23          172 (34%)            245 (49%)          233 (47%)
-#> 24          138 (28%)            115 (23%)          128 (26%)
-#> 25           89 (18%)             65 (13%)           77 (15%)
-#> 26           52 (10%)             52 (10%)            32 (6%)
-#> 27           49 (10%)              23 (5%)            30 (6%)
-#> 28          500 / 500            500 / 500          500 / 500
-#> 29          328 (66%)            305 (61%)          270 (54%)
-#> 30          228 (46%)            274 (55%)          277 (55%)
-#> 31          284 (57%)            212 (42%)          219 (44%)
-#> 32          198 (40%)            257 (51%)          280 (56%)
+If you have two likert columns, you can pass multiple maps into
+`var_maps` as a list, where the name of the list item is the same as the
+column name.
+
+``` r
+perception_map <- c(
+    "overwhelmingly positive" = 2, 
+    "somewhat positive" = 1, 
+    "neutral" = 0, 
+    "somewhat negative" = -1, 
+    "overwhelmingly negative" = -2
+)
+support_map <- c(
+    "very supportive" = 4, 
+    "somewhat supportive" = 3, 
+    "apathetic" = 2, 
+    "somewhat demeaning" = 1, 
+    "very demeaning" = 0
+)
+
+# Names in map match their respective columns
+likert_maps <- list(
+    uni_perception = perception_map,
+    prof_support = support_map
+)
+
+keep_cols <- c("university", "uni_perception", "prof_support")
+
+crosstab_stacked(
+    df = students[, keep_cols],
+    cohort_col_name = "university",
+    var_map = likert_maps,
+    anova = F,
+    chisq = F
+)
+#>                Description         All      UCLA  Berkeley  Stanford      Yale
+#> 1         Complete / Total 3500 / 3500 500 / 500 500 / 500 500 / 500 500 / 500
+#> 2                Mean ± SD   0.8 ± 1.3 0.6 ± 1.5 0.4 ± 1.2 1.2 ± 1.2 1.1 ± 1.1
+#> 3  overwhelmingly positive  1343 (38%) 218 (44%)  90 (18%) 289 (58%) 230 (46%)
+#> 4        somewhat positive   849 (24%)  68 (14%) 160 (32%)  94 (19%) 160 (32%)
+#> 5                  neutral   752 (21%) 109 (22%) 150 (30%)  62 (12%)  57 (11%)
+#> 6        somewhat negative    277 (8%)   25 (5%)  51 (10%)   30 (6%)   23 (5%)
+#> 7  overwhelmingly negative    279 (8%)  80 (16%)  49 (10%)   25 (5%)   30 (6%)
+#> 8         Complete / Total 3500 / 3500 500 / 500 500 / 500 500 / 500 500 / 500
+#> 9                Mean ± SD     3 ± 1.2 3.2 ± 1.3 2.8 ± 1.2 3.4 ± 1.1 3.2 ± 1.1
+#> 10         very supportive  1714 (49%) 292 (58%) 193 (39%) 332 (66%) 247 (49%)
+#> 11     somewhat supportive   836 (24%) 105 (21%) 112 (22%)  79 (16%) 159 (32%)
+#> 12               apathetic   466 (13%)   34 (7%) 118 (24%)   42 (8%)   41 (8%)
+#> 13      somewhat demeaning    271 (8%)   29 (6%)   47 (9%)   29 (6%)   30 (6%)
+#> 14          very demeaning    213 (6%)   40 (8%)   30 (6%)   18 (4%)   23 (5%)
+#>          MIT Texas Tech   Alabama
+#> 1  500 / 500  500 / 500 500 / 500
+#> 2  0.5 ± 1.3  0.7 ± 1.2 0.9 ± 1.1
+#> 3  143 (29%)  168 (34%) 205 (41%)
+#> 4   99 (20%)  139 (28%) 129 (26%)
+#> 5  162 (32%)  111 (22%) 101 (20%)
+#> 6    47 (9%)   51 (10%)  50 (10%)
+#> 7   49 (10%)    31 (6%)   15 (3%)
+#> 8  500 / 500  500 / 500 500 / 500
+#> 9  2.7 ± 1.3    3 ± 1.2   3 ± 1.2
+#> 10 172 (34%)  245 (49%) 233 (47%)
+#> 11 138 (28%)  115 (23%) 128 (26%)
+#> 12  89 (18%)   65 (13%)  77 (15%)
+#> 13  52 (10%)   52 (10%)   32 (6%)
+#> 14  49 (10%)    23 (5%)   30 (6%)
 ```
 
 ## Printable Output
@@ -807,6 +777,7 @@ is.factorlist()   # Is this a list of factor objects?
 
 default_var_map() # Create a default likert map based on factor levels
 
+nest_multi_col()  # Nest column into proper multi-response form
 to_long()         # Pivot data from formatted row format to long format
 to_wide()         # Pivot data from 3-column long (description, cohort, variable) to formatted row
 ```

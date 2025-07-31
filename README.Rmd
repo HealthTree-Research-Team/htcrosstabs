@@ -102,7 +102,7 @@ opinion_map <- c("likes" = 1, "neither" = 0, "dislikes" = -1)
 new_crosstab <- crosstab(licorice_by_region, "region", var_map = opinion_map)
 ```
 
-Multi-response crosstabs are created by providing a list-column allowing multiple answers per row.
+Multi-response crosstabs are created by providing a list-column allowing multiple answers per row. You can nest columns into the proper format with `nest_multi_col()`.
 
 ```{r}
 head(allergies_by_school, 5)
@@ -124,7 +124,7 @@ is.crosstab.likert(new_crosstab)
 is.crosstab.multi(new_crosstab)
 ```
 
-You can also, if needed, cast one data type to another using the `as.crosstab.*()` functions. The details on how the conversion is done can be found in the man pages by typing `?cast_crosstab`.
+You can also, if needed, cast one data type to another using the `as.crosstab.*()` functions. The details on how the conversion is done can be found at the bottom of this page, or in the man pages by typing `?cast_crosstab`.
 
 ```{r}
 new_crosstab <- crosstab(licorice_by_region, "region", opinion_map)
@@ -143,7 +143,7 @@ new_crosstab <- crosstab(sports)
 data_table(new_crosstab) |> head(5)
 ```
 
-You can extract useful values with the `get_*()` functions. You can get values like the mean, standard deviation, median, iqr, percentages, counts, etc. A full list is available in the man pages with `?get_values`.
+You can extract useful values with the `get_*()` functions. You can get values like the mean, standard deviation, median, iqr, percentages, counts, etc. A full list is available at the bottom of this page, or in the man pages with `?get_values`.
 
 ```{r}
 new_crosstab <- crosstab(length_by_species, "species")
@@ -173,7 +173,7 @@ join_val(
 )
 ```
 
-You can also do statistical analysis quickly, like an ANOVA, chi-square, or Rao-Scott corrected chi-square test with `get_*_p_value()` functions. Post hocs return a symmetric data frame/matrix of pairwise p-values, which are by default corrected using the Benjamini-Hochberg correction. You can change the correction method with `method = ...`, or you can disable correction completely with `p.adj = FALSE`.
+You can also do statistical analysis quickly, like an ANOVA, chi-square, or Rao-Scott corrected chi-square test with `get_*_p_value()` functions. Post-hocs can be done with the `get_*_posthoc()` functions. Post-hocs return a symmetric data frame/matrix of pairwise p-values, which are by default corrected using the Benjamini-Hochberg correction. You can change the correction method with `method = ...`, or you can disable correction completely with `p.adj = FALSE`.
 
 ```{r}
 new_crosstab <- crosstab(length_by_species, "species")
@@ -185,7 +185,7 @@ get_tukey_posthoc(new_crosstab)
 
 ## Adding Formatted Rows
 
-You can add rows with pre-formatted data by using the `add_*_row()` functions. A full list of functions can be found in the man pages with `?add_formatted_rows`. You can also extract the rows separate from the crosstab object with the `get_*_row()` functions.
+You can add rows with pre-formatted data by using the `add_*_row()` functions. A full list of functions can be found at the bottom of this page, or in the man pages with `?add_formatted_rows`. You can also extract the rows separate from the crosstab object with the `get_*_row()` functions.
 
 The order of the rows and columns is determined by the factor levels of the input data frame.
 
@@ -253,9 +253,43 @@ The second is to call `crosstab_stacked()` which runs through a data frame and a
 
 ```{r}
 crosstab_stacked(iris, "Species", anova = F)
-
-crosstab_stacked(students, "university", anova = F, chisq = F)
 ```
+
+If you have two likert columns, you can pass multiple maps into `var_maps` as a list, where the name of the list item is the same as the column name.
+
+```{r}
+perception_map <- c(
+    "overwhelmingly positive" = 2, 
+    "somewhat positive" = 1, 
+    "neutral" = 0, 
+    "somewhat negative" = -1, 
+    "overwhelmingly negative" = -2
+)
+support_map <- c(
+    "very supportive" = 4, 
+    "somewhat supportive" = 3, 
+    "apathetic" = 2, 
+    "somewhat demeaning" = 1, 
+    "very demeaning" = 0
+)
+
+# Names in map match their respective columns
+likert_maps <- list(
+    uni_perception = perception_map,
+    prof_support = support_map
+)
+
+keep_cols <- c("university", "uni_perception", "prof_support")
+
+crosstab_stacked(
+    df = students[, keep_cols],
+    cohort_col_name = "university",
+    var_map = likert_maps,
+    anova = F,
+    chisq = F
+)
+```
+
 
 ## Printable Output
 
@@ -478,6 +512,7 @@ is.factorlist()   # Is this a list of factor objects?
 
 default_var_map() # Create a default likert map based on factor levels
 
+nest_multi_col()  # Nest column into proper multi-response form
 to_long()         # Pivot data from formatted row format to long format
 to_wide()         # Pivot data from 3-column long (description, cohort, variable) to formatted row
 ```

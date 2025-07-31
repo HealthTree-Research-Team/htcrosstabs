@@ -32,8 +32,7 @@ bottom). `index = 3` will insert it before row 3 so it becomes row 3, and
 `index = 3, index_from = "bottom"` will insert it 3rd from the bottom.
 }
 \examples{
-num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-num_ct <- crosstab(num_df, cohort_col_name = "Species")
+num_ct <- crosstab(length_by_species, cohort_col_name = "species")
 
 complete_total_row <- get_complete_total_row(num_ct)
 complete_total_row

@@ -22,9 +22,7 @@ specified otherwise, this function is automatically called by
 [htcrosstabs::kbl()].
 }
 \examples{
-
-test_df <- iris[, c("Petal.Length", "Species"), drop = FALSE]
-test_ct <- crosstab(test_df, "Species") |>
+test_ct <- crosstab(length_by_species, "species") |>
     add_default_table(anova_format = c("row", "marker"))
 
 printable_output <- kbl(test_ct, crosstab_footnotes = FALSE)

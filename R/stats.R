@@ -34,17 +34,12 @@
 #'
 #' @examples
 #' # ANOVA test for numeric data
-#' num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-#' num_ct <- crosstab(num_df, "Species")
+#' num_ct <- crosstab(length_by_species, "species")
 #'
 #' get_anova_p_value(num_ct)
 #'
 #' # Chi-square test for categorical data
-#' cat_df <- data.frame(
-#'     Age = sample(c("Child", "Teen", "Adult"), 200, replace = TRUE),
-#'     Sport = sample(c("Soccer", "Basketball", "Football"), 200, replace = TRUE)
-#' )
-#' cat_ct <- crosstab(cat_df, "Age")
+#' cat_ct <- crosstab(sports_by_age, "age")
 #'
 #' get_chisq_p_value(cat_ct)
 #'
@@ -182,17 +177,12 @@ get_rao_scott_p_value.crosstab_data_multi <- function(data) {
 #'
 #' @examples
 #' # ANOVA test for numeric data
-#' num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-#' num_ct <- crosstab(num_df, "Species")
+#' num_ct <- crosstab(length_by_species, "species")
 #'
 #' get_tukey_posthoc(num_ct)
 #'
 #' # Chi-square test for categorical data
-#' cat_df <- data.frame(
-#'     Age = sample(c("Child", "Teen", "Adult"), 200, replace = TRUE),
-#'     Sport = sample(c("Soccer", "Basketball", "Football"), 200, replace = TRUE)
-#' )
-#' cat_ct <- crosstab(cat_df, "Age")
+#' cat_ct <- crosstab(sports_by_age, "age")
 #'
 #' get_chisq_posthoc(cat_ct)
 #'
@@ -614,6 +604,9 @@ get_rao_scott <- function(df, var_col_name, cohort_col_name) {
     long_df <- df |>
         tidyr::unnest({{var_col_name}}) |>
         dplyr::filter(!is.na({{var_col_name}}), {{var_col_name}} != "")
+
+    # Missing factor levels throw errors
+    long_df[[var_col_name]] <- as.character(long_df[[var_col_name]])
 
     design <- survey::svydesign(
         id = stats::as.formula(paste0("~`", id_col_name, "`")),

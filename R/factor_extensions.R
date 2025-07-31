@@ -80,10 +80,18 @@ factor <- function(obj, levels = NULL, end_levels = NULL, drop_levels = FALSE, .
     dot_args$levels <- final_levels
 
     # Apply factor logic
-    if (is.list(obj))
+    if (is.list(obj)) {
+        atomic <- sapply(obj, is.atomic)
+        if (any(!atomic)) {
+            warning(sprintf(
+                "Detected non-atomic items in list-column:\n%s",
+                paste(obj[!atomic], collapse = "\n")
+            ))
+        }
         result <- lapply(obj, function(x) do.call(base::factor, c(list(x), dot_args)))
-    else
+    } else {
         result <- do.call(base::factor, c(list(obj), dot_args))
+    }
 
     return(result)
 }

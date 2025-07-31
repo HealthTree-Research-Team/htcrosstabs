@@ -38,8 +38,7 @@ form. The condensed form must have the same sum as there are rows in ct, and
 the long form must have the same length as there are rows in ct.
 }
 \examples{
-num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-num_ct <- crosstab(num_df, cohort_col_name = "Species") |>
+num_ct <- crosstab(length_by_species, cohort_col_name = "species") |>
     add_complete_total_row() |>
     add_mean_sd_row() |>
     add_med_q1_q3_row() |>
@@ -50,5 +49,6 @@ index(num_ct) # The condensed row groupings
 index(num_ct, long = TRUE) # The long row groupings
 
 index(num_ct) <- c("sec1" = 2, "sec2" = 2, "sec3" = 2)
+index(num_ct)
 
 }

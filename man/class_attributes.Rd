@@ -115,11 +115,14 @@ The setter functions will set those same values if provided with valid data.
 
 }}
 \examples{
-num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-num_ct <- crosstab(num_df, "Species", new_var_col_name = "orig_var_name")
+test_ct <- crosstab(
+    length_by_species,
+    "species",
+    new_var_col_name = "orig_var_name"
+)
 
-var_name(num_ct) # orig_var_name
-var_name(num_ct) <- "new_var_name"
-var_name(num_ct) # new_var_name
+var_name(test_ct) # orig_var_name
+var_name(test_ct) <- "new_var_name"
+var_name(test_ct) # new_var_name
 
 }

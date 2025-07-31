@@ -43,10 +43,9 @@
 #'
 #' @examples
 #' # Numeric Table
-#' num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
 #' num_ct <- crosstab(
-#'     num_df,
-#'     cohort_col_name = "Species"
+#'     length_by_species,
+#'     cohort_col_name = "species"
 #' )
 #'
 #' num_ct <- num_ct |>
@@ -55,15 +54,11 @@
 #' num_ct
 #'
 #' # Likert table
-#' likert_df <- data.frame(
-#'     "Response" = sample(c("Agree", "Neither", "Disagree"), 50, replace = TRUE),
-#'     "Region" = state.region
-#' )
-#' likert_map <- c("Agree" = 1, "Neither" = 0, "Disagree" = -1)
+#' licorice_map <- c("likes" = 1, "neither" = 0, "dislikes" = -1)
 #' likert_ct <- crosstab(
-#'     likert_df,
-#'     cohort_col_name = "Region",
-#'     var_map = likert_map
+#'     licorice_by_region,
+#'     cohort_col_name = "region",
+#'     var_map = licorice_map
 #' )
 #'
 #' likert_ct <- likert_ct |>
@@ -272,7 +267,10 @@ add_default_table <- function(
 #' While [crosstab()] handles the base case of one variable column (and one
 #' cohort column if applicable), `crosstab_stacked()` iterates over each
 #' variable column to create a stacked crosstab object with multiple combined
-#' tables.
+#' tables. It uses the same arguments that [crosstab()] does to determine type.
+#' If you have 2 likert columns with different var_maps, you can make a list
+#' with both and pass that in (the names of the list should match the columns
+#' they correspond to).
 #'
 #' @param df The original data frame with the data to be analyzed
 #' @param cohort_col_name The name of the cohort column, so it can be paired with each sub-crosstab
@@ -304,18 +302,33 @@ add_default_table <- function(
 #' )
 #'
 #' # Combining different types of data
-#' test_df <- iris[, c("Petal.Length", "Petal.Width", "Species"), drop = FALSE]
-#' test_df[["Petal.Scent"]] <- sample(c("pleasant", "no scent", "unpleasant"), 150, replace = TRUE)
-#' test_df[["Petal.Color"]] <- sample(c("blue", "indigo", "violet"), 150, replace = TRUE)
-#' test_map <- c("pleasant" = 1, "no scent" = 0, "unpleasant" = -1)
+#' uni_perception_map <- c(
+#'     "overwhelmingly positive" = 2,
+#'     "somewhat positive" = 1,
+#'     "neutral" = 0,
+#'     "somewhat negative" = -1,
+#'     "overwhelmingly negative" = -2
+#' )
 #'
-#' head(test_df, 10) # See the example data
-#' test_map # See the likert map
+#' prof_support_map <- c(
+#'     "very supportive" = 4,
+#'     "somewhat supportive" = 3,
+#'     "apathetic" = 2,
+#'     "somewhat demeaning" = 1,
+#'     "very demeaning" = 0
+#' )
+#'
+#' likert_maps <- list(
+#'     uni_perception = uni_perception_map,
+#'     prof_support = prof_support_map
+#' )
 #'
 #' crosstab_stacked(
-#'     test_df,
-#'     cohort_col_name = "Species",
-#'     var_map = test_map
+#'     students,
+#'     cohort_col_name = "university",
+#'     var_map = likert_maps,
+#'     anova = FALSE,
+#'     chisq = FALSE
 #' )
 #'
 crosstab_stacked <- function(

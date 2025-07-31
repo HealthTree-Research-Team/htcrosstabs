@@ -23,6 +23,17 @@
 #' @source The famous "iris" dataset built into R
 "length_by_species"
 
+#' Petal Width
+#'
+#' The petal width column from the famous "iris" dataset built into R.
+#'
+#' @format A data frame with 150 rows of iris petal widths
+#' \describe{
+#'   \item{petal width}{Width of flower petals in cm (numeric)}
+#' }
+#' @source The famous "iris" dataset built into R
+"petal_width"
+
 #' Opinions on Black Licorice by US Region
 #'
 #' A dummy dataset of Likert-like opinions on black licorice by US region (west,

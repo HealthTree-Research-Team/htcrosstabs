@@ -18,15 +18,7 @@ Takes a factor or factorlist and assigns them Likert scores from
 `c("A", "B", "C")` would return `c(A = 3, B = 2, C = 1)`.
 }
 \examples{
-orig_levels <- c("Strongly Agree", "Agree", "Neither", "Disagree", "Strongly Disagree")
-
-# Create factorized responses
-likert_responses <- sample(orig_levels, 200, replace = TRUE)
-likert_responses <- factor(likert_responses, levels = orig_levels)
-
-head(likert_responses, 10)
-
-# Create default Likert map
-default_var_map(likert_responses)
+levels(students$prof_support)
+default_var_map(students$prof_support)
 
 }

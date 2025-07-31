@@ -19,8 +19,7 @@ detects which columns to join by and allows you to pass in as many tables as
 you want to join.
 }
 \examples{
-test_df <- iris[, c("Petal.Length", "Species"), drop = FALSE]
-test_ct <- crosstab(test_df, "Species")
+test_ct <- crosstab(length_by_species, "species")
 
 # One cohort and one variable column each
 join_val(

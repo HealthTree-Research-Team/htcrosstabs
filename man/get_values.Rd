@@ -175,8 +175,7 @@ base values that the other functions use to produce their formatted output.
 
 }}
 \examples{
-test_df <- iris[, c("Petal.Length", "Species"), drop = FALSE]
-test_ct <- crosstab(test_df, "Species")
+test_ct <- crosstab(length_by_species, "species")
 
 # Base values
 get_complete(test_ct)

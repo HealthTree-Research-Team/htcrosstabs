@@ -36,15 +36,10 @@ helpful for htcrosstabs's internal functions. Under the hood, this function
 is called during the broader call to the [crosstab()] constructor.
 }
 \examples{
-# Ungrouped data
-num_df <- iris[, "Sepal.Length", drop = FALSE]
-num_ct <- crosstab_data(num_df)
-utils::tail(num_ct, 10)
-names(attributes(num_ct))
-
-# Grouped data
-num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-num_ct <- crosstab_data(num_df, cohort_col_name = "Species")
+num_ct <- crosstab_data(
+    length_by_species,
+    cohort_col_name = "species"
+)
 utils::tail(num_ct, 10)
 names(attributes(num_ct))
 

@@ -91,17 +91,13 @@ categorical values.
 }
 
 \examples{
-num_df <- iris[, "Sepal.Length", drop = FALSE]
-num_ct <- crosstab(num_df)
-
+num_ct <- crosstab(length_by_species, "species")
 converted_ct <- as.crosstab.cat(num_ct)
 is.crosstab.categorical(converted_ct) # TRUE
 
 # Likert data requires a map
-cat_df <- data.frame(region = state.region)
-cat_ct <- crosstab(cat_df)
-
-var_map <- c("South" = 1, "North Central" = 2, "Northeast" = 3, "West" = 4)
-converted_ct <- as.crosstab.likert(cat_ct, var_map = var_map)
+cat_ct <- crosstab(licorice_by_region, "region")
+licorice_map <- c("likes" = 1, "neither" = 0, "dislikes" = -1)
+converted_ct <- as.crosstab.likert(cat_ct, var_map = licorice_map)
 is.crosstab.likert(converted_ct) # TRUE
 }

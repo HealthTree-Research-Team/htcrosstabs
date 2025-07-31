@@ -69,13 +69,11 @@ constructor (crosstab objects are returned as-is).
 }}
 \examples{
 # Ungrouped data
-num_df <- iris[, "Sepal.Length", drop = FALSE]
-num_ct <- crosstab(num_df)
+num_ct <- crosstab(petal_width)
 add_default_table(num_ct)
 
 # Grouped data
-num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-num_ct <- crosstab(num_df, cohort_col_name = "Species")
+num_ct <- crosstab(length_by_species, cohort_col_name = "species")
 add_default_table(num_ct)
 
 }

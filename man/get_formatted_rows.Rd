@@ -264,8 +264,7 @@ The rows contain some formatted combination of these variables:
 }
 
 \examples{
-num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
-num_ct <- crosstab(num_df, cohort_col_name = "Species")
+num_ct <- crosstab(length_by_species, cohort_col_name = "species")
 
 get_mean_sd_row(num_ct)
 get_med_q1_q3_row(num_ct)

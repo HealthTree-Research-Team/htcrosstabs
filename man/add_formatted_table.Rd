@@ -139,10 +139,9 @@ on the data type.
 
 \examples{
 # Numeric Table
-num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
 num_ct <- crosstab(
-    num_df,
-    cohort_col_name = "Species"
+    length_by_species,
+    cohort_col_name = "species"
 )
 
 num_ct <- num_ct |>
@@ -151,15 +150,11 @@ num_ct <- num_ct |>
 num_ct
 
 # Likert table
-likert_df <- data.frame(
-    "Response" = sample(c("Agree", "Neither", "Disagree"), 50, replace = TRUE),
-    "Region" = state.region
-)
-likert_map <- c("Agree" = 1, "Neither" = 0, "Disagree" = -1)
+licorice_map <- c("likes" = 1, "neither" = 0, "dislikes" = -1)
 likert_ct <- crosstab(
-    likert_df,
-    cohort_col_name = "Region",
-    var_map = likert_map
+    licorice_by_region,
+    cohort_col_name = "region",
+    var_map = licorice_map
 )
 
 likert_ct <- likert_ct |>

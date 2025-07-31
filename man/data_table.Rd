@@ -40,8 +40,7 @@ data.
 }
 \examples{
 # Ungrouped data
-num_df <- iris[, "Sepal.Length", drop = FALSE]
-num_ct <- crosstab(num_df)
+num_ct <- crosstab(petal_width)
 
 num_data_table <- data_table(num_ct)
 head(num_data_table, 10) # A default cohort column is added to ungrouped data
