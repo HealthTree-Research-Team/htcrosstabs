@@ -53,10 +53,7 @@ sports <- data.frame(
 
 ```{r}
 head(sports, 5)
-<<<<<<< HEAD
 
-=======
->>>>>>> 45fab16d69d07638aa0803a5199a4bb386458b42
 new_crosstab <- crosstab(sports)
 ```
 
@@ -74,27 +71,17 @@ sports_by_age <- data.frame(
 
 ```{r}
 head(sports_by_age, 5)
-<<<<<<< HEAD
 
-=======
->>>>>>> 45fab16d69d07638aa0803a5199a4bb386458b42
 new_crosstab <- crosstab(sports_by_age, cohort_col_name = "age")
 ```
 
 ## Crosstab Types
 
 Crosstabs can hold multiple data types:
-<<<<<<< HEAD
 * Numeric
 * Categorical
 * Likert-like
 * Multi-response
-=======
-- Numeric
-- Categorical
-- Likert-like
-- Multi-response
->>>>>>> 45fab16d69d07638aa0803a5199a4bb386458b42
 
 The data type is automatically determined when you create the crosstab.
 
@@ -104,10 +91,7 @@ Categorical crosstabs are the default data type. Character values, logical value
 
 ```{r}
 head(sports_by_age, 5) # Categorical
-<<<<<<< HEAD
 
-=======
->>>>>>> 45fab16d69d07638aa0803a5199a4bb386458b42
 new_crosstab <- crosstab(sports_by_age, "age")
 ```
 
@@ -122,10 +106,7 @@ names(length_by_species) <- c("petal length", "species")
 
 ```{r}
 head(length_by_species, 5)
-<<<<<<< HEAD
 
-=======
->>>>>>> 45fab16d69d07638aa0803a5199a4bb386458b42
 new_crosstab <- crosstab(length_by_species, "species")
 ```
 
@@ -143,10 +124,7 @@ licorice_by_age <- data.frame(
 
 ```{r}
 head(licorice_by_age, 5)
-<<<<<<< HEAD
 
-=======
->>>>>>> 45fab16d69d07638aa0803a5199a4bb386458b42
 likert_map <- c("Likes" = 1, "Neither" = 0, "Dislikes" = -1)
 
 new_crosstab <- crosstab(licorice_by_age, "age", var_map = likert_map)
@@ -173,11 +151,7 @@ allergies_by_school <- data.frame(
 
 ```{r}
 head(allergies_by_school, 5)
-<<<<<<< HEAD
 
-=======
-head(allergies_by_school$allergies, 5)
->>>>>>> 45fab16d69d07638aa0803a5199a4bb386458b42
 new_crosstab <- crosstab(allergies_by_school, "school")
 ```
 
