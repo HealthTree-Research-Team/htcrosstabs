@@ -28,12 +28,13 @@ validate_input_crosstab_data <- function(df, cohort_col_name, var_map, combined_
     assert_that(is.data.frame(df))
     if (!is.null(cohort_col_name))
         assert_that(is.character(cohort_col_name))
-    if (!is.null(var_map))
+    if (!is.null(var_map)) {
         assert_that(
             is.numeric(var_map),
             !is.null(names(var_map)),
             msg = "var_map must be a named vector of numeric values"
         )
+    }
     assert_that(is.character(combined_cohort_name))
     assert_that(is.character(desc_col_name))
 
@@ -75,6 +76,24 @@ validate_input_crosstab_data <- function(df, cohort_col_name, var_map, combined_
         if (!is.null(cohort_col_name)) {
             assert_that(new_var_col_name != cohort_col_name, msg = "Can not rename variable column to the same name as the cohort column")
         }
+    }
+
+    if (!is.null(var_map)) {
+        if (is.null(cohort_col_name))
+            var_col_name <- names(df)[1]
+        else
+            var_col_name <- names(df)[names(df) != cohort_col_name]
+
+        all_vals <- unique(df[[var_col_name]])
+
+        assert_that(
+            all(all_vals %in% c(names(var_map), NA)),
+            msg = sprintf(
+                "Detected values in \"%s\" not found in names of var_map: %s",
+                var_col_name,
+                paste(all_vals[!(all_vals %in% c(names(var_map), NA))], collapse = ", ")
+            )
+        )
     }
 }
 

@@ -382,6 +382,13 @@ test_that("crosstab() works when given grouped likert data",{
     expect_equal(ct_data[["variable"]], test_df[["variable"]])
 })
 
+test_that("crosstab() errors when given faulty var_map",{
+    test_df <- lik_test_df(gr = T)
+    test_map <- default_var_map(test_df[["variable"]])
+    names(test_map) <- toupper(names(test_map))
+    expect_error(crosstab(test_df, "cohort", var_map = test_map))
+})
+
 test_that("crosstab() works when given ungrouped multianswer data",{
     test_df <- multi_test_df(gr = F)
     expect_silent(crosstab(test_df))

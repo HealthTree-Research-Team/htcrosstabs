@@ -54,6 +54,8 @@ crosstab_data <- function(df, cohort_col_name = NULL, var_map = NULL, new_var_co
     validate_input_crosstab_data(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name, new_var_col_name)
     grouped <- !is.null(cohort_col_name)
 
+    # print("What about here?")
+
     # Add grouping column if it doesn't exist
     if (!grouped) {
         cohort_col_name <- get_non_matching("cohort", names(df))

@@ -43,44 +43,33 @@ library(htcrosstabs)
 The fast way to create crosstabs is to pass your data frame into `crosstab_stacked()`, telling it if you have a cohort column. Then pass the object into `kbl()`; not the `kableExtra` one, the one that comes with `htcrosstabs`. It works exactly the same way, but applies some automatic formatting like adding auto-generated footnotes and row groupings.
 
 ``` r
-test_data <- iris
-new_crosstab <- crosstab_stacked(cohort_col_name = "Species")
+new_crosstab <- crosstab_stacked(
+    iris,
+    cohort_col_name = "Species"
+)
 
-# Output
 kbl(new_crosstab)
 ```
 
 # More Detailed
 
+## Example Data
+
+If you'd like to run the code you see here, here is some example data:
+
+
 ## Creating a Crosstab
 
 A simple crosstab can be created from a one-column data frame.
 
-```{r, include = FALSE}
-sport_options <- c("Basketball", "Soccer", "Football", "Hockey", "Baseball")
-
-sports <- data.frame(
-    sport = sample(sport_options, 200, replace = TRUE)
-)
-```
-
 ```{r}
+sports <- sports_by_age[, "sport", drop = FALSE]
 head(sports, 5)
 
 new_crosstab <- crosstab(sports)
 ```
 
 A crosstab can group data into cohorts by providing a two column data frame, one for the data and one for the cohorts. Simply provide the name of the cohort column when creating it.
-
-```{r, include = FALSE}
-age_options <- c("Child", "Teen", "Adult")
-
-# Example data
-sports_by_age <- data.frame(
-    sport = sample(sport_options, 200, replace = TRUE),
-    age = sample(age_options, 200, replace = TRUE)
-)
-```
 
 ```{r}
 head(sports_by_age, 5)
@@ -102,11 +91,6 @@ new_crosstab <- crosstab(sports_by_age, "age")
 
 Numeric crosstabs are the default when the data is numbers.
 
-```{r, include = FALSE}
-length_by_species <- iris[, c("Petal.Length", "Species"), drop = FALSE]
-names(length_by_species) <- c("petal length", "species")
-```
-
 ```{r}
 head(length_by_species, 5)
 
@@ -115,38 +99,15 @@ new_crosstab <- crosstab(length_by_species, "species")
 
 Likert crosstabs are created when categorical data is provided, along with a named vector to map values to numbers.
 
-```{r, include = FALSE}
-like_options <- c("Likes", "Neither", "Dislikes")
-licorice_by_age <- data.frame(
-    opinion = sample(like_options, 200, replace = TRUE),
-    age = sample(age_options, 200, replace = TRUE)
-)
-```
-
 ```{r}
-head(licorice_by_age, 5)
+head(licorice_by_region, 5)
 
-likert_map <- c("Likes" = 1, "Neither" = 0, "Dislikes" = -1)
+opinion_map <- c("likes" = 1, "neither" = 0, "dislikes" = -1)
 
-new_crosstab <- crosstab(licorice_by_age, "age", var_map = likert_map)
+new_crosstab <- crosstab(licorice_by_region, "region", var_map = opinion_map)
 ```
 
 Multi-response crosstabs are created by providing a list-column allowing multiple answers per row.
-
-```{r, include = FALSE}
-allergy_options <- c("Nuts", "Eggs", "Milk", "Gluten")
-school_options <- c("Brighton High", "Cottonwood High", "Olympus High", "Alta High")
-
-get_allergy_sample <- function() {
-    num_choices <- sample(1:4, 1)
-    sample(allergy_options, num_choices, replace = FALSE)
-}
-
-allergies_by_school <- data.frame(
-    allergies = I(replicate(200, get_allergy_sample(), simplify = FALSE)),
-    school = sample(school_options, 200, replace = TRUE)
-)
-```
 
 ```{r}
 head(allergies_by_school, 5)
@@ -171,7 +132,7 @@ is.crosstab.multi(new_crosstab)
 You can also, if needed, cast one data type to another using the `as.crosstab.*()` functions. The details on how the conversion is done can be found in the man pages by typing `?cast_crosstab`.
 
 ```{r}
-new_crosstab <- crosstab(licorice_by_age, "age", likert_map)
+new_crosstab <- crosstab(licorice_by_region, "region", opinion_map)
 is.crosstab.likert(new_crosstab)
 
 new_crosstab <- as.crosstab.num(new_crosstab)
@@ -180,7 +141,7 @@ is.crosstab.likert(new_crosstab)
 
 ## Analysis
 
-You can see the data from the crosstabs by using `data_table()`. Ungrouped data has a dummy cohort column added with the name of the column in the output.
+You can see the data from the crosstabs by using `data_table()`. Ungrouped data has a dummy cohort column with the name of the final output column.
 
 ```{r}
 new_crosstab <- crosstab(sports)
@@ -197,6 +158,26 @@ get_mean(new_crosstab)
 get_complete_total(new_crosstab)
 ```
 
+There is also a function `join_val()` which lets you quickly and automatically join different variable tables.
+
+```{r}
+new_crosstab <- crosstab(length_by_species, "species")
+
+join_val(
+    get_complete(new_crosstab),
+    get_mean(new_crosstab),
+    get_sd(new_crosstab)
+)
+
+new_crosstab <- crosstab(sports_by_age, "age")
+
+join_val(
+    get_complete(new_crosstab),
+    get_count(new_crosstab),
+    get_proportion(new_crosstab)
+)
+```
+
 You can also do statistical analysis quickly, like an ANOVA, chi-square, or Rao-Scott corrected chi-square test with `get_*_p_value()` functions. Post hocs return a symmetric data frame/matrix of pairwise p-values, which are by default corrected using the Benjamini-Hochberg correction. You can change the correction method with `method = ...`, or you can disable correction completely with `p.adj = FALSE`.
 
 ```{r}
@@ -206,4 +187,106 @@ get_anova_p_value(new_crosstab)
 
 get_tukey_posthoc(new_crosstab)
 ```
+
+## Adding Formatted Rows
+
+You can add rows with pre-formatted data by using the `add_*_row()` functions. A full list of functions can be found in the man pages with `?add_formatted_rows`. You can also extract the rows separate from the crosstab object with the `get_*_row()` functions.
+
+The order of the rows and columns is determined by the factor levels of the input data frame.
+
+```{r}
+crosstab(length_by_species, "species") |> 
+    add_complete_total_row() |> 
+    add_mean_sd_row() |> 
+    add_med_q1_q3_row()
+
+crosstab(sports_by_age, "age") |> 
+    add_complete_total_row() |> 
+    add_count_rows()
+```
+
+## Adding Pre-Built Tables
+
+Certain types of data have common types of rows you usually want, so we have preset templates you can call if you want.
+
+```{r}
+satisfaction_map <- c("very satisfied" = 3, "somewhat satisfied" = 2, "not satisfied" = 1)
+crosstab(satisfaction_by_company, "company", satisfaction_map) |> 
+    add_likert_table()
+
+crosstab(allergies_by_school, "school") |> 
+    add_categorical_table()
+```
+
+You can also choose `add_default_table()` and it will decide automatically based on the data you passed in.
+
+```{r}
+crosstab(length_by_species, "species") |> 
+    add_default_table()
+
+crosstab(sports_by_age, "age") |> 
+    add_default_table()
+```
+
+## Stacking Crosstabs
+
+If you want stacked crosstabs, there are two ways to do it:
+
+The first way is to make two crosstabs and manually stack them with `stack_crosstabs()`. You can stack as many as you want.
+
+```{r}
+ct1 <- iris[, c("Sepal.Length", "Species")] |> 
+    crosstab("Species") |> 
+    add_default_table(anova = F)
+
+ct2 <- iris[, c("Petal.Length", "Species")] |> 
+    crosstab("Species") |> 
+    add_default_table(anova = F)
+
+ct3 <- iris[, c("Sepal.Width", "Species")] |> 
+    crosstab("Species") |> 
+    add_default_table(anova = F)
+
+ct4 <- iris[, c("Petal.Width", "Species")] |> 
+    crosstab("Species") |> 
+    add_default_table(anova = F)
+
+stack_crosstabs(ct1, ct2, ct3, ct4)
+```
+
+The second is to call `crosstab_stacked()` which runs through a data frame and automatically applies the default table format.
+
+```{r}
+crosstab_stacked(iris, "Species", anova = F)
+
+crosstab_stacked(students, "university", anova = F, chisq = F)
+```
+
+## Printable Output
+
+The `kableExtra` package contains a lot of good stuff, so I made a wrapper for the `kbl()` function which will recognize a crosstab object and automatically apply formatting such as auto-generated footnotes.
+
+``` r
+new_crosstab <- crosstab_stacked(students, "university")
+
+htcrosstabs::kbl(new_crosstab)
+```
+
+# Other Utilities
+
+Because the output order of the rows and columns is determined by factor levels, and because multi-response data is handled in list-columns, and because list-columns are a pain to factorize, I included wrappers for `factor()` and `levels()` which include support for list-columns.
+
+```{r}
+head(allergies_by_school, 5)
+
+new_allergies <- factor(allergies_by_school$allergies, levels = c("nuts", "eggs", "milk", "gluten"))
+levels(new_allergies)
+```
+
+I also included a function `default_var_map()` which will automatically generate a likert map based on factor levels.
+
+```{r}
+default_var_map(students$prof_support)
+```
+
 
