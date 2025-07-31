@@ -706,7 +706,7 @@ get_percent()        # Get percent
 get_count_percent()  # Get "count (percent%)"
 ```
 
-# Get Stats
+## Get Stats
 
 ``` r
 get_anova_p_value()     # Get overall ANOVA p-value
