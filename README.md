@@ -602,3 +602,211 @@ default_var_map(students$prof_support)
 #>      very demeaning 
 #>                   1
 ```
+
+# Complete Function Index
+
+## Crosstab Creation
+
+``` r
+crosstab()         # Create crosstab
+as.crosstab()      # Create crosstab (Same as crosstab())
+crosstab_stacked() # Create crosstab with rows from multi-column data frame
+stack_crosstabs()  # Combine 2+ crosstabs
+crosstab_data()    # Create internal data table (you shouldn't need this)
+```
+
+## Class attributes
+
+``` r
+# GETTERS
+var_name()             # The name of the variable column
+var()                  # The variable column as a vector
+var_levels()           # The factor levels in the variable column
+var_map()              # The named numeric vector mapping variable to number (likert)
+var_mapped()           # The variable column mapped to its numeric representation
+cohort_name()          # The name of the cohort column
+cohort()               # The cohort column as a vector
+cohort_levels()        # Factor levels in the cohort column
+combined_cohort_name() # Name of the combined cohort column in the output
+desc_name()            # Name of the leftmost description column in the output
+data_table()           # The internal data table containing the original data
+get_raw_data()         # The internal data table without combined cohort
+index()                # The vector keeping track of row groupings
+
+# SETTERS
+set_new_data()         # Replace data table in current crosstab with a new one
+`data_table<-`()       # Replace data table in current crosstab with a new one
+`var_name<-`()         # Rename the variable column
+`var<-`()              # Set new values for the variable column
+`var_levels<-`()       # Set new variable factor levels
+`var_map<-`()          # Set new numeric values to map the variables to
+`cohort_name<-`()      # Rename the cohort column
+`cohort<-`()           # Set new values for the cohort column
+`cohort_levels<-`()    # Set new cohort factor levels
+`index<-`()            # Change the row grouping for the output table
+```
+
+## Class Checking
+
+``` r
+is.crosstab()                 # Is this a crosstab object? (FALSE if not)
+is.crosstab.grouped()         # Is this a grouped crosstab? (FALSE if not)
+is.crosstab.categorical()     # Is this a categorical crosstab? (FALSE if not)
+is.crosstab.numeric()         # Is this a numeric crosstab? (FALSE if not)
+is.crosstab.likert()          # Is this a likert crosstab? (FALSE if not)
+is.crosstab.multi()           # Is this a multi-response crosstab? (FALSE if not)
+is.crosstab.data()            # Is this an internal crosstab_data table? (FALSE if not)
+
+assert_crosstab()             # Is this a crosstab object? (Errors if not)
+assert_crosstab_grouped()     # Is this a grouped crosstab? (Errors if not)
+assert_crosstab_categorical() # Is this a categorical crosstab? (Errors if not)
+assert_crosstab_numeric()     # Is this a numeric crosstab? (Errors if not)
+assert_crosstab_likert()      # Is this a likert crosstab? (Errors if not)
+assert_crosstab_multi()       # Is this a multi-response crosstab? (Errors if not)
+assert_crosstab_data()        # Is this an internal crosstab_data table? (Errors if not)
+```
+
+## Class Casting
+
+``` r
+as.crosstab()        # Cast data frame to crosstab
+as.crosstab.cat()    # Cast crosstab to categorical
+as.crosstab.num()    # Cast crosstab to numeric
+as.crosstab.likert() # Cast crosstab to likert
+as.crosstab.multi()  # Cast crosstab to multi-response
+```
+
+## Get Values
+
+``` r
+join_val()           # Quickly join multiple value tables
+
+get_complete()       # Get complete (not NA)
+get_total()          # Get total (including NA)
+get_complete_total() # Get "complete / total"
+
+get_mean()           # Get mean
+get_sd()             # Get standard deviation
+get_mean_sd()        # Get "mean +/- sd"
+
+get_med()            # Get median
+get_median()         # Get median
+get_q1()             # Get first quartile
+get_q3()             # Get third quartile
+get_q1_q3()          # Get "Q1--Q3"
+get_med_q1_q3()      # Get "med (Q1, Q3)"
+get_iqr()            # Get IQR
+get_iqr_q3_q1()      # Get "IQR (Q3-Q1)"
+
+get_count()          # Get counts
+get_prop()           # Get proportions (out of complete)
+get_proportion()     # Get proportions (out of complete)
+get_count_prop()     # Get "count (proportion)"
+get_percent()        # Get percent
+get_count_percent()  # Get "count (percent%)"
+```
+
+# Get Stats
+
+``` r
+get_anova_p_value()     # Get overall ANOVA p-value
+get_anova_posthoc()     # Get Tukey post-hoc p-values
+get_tukey_posthoc()     # Get Tukey post-hoc p-values
+
+get_chisq_p_value()     # Get overall chi-square p-value
+get_chisq_posthoc()     # Get chi-square post-hoc p_values
+
+get_rao_scott_p_value() # Get overall Rao-Scott p-value
+get_rao_scott_posthoc() # Get Rao-Scott post-hoc p-values
+```
+
+## Get/Add Formatted Rows
+
+``` r
+add_rows()               # Add custom rows to the output table
+
+get_complete_row()       # Get formatted complete row
+add_complete_row()       # Get formatted complete row
+get_total_row()          # Get formatted total row
+add_total_row()          # Get formatted total row
+get_complete_total_row() # Get formatted "complete / total row"
+add_complete_total_row() # Get formatted "complete / total row"
+
+get_mean_row()           # Get formatted mean row
+add_mean_row()           # Get formatted mean row
+get_sd_row()             # Get formatted standard deviation row
+add_sd_row()             # Get formatted standard deviation row
+get_mean_sd_row()        # Get formatted "mean +/- sd" row
+add_mean_sd_row()        # Get formatted "mean +/- sd" row
+
+get_med_row()            # Get formatted median row
+add_med_row()            # Get formatted median row
+get_median_row()         # Get formatted median row
+add_median_row()         # Get formatted median row
+get_q1_row()             # Get formatted Q1 row
+add_q1_row()             # Get formatted Q1 row
+get_q3_row()             # Get formatted Q3 row
+add_q3_row()             # Get formatted Q3 row
+get_q1_q3_row()          # Get formatted "Q1--Q3" row
+add_q1_q3_row()          # Get formatted "Q1--Q3" row
+get_med_q1_q3_row()      # Get formatted "med (Q1, Q3)" row
+add_med_q1_q3_row()      # Get formatted "med (Q1, Q3)" row
+get_iqr_row()            # Get formatted IQR row
+add_iqr_row()            # Get formatted IQR row
+get_iqr_q3_q1_row()      # Get formatted "IQR (Q3-Q1)" row
+add_iqr_q3_q1_row()      # Get formatted "IQR (Q3-Q1)" row
+
+get_count_rows()         # Get formatted count rows
+add_count_rows()         # Get formatted count rows
+get_prop_rows()          # Get formatted proportion rows
+add_prop_rows()          # Get formatted proportion rows
+get_proportion_rows()    # Get formatted proportion rows
+add_proportion_rows()    # Get formatted proportion rows
+get_count_prop_rows()    # Get formatted "count (proportion)" rows
+add_count_prop_rows()    # Get formatted "count (proportion)" rows
+get_percent_rows()       # Get formatted percent rows
+add_percent_rows()       # Get formatted percent rows
+get_count_percent_rows() # Get formatted "count (percent%)" rows
+add_count_percent_rows() # Get formatted "count (percent%)" rows
+
+get_anova_rows()         # Get formatted ANOVA rows
+add_anova_rows()         # Get formatted ANOVA rows
+get_chisq_rows()         # Get formatted chi-square rows
+add_chisq_rows()         # Get formatted chi-square rows
+get_rao_scott_rows()     # Get formatted Rao-Scott rows
+add_rao_scott_rows()     # Get formatted Rao-Scott rows
+```
+
+## Add Pre-Built Tables
+
+``` r
+add_default_table()     # Guess which table based on the data type
+
+add_categorical_table() # Add default categorical table
+add_numeric_table()     # Add default numeric table
+add_likert_table()      # Add default likert table
+```
+
+## Kable Extensions
+
+``` r
+kbl()             # Wrapper for kableExtra::kbl(), automatically applies formatting
+
+apply_footnotes() # Manually apply footnotes (automatically called by kbl())
+apply_pack_rows() # Manually apply row groups (automatically called by kbl())
+apply_table_sep() # Manually apply lines between tables (automatically called by kbl())
+```
+
+## Miscellaneous Utilities
+
+``` r
+factor()          # Wrapper for base::factor(), supports lists
+levels()          # Wrapper for base::levels(), supports lists
+`levels<-`()      # Wrapper for base::`levels<-`(), supports lists
+is.factorlist()   # Is this a list of factor objects?
+
+default_var_map() # Create a default likert map based on factor levels
+
+to_long()         # Pivot data from formatted row format to long format
+to_wide()         # Pivot data from 3-column long (description, cohort, variable) to formatted row
+```
