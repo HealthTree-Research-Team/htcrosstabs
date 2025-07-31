@@ -43,10 +43,6 @@ kbl(new_crosstab)
 
 # More Detailed
 
-## Example Data
-
-If you’d like to run the code you see here, here is some example data:
-
 ## Creating a Crosstab
 
 A simple crosstab can be created from a one-column data frame.
