@@ -1,20 +1,66 @@
-# IMPORTS ####
-#' @import assertthat
 
-# IS CROSSTAB ####
+# CROSSTAB CHECKS ####
+
+#' Check or Assert Crosstab Object Types
+#'
+#' `is.crosstab()` and related functions test or assert the structure of a
+#' crosstab object and its subclasses (e.g., numeric, categorical, likert,
+#' multi-response, grouped). return `TRUE` if the object is a valid crosstab
+#' (or specific subtype). The `assert_` functions will throw an error
+#' if the check fails.
+#'
+#' @param obj An object to check.
+#' @param strict Logical. If `TRUE`, only returns `TRUE` for fully constructed
+#'   crosstab objects (will return false for raw data subclasses).
+#'
+#' @returns Logical for `is.*()` and `assert_*()` functions (`assert_*()` functions throw error if check fails).
+#'
+#' @name check_crosstab
+#'
+#' @import assertthat
+#' @examples
+#' # Create test data frame
+#' test_df1 <- iris[, "Sepal.Length", drop = FALSE]
+#' test_ct1 <- crosstab(test_df1)
+#'
+#' is.crosstab(iris) # FALSE
+#' is.crosstab(test_ct1) # TRUE
+#' is.crosstab.categorical(test_ct1) # FALSE
+#' is.crosstab.numeric(test_ct1) # TRUE
+#'
+#' # Differentiating grouped and ungrouped data
+#' test_df2 <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
+#' test_ct2 <- crosstab(test_df2, cohort_col_name = "Species")
+#'
+#' is.crosstab.grouped(test_ct1) # FALSE
+#' is.crosstab.grouped(test_ct2) # TRUE
+#'
+#' # Differentiating complete crosstabs from inner data objects
+#' test_df3 <- iris[, "Petal.Length", drop = FALSE]
+#' test_ct_data <- crosstab_data(test_df3)
+#'
+#' is.crosstab.data(test_ct1) # FALSE
+#' is.crosstab.data(test_ct_data) # TRUE
+#' is.crosstab(test_ct_data) # FALSE (only fully constructed crosstabs return true)
+#' is.crosstab(test_ct_data, strict = FALSE) # TRUE (any part of a crosstab returns TRUE)
+NULL
+
+#' @describeIn check_crosstab Checks if the data is a crosstab object
 #' @export
-is.crosstab <- function(obj, strict = T) {
+is.crosstab <- function(obj, strict = TRUE) {
     if (is.null(obj)) return(FALSE)
     if (strict) return(inherits(obj, CT_CLASS))
     return(inherits(obj, c(CT_CLASS, CT_DATA_CLASS)))
 }
 
+#' @describeIn check_crosstab Checks if the data is specifically a crosstab_data object
 #' @export
 is.crosstab.data <- function(obj) {
     if (is.null(obj)) return(FALSE)
     return(inherits(obj, CT_DATA_CLASS))
 }
 
+#' @describeIn check_crosstab Checks if the data is categorical
 #' @export
 is.crosstab.categorical <- function(obj) {
     if (is.null(obj)) return(FALSE)
@@ -22,6 +68,7 @@ is.crosstab.categorical <- function(obj) {
     return(inherits(obj, CT_DATA_CLASS_CAT))
 }
 
+#' @describeIn check_crosstab Checks if the data is numeric
 #' @export
 is.crosstab.numeric <- function(obj) {
     if (is.null(obj)) return(FALSE)
@@ -29,6 +76,7 @@ is.crosstab.numeric <- function(obj) {
     return(inherits(obj, CT_DATA_CLASS_NUM))
 }
 
+#' @describeIn check_crosstab Checks if the data is Likert-like
 #' @export
 is.crosstab.likert <- function(obj) {
     if (is.null(obj)) return(FALSE)
@@ -36,6 +84,7 @@ is.crosstab.likert <- function(obj) {
     return(inherits(obj, CT_DATA_CLASS_LIKERT))
 }
 
+#' @describeIn check_crosstab Checks if the data is multi-response
 #' @export
 is.crosstab.multi <- function(obj) {
     if (is.null(obj)) return(FALSE)
@@ -43,6 +92,7 @@ is.crosstab.multi <- function(obj) {
     return(inherits(obj, CT_DATA_CLASS_MULTI))
 }
 
+#' @describeIn check_crosstab Checks if the data is grouped
 #' @export
 is.crosstab.grouped <- function(obj) {
     if (is.null(obj)) return(FALSE)
@@ -50,60 +100,140 @@ is.crosstab.grouped <- function(obj) {
     return(inherits(obj, CT_DATA_CLASS_GROUPED))
 }
 
-# ASSERT CROSSTAB ####
+#' @describeIn check_crosstab Throws error if the data is not a crosstab
 #' @export
-assert_crosstab <- function(obj, strict = T) {
+assert_crosstab <- function(obj, strict = TRUE) {
     assert_that(is.crosstab(obj, strict), msg = "Not a crosstab object")
 }
 
+#' @describeIn check_crosstab Throws error if the data is not a crosstab_data
 #' @export
 assert_crosstab_data <- function(obj) {
     assert_that(is.crosstab.data(obj), msg = "Not a crosstab_data object")
 }
 
+#' @describeIn check_crosstab Throws error if the data is not categorical
 #' @export
 assert_crosstab_categorical <- function(obj) {
     assert_that(is.crosstab.categorical(obj), msg = "Not a categorical crosstab object")
 }
 
+#' @describeIn check_crosstab Throws error if the data is not numeric
 #' @export
 assert_crosstab_numeric <- function(obj) {
     assert_that(is.crosstab.numeric(obj), msg = "Not a numeric crosstab object")
 }
 
+#' @describeIn check_crosstab Throws error if the data is not Likert-like
 #' @export
 assert_crosstab_likert <- function(obj) {
     assert_that(is.crosstab.likert(obj), msg = "Not a likert crosstab object")
 }
 
+#' @describeIn check_crosstab Throws error if the data is not multi-response
 #' @export
 assert_crosstab_multi <- function(obj) {
     assert_that(is.crosstab.multi(obj), msg = "Not a multianswer crosstab object")
 }
 
+#' @describeIn check_crosstab Throws error if the data is not grouped
 #' @export
 assert_crosstab_grouped <- function(obj) {
     assert_that(is.crosstab.grouped(obj), msg = "Not a grouped crosstab object")
 }
 
-# AS CATEGORICAL ####
+# CROSSTAB CASTING ####
+#' Cast Crosstab Object to New Data Type
+#'
+#' `as.crosstab.*()` functions take preexisting data and convert it to
+#' a new type of crosstab object (e.g. numeric -> categorical, likert ->
+#' numeric, etc.)
+#'
+#' @section Converting to Categorical:
+#' Numeric values are simply cast using `as.factor()`, internally storing them
+#' as their character representations.
+#'
+#' Likert-like data is already categorical, but with extra mapping
+#' functionality, bestowed by `var_map`. Mapping functionality is dropped when
+#' casting.
+#'
+#' Multi-response data simply has its list-column unnested into one answer per
+#' row.
+#'
+#' @section Converting to Numeric:
+#' Categorical values are cast using `as.numeric()`, which replaces the data
+#' with its numeric factor level.
+#'
+#' Likert-like data has `var_map` for this exact purpose. The character values
+#' are found in the names of `var_map` and then mapped to their corresponding
+#' numeric values.
+#'
+#' Multi-response data is unnested to one answer per row, and then undergoes
+#' the same process as categorical data.
+#'
+#' @section Converting to Likert-Like:
+#' Categorical values are kept, and the provided `var_map` is attached to the
+#' crosstab object.
+#'
+#' Numeric data is reverse-mapped to categorical values by their values in
+#' `var_map`.
+#'
+#' Multi-response data is unnested to one response per row and then the same
+#' as categorical values.
+#'
+#' @section Converting to Multi-Response:
+#' Categorical values are turned into a list-column where each row still has
+#' one answer per row.
+#'
+#' Numeric values are cast using `as.factor()` and then the same as categorical
+#' values.
+#'
+#' Likert-like data has "mapping" functionality dropped and then the same as
+#' categorical values.
+#'
+#' @param ct_data The data or crosstab object to be cast
+#' @param var_map A named numeric vector mapping character values to numeric values
+#'
+#' @returns The converted crosstab object
+#' @name cast_crosstab
+#'
+#' @examples
+#' num_df <- iris[, "Sepal.Length", drop = FALSE]
+#' num_ct <- crosstab(num_df)
+#'
+#' converted_ct <- as.crosstab.cat(num_ct)
+#' is.crosstab.categorical(converted_ct) # TRUE
+#'
+#' # Likert data requires a map
+#' cat_df <- data.frame(region = state.region)
+#' cat_ct <- crosstab(cat_df)
+#'
+#' var_map <- c("South" = 1, "North Central" = 2, "Northeast" = 3, "West" = 4)
+#' converted_ct <- as.crosstab.likert(cat_ct, var_map = var_map)
+#' is.crosstab.likert(converted_ct) # TRUE
+NULL
+
+#' @describeIn cast_crosstab Casts the crosstab object to categorical
 #' @export
 as.crosstab.cat <- function(ct_data) {
     UseMethod("as.crosstab.cat", ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.cat.crosstab <- function(ct_data) {
     data_table(ct_data) <- as.crosstab.cat(data_table(ct_data))
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.cat.crosstab_data_cat <- function(ct_data) {
     validate_crosstab_data.crosstab_data_cat(ct_data)
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.cat.crosstab_data_num <- function(ct_data) {
     # Get the factor levels
@@ -126,6 +256,7 @@ as.crosstab.cat.crosstab_data_num <- function(ct_data) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.cat.crosstab_data_likert <- function(ct_data) {
 
@@ -141,6 +272,7 @@ as.crosstab.cat.crosstab_data_likert <- function(ct_data) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.cat.crosstab_data_multi <- function(ct_data) {
 
@@ -149,9 +281,9 @@ as.crosstab.cat.crosstab_data_multi <- function(ct_data) {
     unnested_data <- ct_data |>
         tidyr::unnest(
             {{variable_name}},
-            keep_empty = T
+            keep_empty = TRUE
         ) |>
-        data.frame(check.names = F)
+        data.frame(check.names = FALSE)
 
     # Transfer the attributes from ct_data to unnested_data
     orig_attrs <- attributes(ct_data)
@@ -169,18 +301,20 @@ as.crosstab.cat.crosstab_data_multi <- function(ct_data) {
     return(unnested_data)
 }
 
-# AS NUMERIC ####
+#' @describeIn cast_crosstab Casts the crosstab object to numeric
 #' @export
 as.crosstab.num <- function(ct_data) {
     UseMethod("as.crosstab.num", ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.num.crosstab <- function(ct_data) {
     data_table(ct_data) <- as.crosstab.num(data_table(ct_data))
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.num.crosstab_data_cat <- function(ct_data) {
 
@@ -199,12 +333,14 @@ as.crosstab.num.crosstab_data_cat <- function(ct_data) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.num.crosstab_data_num <- function(ct_data) {
     validate_crosstab_data.crosstab_data_num(ct_data)
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.num.crosstab_data_likert <- function(ct_data) {
 
@@ -224,6 +360,7 @@ as.crosstab.num.crosstab_data_likert <- function(ct_data) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.num.crosstab_data_multi <- function(ct_data) {
 
@@ -239,18 +376,20 @@ as.crosstab.num.crosstab_data_multi <- function(ct_data) {
     return(num_data)
 }
 
-# AS LIKERT ####
+#' @describeIn cast_crosstab Casts the crosstab object to Likert-like
 #' @export
 as.crosstab.likert <- function(ct_data, var_map = NULL) {
     UseMethod("as.crosstab.likert", ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.likert.crosstab <- function(ct_data, var_map = NULL) {
     data_table(ct_data) <- as.crosstab.likert(data_table(ct_data), var_map = var_map)
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.likert.crosstab_data_cat <- function(ct_data, var_map = NULL) {
     validate_input_as_likert(ct_data, var_map)
@@ -267,6 +406,7 @@ as.crosstab.likert.crosstab_data_cat <- function(ct_data, var_map = NULL) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.likert.crosstab_data_num <- function(ct_data, var_map = NULL) {
     validate_input_as_likert(ct_data, var_map)
@@ -275,7 +415,7 @@ as.crosstab.likert.crosstab_data_num <- function(ct_data, var_map = NULL) {
     ct_data[[var_name(ct_data)]] <- names(var_map)[match(var(ct_data), var_map)]
 
     # Factorize
-    factor_levels <- sort(var_map, decreasing = T)
+    factor_levels <- sort(var_map, decreasing = TRUE)
     factor_levels <- names(factor_levels)
     ct_data[[var_name(ct_data)]] <- factor(ct_data[[var_name(ct_data)]], levels = factor_levels)
 
@@ -292,6 +432,7 @@ as.crosstab.likert.crosstab_data_num <- function(ct_data, var_map = NULL) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.likert.crosstab_data_likert <- function(ct_data, var_map = NULL) {
     validate_input_as_likert(ct_data, var_map)
@@ -302,6 +443,7 @@ as.crosstab.likert.crosstab_data_likert <- function(ct_data, var_map = NULL) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.likert.crosstab_data_multi <- function(ct_data, var_map = NULL) {
     validate_input_as_likert(ct_data, var_map)
@@ -318,18 +460,20 @@ as.crosstab.likert.crosstab_data_multi <- function(ct_data, var_map = NULL) {
     return(likert_data)
 }
 
-# AS MULTIANSWER ####
+#' @describeIn cast_crosstab Casts the crosstab object to multi-answer
 #' @export
 as.crosstab.multi <- function(ct_data) {
     UseMethod("as.crosstab.multi", ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.multi.crosstab <- function(ct_data) {
     data_table(ct_data) <- as.crosstab.multi(data_table(ct_data))
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.multi.crosstab_data_cat <- function(ct_data) {
 
@@ -345,6 +489,7 @@ as.crosstab.multi.crosstab_data_cat <- function(ct_data) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.multi.crosstab_data_num <- function(ct_data) {
 
@@ -360,6 +505,7 @@ as.crosstab.multi.crosstab_data_num <- function(ct_data) {
     return(multi_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.multi.crosstab_data_likert <- function(ct_data) {
 
@@ -375,6 +521,7 @@ as.crosstab.multi.crosstab_data_likert <- function(ct_data) {
     return(multi_data)
 }
 
+#' @noRd
 #' @export
 as.crosstab.multi.crosstab_data_multi <- function(ct_data) {
     validate_crosstab_data.crosstab_data_multi(ct_data)

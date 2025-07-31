@@ -280,8 +280,8 @@ test_that("add_default_table() functions when given grouped multianswer data",{
     expect_equal(ncol(test_ct), 6)
 })
 
-# default_stacked_crosstab() ####
-test_that("default_stacked_crosstab() works when given proper data",{
+# crosstab_stacked() ####
+test_that("crosstab_stacked() works when given proper data",{
     test_df <- cat_test_df(col_name = "cat")
     test_df[["num"]] <- num_test_df(col_name = "var2")[["var2"]]
     test_df[["lik"]] <- lik_test_df(col_name = "var3")[["var3"]]
@@ -290,7 +290,7 @@ test_that("default_stacked_crosstab() works when given proper data",{
 
     test_map <- default_var_map(test_df[["lik"]])
 
-    test_ct <- default_stacked_crosstab(
+    test_ct <- crosstab_stacked(
         df = test_df,
         cohort_col_name = "cohort",
         var_map = test_map,

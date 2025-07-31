@@ -3,7 +3,7 @@ test_that("validate_input_add_default_table() works with correct types", {
     expect_silent(validate_input_add_default_table(ct, T, T, F, 2, 2, 2, 2, F, "BH", 0.05, "row"))
 })
 
-test_that("validate_input_default_stacked_crosstab() works when given proper data",{
+test_that("validate_input_crosstab_stacked() works when given proper data",{
     test_df <- cat_test_df(col_name = "cat")
     test_df[["lik"]] <- lik_test_df()[["variable"]]
     test_map <- default_var_map(test_df[["lik"]])
@@ -13,46 +13,46 @@ test_that("validate_input_default_stacked_crosstab() works when given proper dat
         lik = default_var_map(test_df[["lik"]])
     )
 
-    expect_silent(validate_input_default_stacked_crosstab(test_df, NULL, var_map = NULL))
-    expect_silent(validate_input_default_stacked_crosstab(test_df, "cohort", var_map = NULL))
-    expect_silent(validate_input_default_stacked_crosstab(test_df, NULL, var_map = test_map))
-    expect_silent(validate_input_default_stacked_crosstab(test_df, "cohort", var_map = test_map))
-    expect_silent(validate_input_default_stacked_crosstab(test_df, NULL, var_map = test_map_list))
-    expect_silent(validate_input_default_stacked_crosstab(test_df, "cohort", var_map = test_map_list))
+    expect_silent(validate_input_crosstab_stacked(test_df, NULL, var_map = NULL))
+    expect_silent(validate_input_crosstab_stacked(test_df, "cohort", var_map = NULL))
+    expect_silent(validate_input_crosstab_stacked(test_df, NULL, var_map = test_map))
+    expect_silent(validate_input_crosstab_stacked(test_df, "cohort", var_map = test_map))
+    expect_silent(validate_input_crosstab_stacked(test_df, NULL, var_map = test_map_list))
+    expect_silent(validate_input_crosstab_stacked(test_df, "cohort", var_map = test_map_list))
 })
 
-test_that("validate_input_default_stacked_crosstab() fails when df is not a data frame or has no variable columns",{
-    expect_error(validate_input_default_stacked_crosstab(NULL, NULL, NULL))
-    expect_error(validate_input_default_stacked_crosstab(TRUE, NULL, NULL))
-    expect_error(validate_input_default_stacked_crosstab(1, NULL, NULL))
-    expect_error(validate_input_default_stacked_crosstab(c(1, 2, 3), NULL, NULL))
-    expect_error(validate_input_default_stacked_crosstab("a", NULL, NULL))
-    expect_error(validate_input_default_stacked_crosstab(c("a", "b", "c"), NULL, NULL))
-    expect_error(validate_input_default_stacked_crosstab(list(), NULL, NULL))
+test_that("validate_input_crosstab_stacked() fails when df is not a data frame or has no variable columns",{
+    expect_error(validate_input_crosstab_stacked(NULL, NULL, NULL))
+    expect_error(validate_input_crosstab_stacked(TRUE, NULL, NULL))
+    expect_error(validate_input_crosstab_stacked(1, NULL, NULL))
+    expect_error(validate_input_crosstab_stacked(c(1, 2, 3), NULL, NULL))
+    expect_error(validate_input_crosstab_stacked("a", NULL, NULL))
+    expect_error(validate_input_crosstab_stacked(c("a", "b", "c"), NULL, NULL))
+    expect_error(validate_input_crosstab_stacked(list(), NULL, NULL))
 
     # Data frame has no variable columns
-    expect_error(validate_input_default_stacked_crosstab(data.frame(), NULL, NULL))
-    expect_error(validate_input_default_stacked_crosstab(data.frame(a = 1), "a", NULL))
+    expect_error(validate_input_crosstab_stacked(data.frame(), NULL, NULL))
+    expect_error(validate_input_crosstab_stacked(data.frame(a = 1), "a", NULL))
 })
 
-test_that("validate_input_default_stacked_crosstab() fails when cohort_col_name is not a character",{
+test_that("validate_input_crosstab_stacked() fails when cohort_col_name is not a character",{
     test_df <- data.frame(a = c(1, 2, 3), b = c(4, 5, 6), c = c(7, 8, 9))
 
-    expect_error(validate_input_default_stacked_crosstab(test_df, TRUE, var_map = NULL))
-    expect_error(validate_input_default_stacked_crosstab(test_df, 1, var_map = NULL))
-    expect_error(validate_input_default_stacked_crosstab(test_df, c(1, 2, 3), var_map = NULL))
-    expect_error(validate_input_default_stacked_crosstab(test_df, list(), var_map = NULL))
-    expect_error(validate_input_default_stacked_crosstab(test_df, data.frame(), var_map = NULL))
+    expect_error(validate_input_crosstab_stacked(test_df, TRUE, var_map = NULL))
+    expect_error(validate_input_crosstab_stacked(test_df, 1, var_map = NULL))
+    expect_error(validate_input_crosstab_stacked(test_df, c(1, 2, 3), var_map = NULL))
+    expect_error(validate_input_crosstab_stacked(test_df, list(), var_map = NULL))
+    expect_error(validate_input_crosstab_stacked(test_df, data.frame(), var_map = NULL))
 })
 
-test_that("validate_input_default_stacked_crosstab() fails when cohort_col_name is not a column name in df",{
+test_that("validate_input_crosstab_stacked() fails when cohort_col_name is not a column name in df",{
     test_df <- data.frame(a = c(1, 2, 3), b = c(4, 5, 6), c = c(7, 8, 9))
-    expect_error(validate_input_default_stacked_crosstab(test_df, "d", var_map = NULL))
+    expect_error(validate_input_crosstab_stacked(test_df, "d", var_map = NULL))
 })
 
-test_that("validate_input_default_stacked_crosstab() fails when var_map is not a named numeric vector",{
+test_that("validate_input_crosstab_stacked() fails when var_map is not a named numeric vector",{
     test_df <- data.frame(a = c(1, 2, 3), b = c(4, 5, 6), c = c(7, 8, 9))
-    expect_error(validate_input_default_stacked_crosstab(test_df, NULL, var_map = c(1, 2, 3)))
-    expect_error(validate_input_default_stacked_crosstab(test_df, NULL, var_map = c("a", "b", "c")))
+    expect_error(validate_input_crosstab_stacked(test_df, NULL, var_map = c(1, 2, 3)))
+    expect_error(validate_input_crosstab_stacked(test_df, NULL, var_map = c("a", "b", "c")))
 })
 

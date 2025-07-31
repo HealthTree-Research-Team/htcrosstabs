@@ -1,5 +1,5 @@
 validate_input_add_categorical_table <- function(ct, chisq, keep_na_vars, round_percent_to, p.adj, method, cutoff, round_p_val_to) {
-    assert_crosstab(ct, strict = T)
+    assert_crosstab(ct, strict = TRUE)
     assert_that(is.logical(chisq))
     assert_that(is.logical(keep_na_vars))
     assert_that(is.numeric(round_percent_to))
@@ -11,7 +11,7 @@ validate_input_add_categorical_table <- function(ct, chisq, keep_na_vars, round_
 }
 
 validate_input_add_numeric_table <- function(ct, anova, round_mean_sd_to, round_med_q1_q3_to, round_p_val_to, cutoff, anova_format) {
-    assert_crosstab(ct, strict = T)
+    assert_crosstab(ct, strict = TRUE)
     assert_that(is.logical(anova))
     assert_that(is.numeric(round_mean_sd_to))
     assert_that(is.numeric(round_med_q1_q3_to))
@@ -28,7 +28,7 @@ validate_input_add_numeric_table <- function(ct, anova, round_mean_sd_to, round_
 }
 
 validate_input_add_likert_table <- function(ct, anova, chisq, keep_na_vars, round_mean_sd_to, round_percent_to, round_p_val_to, p.adj, method, cutoff, anova_format) {
-    assert_crosstab(ct, strict = T)
+    assert_crosstab(ct, strict = TRUE)
     assert_that(is.logical(anova))
     assert_that(is.logical(chisq))
     assert_that(is.logical(keep_na_vars))
@@ -42,7 +42,7 @@ validate_input_add_likert_table <- function(ct, anova, chisq, keep_na_vars, roun
 }
 
 validate_input_add_default_table <- function(ct, anova, chisq, keep_na_vars, round_mean_sd_to, round_med_q1_q3_to, round_percent_to, round_p_val_to, p.adj, method, cutoff, anova_format) {
-    assert_crosstab(ct, strict = T)
+    assert_crosstab(ct, strict = TRUE)
     assert_that(is.logical(anova))
     assert_that(is.logical(chisq))
     assert_that(is.logical(keep_na_vars))
@@ -62,7 +62,7 @@ validate_input_add_default_table <- function(ct, anova, chisq, keep_na_vars, rou
     }
 }
 
-validate_input_default_stacked_crosstab <- function(df, cohort_col_name, var_map) {
+validate_input_crosstab_stacked <- function(df, cohort_col_name, var_map) {
     assert_that(is.data.frame(df))
     if (!is.null(cohort_col_name)) {
         assert_that(is.character(cohort_col_name))

@@ -5,68 +5,29 @@ remove_na <- function(obj) {
     obj[!is.na(obj)]
 }
 
+#' Create Default Variable Map from Factor Levels
+#'
+#' Takes a factor or factorlist and assigns them Likert scores from
+#' `length(fct)` to 1 in descending order, so a vector with the levels
+#' `c("A", "B", "C")` would return `c(A = 3, B = 2, C = 1)`.
+#'
+#' @param fct A factor or factorlist
+#'
+#' @returns A named numeric vector with the factors mapped as names and their scores as values
 #' @export
-is.factorlist <- function(obj) {
-    is.list(obj) && all(sapply(obj, function(x) is.factor(x)))
-}
-
-#' @export
-factor <- function(obj, levels = NULL, end_levels = NULL, drop_levels = F, ...) {
-    # Clean empty values
-    if (is.null(levels)) levels <- character()
-    if (is.null(end_levels)) end_levels <- character()
-
-    # Extract all values from obj
-    all_values <- if (is.factorlist(obj)) {
-        base::levels(unlist(obj))
-    } else if (is.list(obj)) {
-        unique(remove_na(unlist(obj)))
-    } else if (base::is.factor(obj)) {
-        base::levels(obj)
-    } else {
-        unique(remove_na(obj))
-    }
-
-    # Order values: levels at the start, then remaining, then end_levels at the end
-    middle_values <- setdiff(all_values, c(levels, end_levels))
-    final_levels <- c(levels, middle_values, end_levels)
-
-    # Or, drop the remaining if drop_levels = TRUE
-    if (drop_levels) {
-        all_vals <- unique(c(levels, end_levels))
-        final_levels <- final_levels[final_levels %in% all_vals]
-    }
-
-    # Add final_levels to ... (overriding levels if present)
-    dot_args <- list(...)
-    dot_args$levels <- final_levels
-
-    # Apply factor logic
-    if (is.list(obj))
-        result <- lapply(obj, function(x) do.call(base::factor, c(list(x), dot_args)))
-    else
-        result <- do.call(base::factor, c(list(obj), dot_args))
-
-    return(result)
-}
-
-#' @export
-levels <- function(obj) {
-    if (is.factorlist(obj))
-        return(base::levels(unlist(obj)))
-    else
-        return(base::levels(obj))
-}
-
-#' @export
-`levels<-` <- function(obj, value) {
-    if (is.list(obj))
-        return(lapply(obj, function(x) base::`levels<-`(x, value)))
-    else
-        return(base::`levels<-`(obj, value))
-}
-
-#' @export
+#'
+#' @examples
+#' orig_levels <- c("Strongly Agree", "Agree", "Neither", "Disagree", "Strongly Disagree")
+#'
+#' # Create factorized responses
+#' likert_responses <- sample(orig_levels, 200, replace = TRUE)
+#' likert_responses <- factor(likert_responses, levels = orig_levels)
+#'
+#' head(likert_responses, 10)
+#'
+#' # Create default Likert map
+#' default_var_map(likert_responses)
+#'
 default_var_map <- function(fct) {
     assert_that(is.factor(fct) | is.factorlist(fct), msg = "fct must be either a factor or list of factors")
     assert_that(!is.null(levels(fct)), msg = "fct has no \"levels\" attribute")

@@ -752,6 +752,12 @@ test_that("index<-() sets the new index attribute",{
     index(test_ct) <- c("test1", "test2", "test3", "test4")
     expect_equal(index(test_ct, long = T), c("test1", "test2", "test3", "test4"))
     expect_equal(index(test_ct), c("test1" = 1, "test2" = 1, "test3" = 1, "test4" = 1))
+
+
+    expect_silent(`index<-`(test_ct, c("test1" = 1, "test2" = 1, "test3" = 1, "test4" = 1)))
+    index(test_ct) <- c("test1" = 1, "test2" = 1, "test3" = 1, "test4" = 1)
+    expect_equal(index(test_ct, long = T), c("test1", "test2", "test3", "test4"))
+    expect_equal(index(test_ct), c("test1" = 1, "test2" = 1, "test3" = 1, "test4" = 1))
 })
 
 test_that("var_name<-() passes the call onto the data object",{

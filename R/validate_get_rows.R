@@ -58,6 +58,7 @@ validate_input_to_long <- function(wide_df, description_col, cohorts_to, values_
 validate_input_add_rows <- function(ct, rows, index, index_from, table_name) {
     assert_crosstab(ct)
     assert_that(is.data.frame(rows))
+
     if (!is.null(index))
         assert_that(
             is.numeric(index),

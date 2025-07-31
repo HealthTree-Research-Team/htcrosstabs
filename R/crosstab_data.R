@@ -1,5 +1,5 @@
 # CONSTRUCTORS ####
-new_crosstab_data <- function(df, var_col_name, cohort_col_name, cohort_levels, var_levels = NULL, var_map = NULL, subclass = NULL, grouped = F, combined_cohort_name = "All", desc_col_name = "Description") {
+new_crosstab_data <- function(df, var_col_name, cohort_col_name, cohort_levels, var_levels = NULL, var_map = NULL, subclass = NULL, grouped = FALSE, combined_cohort_name = "All", desc_col_name = "Description") {
     validate_input_new_crosstab_data(df, var_col_name, cohort_col_name, cohort_levels, var_levels, var_map, subclass, grouped, combined_cohort_name, desc_col_name)
 
     combined_cohort_name <- if (grouped) combined_cohort_name else NULL
@@ -20,7 +20,36 @@ new_crosstab_data <- function(df, var_col_name, cohort_col_name, cohort_levels, 
 }
 
 # HELPERS ####
+#' Create the Inner Sub-Table for a Crosstab Object
+#'
+#' You will likely never need to use the `crosstab_data()` constructor. It takes
+#' a data frame and turns it into a structured, formatted table with attributes
+#' helpful for htcrosstabs's internal functions. Under the hood, this function
+#' is called during the broader call to the [crosstab()] constructor.
+#'
+#' @param df The data frame to be converted to a crosstab
+#' @param cohort_col_name If applicable, the name of the column with the cohorts to split the data on.
+#' @param var_map A named numeric vector (or list of vectors) for Likert-like data mapping categorical values to numeric values
+#' @param new_var_col_name (Optional) You can rename the variable column with this parameter.
+#' @param combined_cohort_name (Optional) The name of the "combined" column for grouped data.
+#' @param desc_col_name (Optional) The name of the left-most description column in the output table.
+#'
+#' @returns A crosstab_data object, used for storing hidden data useful for internal functions.
 #' @export
+#'
+#' @examples
+#' # Ungrouped data
+#' num_df <- iris[, "Sepal.Length", drop = FALSE]
+#' num_ct <- crosstab_data(num_df)
+#' utils::tail(num_ct, 10)
+#' names(attributes(num_ct))
+#'
+#' # Grouped data
+#' num_df <- iris[, c("Sepal.Length", "Species"), drop = FALSE]
+#' num_ct <- crosstab_data(num_df, cohort_col_name = "Species")
+#' utils::tail(num_ct, 10)
+#' names(attributes(num_ct))
+#'
 crosstab_data <- function(df, cohort_col_name = NULL, var_map = NULL, new_var_col_name = NULL, combined_cohort_name = "All", desc_col_name = "Description") {
     validate_input_crosstab_data(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name, new_var_col_name)
     grouped <- !is.null(cohort_col_name)
@@ -79,56 +108,66 @@ crosstab_data <- function(df, cohort_col_name = NULL, var_map = NULL, new_var_co
 }
 
 # GETTERS ####
+#' @noRd
 #' @export
 var_name.crosstab_data <- function(ct_data) {
     attr(ct_data, "var_col_name")
 }
 
+#' @noRd
 #' @export
-var.crosstab_data <- function(ct_data, raw = F) {
+var.crosstab_data <- function(ct_data, raw = FALSE) {
     if (raw) ct_data <- get_raw_data(ct_data)
     ct_data[[var_name(ct_data)]]
 }
 
+#' @noRd
 #' @export
 var_levels.crosstab_data <- function(ct_data) {
     validate_input_var_levels_getter(ct_data)
     attr(ct_data, "var_levels")
 }
 
+#' @noRd
 #' @export
 cohort_name.crosstab_data <- function(ct_data) {
     attr(ct_data, "cohort_col_name")
 }
 
+#' @noRd
 #' @export
-cohort.crosstab_data <- function(ct_data, raw = F) {
+cohort.crosstab_data <- function(ct_data, raw = FALSE) {
     if (raw) ct_data <- get_raw_data(ct_data)
     ct_data[[cohort_name(ct_data)]]
 }
 
+#' @noRd
 #' @export
-cohort_levels.crosstab_data <- function(ct_data, raw = F) {
+cohort_levels.crosstab_data <- function(ct_data, raw = FALSE) {
     if (raw) ct_data <- get_raw_data(ct_data)
     attr(ct_data, "cohort_levels")
 }
 
+#' @noRd
 #' @export
 var_map.crosstab_data_likert <- function(ct_data) {
     attr(ct_data, "var_map")
 }
 
+#' @noRd
 #' @export
-var_mapped.crosstab_data_likert <- function(ct_data, raw = F) {
+var_mapped.crosstab_data_likert <- function(ct_data, raw = FALSE) {
     if (raw) ct_data <- get_raw_data(ct_data)
     var_map(ct_data)[as.character(var(ct_data))]
 }
 
+#' @noRd
 #' @export
 combined_cohort_name.crosstab_data <- function(ct_data) {
     attr(ct_data, "combined_cohort_name")
 }
 
+#' @noRd
 #' @export
 get_raw_data.crosstab_data_grouped <- function(ct_data) {
     cohort_vals <- cohort(ct_data)
@@ -140,24 +179,27 @@ get_raw_data.crosstab_data_grouped <- function(ct_data) {
     # Convert factor levels
     cohort_name <- cohort_name(raw_data)
     new_levels <- setdiff(levels(raw_data[[cohort_name]]), all_cohort)
-    raw_data[[cohort_name]] <- factor(raw_data[[cohort_name]], levels = new_levels, drop_levels = T)
+    raw_data[[cohort_name]] <- factor(raw_data[[cohort_name]], levels = new_levels, drop_levels = TRUE)
 
     # Change cohort levels attribute
     attr(raw_data, "cohort_levels") <- new_levels
     return(raw_data)
 }
 
+#' @noRd
 #' @export
 get_raw_data.crosstab_data <- function(ct_data) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 desc_name.crosstab_data <- function(ct_data) {
     attr(ct_data, "desc_col_name")
 }
 
 # SETTERS ####
+#' @noRd
 #' @export
 `var_name<-.crosstab_data` <- function(ct_data, value) {
     names(ct_data)[names(ct_data) == var_name(ct_data)] <- value
@@ -165,6 +207,7 @@ desc_name.crosstab_data <- function(ct_data) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 `var<-.crosstab_data` <- function(ct_data, value) {
     validate_input_var_setter(ct_data, value)
@@ -173,6 +216,7 @@ desc_name.crosstab_data <- function(ct_data) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 `var_levels<-.crosstab_data` <- function(ct_data, value) {
     validate_input_var_levels_setter(ct_data, value)
@@ -181,6 +225,7 @@ desc_name.crosstab_data <- function(ct_data) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 `cohort_name<-.crosstab_data` <- function(ct_data, value) {
     names(ct_data)[names(ct_data) == cohort_name(ct_data)] <- value
@@ -188,6 +233,7 @@ desc_name.crosstab_data <- function(ct_data) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 `cohort<-.crosstab_data` <- function(ct_data, value) {
     validate_input_cohort_setter(ct_data, value)
@@ -196,6 +242,7 @@ desc_name.crosstab_data <- function(ct_data) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 `cohort_levels<-.crosstab_data` <- function(ct_data, value) {
     validate_input_cohort_levels_setter(ct_data, value)
@@ -204,6 +251,7 @@ desc_name.crosstab_data <- function(ct_data) {
     return(ct_data)
 }
 
+#' @noRd
 #' @export
 `var_map<-.crosstab_data_likert` <- function(ct_data, value) {
     validate_input_var_map_setter(ct_data, value)

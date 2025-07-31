@@ -29,23 +29,23 @@ validate_crosstab <- function(ct) {
 }
 
 validate_input_data_table_getter <- function(ct, raw) {
-    assert_crosstab(ct, strict = T)
+    assert_crosstab(ct, strict = TRUE)
     assert_that(has_attr(ct, "data"))
     assert_that(is.logical(raw))
 }
 
 validate_input_index_getter <- function(ct, long) {
-    assert_crosstab(ct, strict = T)
+    assert_crosstab(ct, strict = TRUE)
     assert_that(is.logical(long))
 }
 
 validate_input_table_id_getter <- function(ct, long) {
-    assert_crosstab(ct, strict = T)
+    assert_crosstab(ct, strict = TRUE)
     assert_that(is.logical(long))
 }
 
 validate_input_data_table_setter <- function(ct, value) {
-    assert_crosstab(ct, strict = T)
+    assert_crosstab(ct, strict = TRUE)
     assert_crosstab_data(value)
 
     assert_that(
@@ -71,7 +71,7 @@ validate_input_data_table_setter <- function(ct, value) {
 }
 
 validate_input_set_new_data_df <- function(ct, df, var_map) {
-    assert_crosstab(ct, strict = T)
+    assert_crosstab(ct, strict = TRUE)
     assert_that(is.data.frame(df))
     if (!is.null(var_map)) {
         assert_that(
@@ -83,20 +83,25 @@ validate_input_set_new_data_df <- function(ct, df, var_map) {
 }
 
 validate_input_index_setter <- function(ct, value) {
-    assert_crosstab(ct, strict = T)
-    assert_that(is.character(value))
-    assert_that(
-        all(!is.na(value)),
-        msg = "Can not have NA values in index"
-    )
-    assert_that(
-        nrow(ct) == length(value),
-        msg = "length of new index must match the number of rows in ct"
-    )
+    assert_crosstab(ct, strict = TRUE)
+    assert_that(is.character(value) | is.numeric(value))
+    if (is.numeric(value)) {
+        assert_that(!is.null(names(value)), msg = "New index must either be a long character vector or a named numeric vector")
+        assert_that(sum(value) == nrow(ct), msg = "If passing named numeric vector, sum of all values must be equal to the number of rows in ct")
+    } else {
+        assert_that(
+            all(!is.na(value)),
+            msg = "Can not have NA values in index"
+        )
+        assert_that(
+            nrow(ct) == length(value),
+            msg = "length of new index must match the number of rows in ct"
+        )
+    }
 }
 
 validate_input_table_id_setter <- function(ct, value) {
-    assert_crosstab(ct, strict = T)
+    assert_crosstab(ct, strict = TRUE)
     assert_that(is.atomic(value))
     assert_that(
         all(!is.na(value)),
@@ -109,13 +114,13 @@ validate_input_table_id_setter <- function(ct, value) {
 }
 
 validate_input_manual_escape_setter <- function(ct, value) {
-    assert_crosstab(ct, strict = T)
+    assert_crosstab(ct, strict = TRUE)
     assert_that(is.logical(value))
 }
 
 validate_input_stack_crosstabs <- function(cts) {
     assert_that(
-        all(sapply(cts, function(ct) is.crosstab(ct, strict = T))),
+        all(sapply(cts, function(ct) is.crosstab(ct, strict = TRUE))),
         msg = "All arguments must be crosstab objects"
     )
 }
