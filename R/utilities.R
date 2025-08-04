@@ -23,10 +23,14 @@ remove_na <- function(obj) {
 default_var_map <- function(fct) {
     assert_that(is.factor(fct) | is.factorlist(fct), msg = "fct must be either a factor or list of factors")
     assert_that(!is.null(levels(fct)), msg = "fct has no \"levels\" attribute")
+
     lev <- levels(fct)
+
     assert_that(length(lev) > 0, msg = "levels attribute has length 0")
     vals <- (1:length(lev)) |> rev()
+
     names(vals) <- lev
+
     return(vals)
 }
 
@@ -151,4 +155,9 @@ nest_multi_col <- function(df, multi_col_name) {
             !!rlang::sym(multi_col_name) := list(!!rlang::sym(multi_col_name)),
             .groups = "drop"
         )
+}
+
+duplicated_vals <- function(obj) {
+    repeated_vals <- obj[duplicated(obj)]
+    obj %in% repeated_vals
 }

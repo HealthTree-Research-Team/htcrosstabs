@@ -21,6 +21,7 @@
 #' @param levels Character vector - The levels to be placed at the front of the factor levels
 #' @param end_levels Character vector - The levels to be placed at the end of the factor levels
 #' @param drop_levels Logical - Whether levels not in `levels` or `end_levels` should be dropped
+#' @param order_method Character - "freq" will order unspecified levels by frequency, "seq" will order unspecified values by the order in which they appear.
 #' @param ... All other parameters to be passed to [base::factor()]
 #' @param value The new levels vector to be applied to obj in `levels()` setter
 #'
@@ -49,7 +50,14 @@ NULL
 
 #' @describeIn factor_extensions Wrapper for [base::factor()] with support for lists
 #' @export
-factor <- function(obj, levels = NULL, end_levels = NULL, drop_levels = FALSE, ...) {
+factor <- function(obj, levels = NULL, end_levels = NULL, drop_levels = FALSE, order_method = "freq", ...) {
+    assert_that(
+        is.character(order_method),
+        length(order_method) == 1,
+        order_method %in% c("freq", "seq"),
+        msg = "order_method must be either \"freq\" or \"seq\""
+    )
+
     # Clean empty values
     if (is.null(levels)) levels <- character()
     if (is.null(end_levels)) end_levels <- character()
@@ -67,6 +75,29 @@ factor <- function(obj, levels = NULL, end_levels = NULL, drop_levels = FALSE, .
 
     # Order values: levels at the start, then remaining, then end_levels at the end
     middle_values <- setdiff(all_values, c(levels, end_levels))
+
+    # If "freq", order unspecified "middle" values by frequency
+    if (order_method == "freq" & !is.factorlist(obj) & !is.factor(obj)) {
+        temp <- obj
+        if (is.list(temp))
+            temp <- unlist(temp)
+
+        counts <- table(temp)
+        counts <- counts[names(counts) %in% middle_values]
+
+        # Values with equal counts should be in order by the order they show up
+        df <- data.frame(
+            value <- names(counts),
+            count <- as.integer(counts),
+            stringsAsFactors = FALSE
+        )
+
+        df$first_index <- match(df$value, middle_values)
+        df_sorted <- df[order(-df$count, df$first_index), ]
+
+        middle_values <- df_sorted$value
+    }
+
     final_levels <- c(levels, middle_values, end_levels)
 
     # Or, drop the remaining if drop_levels = TRUE
