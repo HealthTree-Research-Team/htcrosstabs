@@ -395,6 +395,9 @@ get_complete()       # Get complete (not NA)
 get_total()          # Get total (including NA)
 get_complete_total() # Get "complete / total"
 
+get_max()            # Get maximum
+get_min()            # Get minimum
+
 get_mean()           # Get mean
 get_sd()             # Get standard deviation
 get_mean_sd()        # Get "mean +/- sd"

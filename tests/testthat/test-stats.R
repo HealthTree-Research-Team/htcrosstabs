@@ -293,6 +293,18 @@ test_that("get_chisq_p_value() returns the proper p-value",{
     expect_equal(result, 0.373535056)
 })
 
+test_that("get_chisq_p_value() throws a warning when a cohort has no responses",{
+    seed <- 1234
+    test_df <- cat_test_df(seed = seed)
+
+    # Create cohort with all NA repsonses
+    d_cohort <- test_df[["cohort"]] == character_levels[4]
+    test_df[["variable"]][d_cohort] <- NA
+
+    test_ct <- crosstab(test_df, "cohort")
+    expect_warning(get_chisq_p_value(test_ct))
+})
+
 # get_chisq_posthoc() ####
 test_that("get_chisq_posthoc() returns the data frame with p-values",{
     seed <- 1234

@@ -20,6 +20,12 @@ TOT_DESC <- "Total"
 COMP_TOT_COL_NAME <- "comp_total"
 COMP_TOT_DESC <- "Complete / Total"
 
+MAX_COL_NAME <- "max"
+MAX_DESC <- "Maximum"
+
+MIN_COL_NAME <- "min"
+MIN_DESC <- "Minimum"
+
 MEAN_COL_NAME <- "mean"
 MEAN_DESC <- "Mean"
 MEAN_ROUND_TO <- 1

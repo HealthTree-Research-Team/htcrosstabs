@@ -6,6 +6,8 @@
 \alias{get_total}
 \alias{get_complete_total}
 \alias{get_mean}
+\alias{get_max}
+\alias{get_min}
 \alias{get_sd}
 \alias{get_mean_sd}
 \alias{get_median}
@@ -31,6 +33,10 @@ get_total(ct_data, out_col_name = TOTAL_COL_NAME)
 get_complete_total(ct_data, out_col_name = COMP_TOT_COL_NAME, raw = FALSE)
 
 get_mean(ct_data, out_col_name = MEAN_COL_NAME, round_to = MEAN_ROUND_TO)
+
+get_max(ct_data, out_col_name = MAX_COL_NAME)
+
+get_min(ct_data, out_col_name = MIN_COL_NAME)
 
 get_sd(ct_data, out_col_name = SD_COL_NAME, round_to = SD_ROUND_TO)
 
@@ -140,6 +146,10 @@ base values that the other functions use to produce their formatted output.
 \item \code{get_complete_total()}: Get a string formatted as "[complete] / [total]" for each cohort
 
 \item \code{get_mean()}: Get the means for each cohort
+
+\item \code{get_max()}: Get the max values for each cohort
+
+\item \code{get_min()}: Get the min values for each cohort
 
 \item \code{get_sd()}: Get the standard deviations for each cohort
 

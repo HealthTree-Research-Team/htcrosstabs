@@ -105,11 +105,6 @@ get_chisq_p_value.crosstab_data_likert <- function(data) {
 #' @noRd
 #' @export
 get_chisq_p_value.crosstab_data_cat <- function(data) {
-    if (any(sapply(data, function(col) all(col == 0, na.rm = TRUE)))) {
-        warning("Can not perform chi-square test when one cohort has 0 data points")
-        return(NULL)
-    }
-
     cohort_cols <- cohort_levels(data, raw = TRUE)
 
     counts <- get_count(data) |>
@@ -117,7 +112,14 @@ get_chisq_p_value.crosstab_data_cat <- function(data) {
 
     counts <- counts[, cohort_cols, drop = FALSE]
 
-    return(get_chisq(counts))
+    if (any(sapply(counts, function(col) all(col == 0, na.rm = TRUE)))) {
+        warning("Can not perform chi-square test when one cohort has 0 data points")
+        return(NA)
+    }
+
+    p_val <- get_chisq(counts)
+
+    return(p_val)
 }
 
 # RAO-SCOTT P-VALUE ####
@@ -425,10 +427,13 @@ create_stat_row_skeleton <- function(data) {
 fill_stat_row_skeleton <- function(new_rows, data, posthoc, overall_p_value, cutoff = 0.05, round_to = 3) {
 
     new_rows["Overall", 2] <- p_value_categories(overall_p_value, cutoff = cutoff, round_to = round_to)
-    if (overall_p_value > cutoff) {
-        new_rows <- new_rows["Overall", , drop = FALSE]
-        rownames(new_rows) <- NULL
-        return(data.frame(new_rows, check.names = FALSE))
+
+    if (!is.na(overall_p_value)) {
+        if (overall_p_value > cutoff) {
+            new_rows <- new_rows["Overall", , drop = FALSE]
+            rownames(new_rows) <- NULL
+            return(data.frame(new_rows, check.names = FALSE))
+        }
     }
 
     for (comb in utils::combn(cohort_levels(data, raw = TRUE), 2, simplify = FALSE)) {

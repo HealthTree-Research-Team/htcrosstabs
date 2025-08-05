@@ -8,7 +8,14 @@
 \alias{is.factorlist}
 \title{Detect Lists of Factors}
 \usage{
-factor(obj, levels = NULL, end_levels = NULL, drop_levels = FALSE, ...)
+factor(
+  obj,
+  levels = NULL,
+  end_levels = NULL,
+  drop_levels = FALSE,
+  order_method = "freq",
+  ...
+)
 
 levels(obj)
 
@@ -24,6 +31,8 @@ is.factorlist(obj)
 \item{end_levels}{Character vector - The levels to be placed at the end of the factor levels}
 
 \item{drop_levels}{Logical - Whether levels not in `levels` or `end_levels` should be dropped}
+
+\item{order_method}{Character - "freq" will order unspecified levels by frequency, "seq" will order unspecified values by the order in which they appear.}
 
 \item{...}{All other parameters to be passed to [base::factor()]}
 

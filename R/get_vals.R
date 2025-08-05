@@ -210,6 +210,80 @@ get_mean.crosstab_data <- function(ct_data, out_col_name = MEAN_COL_NAME, round_
     get_mean(as.crosstab.num(ct_data), round_to = round_to, out_col_name = out_col_name)
 }
 
+# GET MAXIMUM ####
+#' @describeIn get_values Get the max values for each cohort
+#' @export
+get_max <- function(ct_data, out_col_name = MAX_COL_NAME) {
+    UseMethod("get_max")
+}
+
+#' @noRd
+#' @export
+get_max.crosstab <- function(ct_data, out_col_name = MAX_COL_NAME) {
+    get_max(data_table(ct_data), out_col_name = out_col_name)
+}
+
+#' @noRd
+#' @export
+get_max.crosstab_data_num <- function(ct_data, out_col_name = MAX_COL_NAME) {
+    validate_out_col_name(out_col_name, ct_data)
+    result <- ct_data |>
+        dplyr::group_by(.data[[cohort_name(ct_data)]]) |>
+        dplyr::summarise(
+            !!rlang::sym(out_col_name) := base::max(
+                .data[[var_name(ct_data)]],
+                na.rm = TRUE
+            ),
+            .groups = "drop"
+        ) |>
+        data.frame(check.names = FALSE)
+
+    return(result)
+}
+
+#' @noRd
+#' @export
+get_max.crosstab_data <- function(ct_data, out_col_name = MAX_COL_NAME) {
+    get_max(as.crosstab.num(ct_data), out_col_name = out_col_name)
+}
+
+# GET MINIMUM ####
+#' @describeIn get_values Get the min values for each cohort
+#' @export
+get_min <- function(ct_data, out_col_name = MIN_COL_NAME) {
+    UseMethod("get_min")
+}
+
+#' @noRd
+#' @export
+get_min.crosstab <- function(ct_data, out_col_name = MIN_COL_NAME) {
+    get_min(data_table(ct_data), out_col_name = out_col_name)
+}
+
+#' @noRd
+#' @export
+get_min.crosstab_data_num <- function(ct_data, out_col_name = MIN_COL_NAME) {
+    validate_out_col_name(out_col_name, ct_data)
+    result <- ct_data |>
+        dplyr::group_by(.data[[cohort_name(ct_data)]]) |>
+        dplyr::summarise(
+            !!rlang::sym(out_col_name) := base::min(
+                .data[[var_name(ct_data)]],
+                na.rm = TRUE
+            ),
+            .groups = "drop"
+        ) |>
+        data.frame(check.names = FALSE)
+
+    return(result)
+}
+
+#' @noRd
+#' @export
+get_min.crosstab_data <- function(ct_data, out_col_name = MIN_COL_NAME) {
+    get_min(as.crosstab.num(ct_data), out_col_name = out_col_name)
+}
+
 # GET SD ####
 #' @describeIn get_values Get the standard deviations for each cohort
 #' @export
