@@ -166,8 +166,7 @@ is.crosstab.multi(new_crosstab)
 
 You can also, if needed, cast one data type to another using the
 `as.crosstab.*()` functions. The details on how the conversion is done
-can be found at the bottom of this page, or in the man pages by typing
-`?cast_crosstab`.
+can be found in the man pages by typing `?cast_crosstab`.
 
 ``` r
 new_crosstab <- crosstab(licorice_by_region, "region", opinion_map)
@@ -328,7 +327,7 @@ crosstab(sports_by_age, "age") |>
 ## Adding Pre-Built Tables
 
 Certain types of data have common types of rows you usually want, so we
-have preset templates you can call if you want.
+have preset templates you can use with `add_*_table()`.
 
 ``` r
 satisfaction_map <- c("very satisfied" = 3, "somewhat satisfied" = 2, "not satisfied" = 1)
@@ -543,10 +542,10 @@ htcrosstabs::kbl(new_crosstab)
 
 # Other Utilities
 
-Because the output order of the rows and columns is determined by factor
-levels, and because multi-response data is handled in list-columns, and
-because list-columns are a pain to factorize, I included wrappers for
-`factor()` and `levels()` which include support for list-columns.
+Because 1) the output order of the rows and columns is determined by
+factor levels, 2) multi-response data is handled in list-columns, and 3)
+list-columns are a pain to factorize, I included wrappers for `factor()`
+and `levels()` which include support for list-columns.
 
 ``` r
 head(allergies_by_school, 5)
@@ -604,6 +603,10 @@ get_raw_data()         # The internal data table without combined cohort
 index()                # The vector keeping track of row groupings
 
 # SETTERS
+# Note that functions with a `<-` at the end are called on the left side of `<-` like this:
+# cohort_name(test_ct) <- "new name"
+# var_map(test_ct) <- c("agree" = 3, "neither" = 2, "disagree" = 1)
+
 set_new_data()         # Replace data table in current crosstab with a new one
 `data_table<-`()       # Replace data table in current crosstab with a new one
 `var_name<-`()         # Rename the variable column
