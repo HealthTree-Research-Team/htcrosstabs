@@ -106,8 +106,8 @@ test_that("is.factorlist() handles empty lists correctly", {
 })
 
 test_that("is.factorlist() handles list with NULLs", {
-    expect_false(is.factorlist(list(NULL, factor("a"))))
-    expect_false(is.factorlist(list(NULL)))
+    expect_true(is.factorlist(list(NULL, factor("a"))))
+    expect_true(is.factorlist(list(NULL)))
 })
 
 test_that("levels() works on single factor", {

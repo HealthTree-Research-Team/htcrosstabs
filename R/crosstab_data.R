@@ -56,6 +56,32 @@ crosstab_data <- function(df, cohort_col_name = NULL, var_map = NULL, new_var_co
         df[[cohort_col_name]] <- combined_cohort_name
     }
 
+    clean_df <- function(df, cohort_col_name) {
+        var_col_name <- names(df)[names(df) != cohort_col_name]
+        if (!is.list(df[[var_col_name]]))
+            return(df)
+
+        islist <- FALSE
+        if (is.factorlist(df[[var_col_name]])) {
+            islist <- TRUE
+            cur_levels <- levels(df[[var_col_name]])
+        }
+
+        df[[var_col_name]] <- lapply(df[[var_col_name]], function(x) {
+            if (length(x) == 0)
+                return(NA)
+            else
+                return(x)
+        })
+
+        if (islist) {
+            df[[var_col_name]] <- factor(df[[var_col_name]], levels = cur_levels, drop_levels = TRUE)
+        }
+
+        return(df)
+    }
+
+    df <- clean_df(df, cohort_col_name)
 
     # Factorize cohort and variable (if non-numeric)
     df[[cohort_col_name]] <- factor(df[[cohort_col_name]])

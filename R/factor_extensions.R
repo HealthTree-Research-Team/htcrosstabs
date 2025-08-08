@@ -1,6 +1,6 @@
-#' Detect Lists of Factors
+#' Factor Extensions
 #'
-#' Drop-in replacement for [base::factor()] with added support for lists of
+#' Drop-in replacements for [base::factor()] and [base::levels()] with added support for lists of
 #' factors.
 #'
 #' This wrapper is a drop-in replacement for [base::factor()]. Because row and
@@ -130,17 +130,30 @@ factor <- function(obj, levels = NULL, end_levels = NULL, drop_levels = FALSE, o
 #' @describeIn factor_extensions Wrapper for [base::levels()] with support for lists
 #' @export
 levels <- function(obj) {
-    if (is.factorlist(obj))
+    if (is.factorlist(obj)) {
+        obj <- lapply(obj, function(x) {
+            if (is.null(x)) {
+                factor(NA)
+            } else {
+                x
+            }
+        })
         return(base::levels(unlist(obj)))
-    else
+    }
+    else {
         return(base::levels(obj))
+    }
 }
 
 #' @describeIn factor_extensions Wrapper for [base::`levels<-`()] with support for lists
 #' @export
 `levels<-` <- function(obj, value) {
     if (is.list(obj))
-        return(lapply(obj, function(x) base::`levels<-`(x, value)))
+        return(lapply(obj, function(x) {
+            if (is.null(x))
+                return(x)
+            base::`levels<-`(x, value)
+        }))
     else
         return(base::`levels<-`(obj, value))
 }
@@ -148,5 +161,7 @@ levels <- function(obj) {
 #' @describeIn factor_extensions Returns whether `obj` is a list of factors
 #' @export
 is.factorlist <- function(obj) {
-    is.list(obj) && all(sapply(obj, function(x) is.factor(x)))
+    is.list(obj) && all(sapply(obj, function(x) {
+        is.factor(x) | is.null(x)
+    }))
 }

@@ -6,7 +6,7 @@
 \alias{levels}
 \alias{levels<-}
 \alias{is.factorlist}
-\title{Detect Lists of Factors}
+\title{Factor Extensions}
 \usage{
 factor(
   obj,
@@ -42,7 +42,7 @@ is.factorlist(obj)
 `factor()` returns the object with factor levels applied, `levels()` returns the levels applied, and `is.factorlist()` returns a logical for whether it's a list of factors
 }
 \description{
-Drop-in replacement for [base::factor()] with added support for lists of
+Drop-in replacements for [base::factor()] and [base::levels()] with added support for lists of
 factors.
 }
 \details{
