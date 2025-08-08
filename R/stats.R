@@ -206,28 +206,10 @@ get_tukey_posthoc.crosstab <- function(data) {
 #' @noRd
 #' @export
 get_tukey_posthoc.crosstab_data <- function(data) {
-    get_tukey_posthoc(get_anova(data))
-}
+    tukey_formula <- as.formula(sprintf("`%s` ~ `%s`", var_name(data), cohort_name(data)))
+    tukey_results <- rstatix::tukey_hsd(get_raw_data(data), tukey_formula)
 
-#' @noRd
-#' @export
-get_tukey_posthoc.aov <- function(data) {
-    tukey_results <- stats::TukeyHSD(data)
-
-    p_vals <- tukey_results[[1]][, "p adj", drop = FALSE]
-
-    comparison_names <- rownames(p_vals)
-
-    p_vals <- p_vals[, "p adj"]
-
-    comparisons <- strsplit(comparison_names, "-", fixed = TRUE)
-    assert_that(
-        all(sapply(comparisons, length) == 2),
-        msg = "Cannot perform a Tukey posthoc if group-levels have a dash in them"
-    )
-
-    all_cohorts <- c(unique(sapply(comparisons, function(x) x[[2]])))
-    all_cohorts <- c(all_cohorts, setdiff(sapply(comparisons, function(x) x[[1]]), all_cohorts))
+    all_cohorts <- cohort_levels(data, raw = TRUE)
 
     cohort_matrix <- matrix(
         1,
@@ -236,10 +218,11 @@ get_tukey_posthoc.aov <- function(data) {
         dimnames = list(all_cohorts, all_cohorts)
     )
 
-    for (i in seq_along(p_vals)) {
-        pair <- comparisons[[i]]
-        cohort_matrix[pair[1], pair[2]] <- p_vals[i]
-        cohort_matrix[pair[2], pair[1]] <- p_vals[i]
+    for (i in 1:nrow(tukey_results)) {
+        group1 <- tukey_results[i, "group1", drop = TRUE]
+        group2 <- tukey_results[i, "group2", drop = TRUE]
+        cohort_matrix[group1, group2] <- tukey_results[i, "p.adj", drop = TRUE]
+        cohort_matrix[group2, group1] <- tukey_results[i, "p.adj", drop = TRUE]
     }
 
     cohort_df <- data.frame(cohort_matrix, check.names = FALSE)

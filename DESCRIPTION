@@ -25,6 +25,7 @@ Imports:
     kableExtra,
     knitr,
     rlang,
+    rstatix,
     stats,
     survey,
     tidyr
