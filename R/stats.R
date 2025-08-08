@@ -213,8 +213,13 @@ get_tukey_posthoc.crosstab_data <- function(data) {
 #' @export
 get_tukey_posthoc.aov <- function(data) {
     tukey_results <- stats::TukeyHSD(data)
-    p_vals <- tukey_results[[1]][, "p adj", drop = TRUE]
-    comparison_names <- names(p_vals)
+
+    p_vals <- tukey_results[[1]][, "p adj", drop = FALSE]
+
+    comparison_names <- rownames(p_vals)
+
+    p_vals <- p_vals[, "p adj"]
+
     comparisons <- strsplit(comparison_names, "-", fixed = TRUE)
     assert_that(
         all(sapply(comparisons, length) == 2),
