@@ -46,13 +46,19 @@ new_crosstab_data <- function(df, var_col_name, cohort_col_name, cohort_levels, 
 #' names(attributes(num_ct))
 #'
 crosstab_data <- function(df, cohort_col_name = NULL, var_map = NULL, new_var_col_name = NULL, combined_cohort_name = "All", desc_col_name = "Description") {
+
+    if (is.atomic(df)) {
+        df <- data.frame(variable = df)
+    } else if (is.list(df) & !is.data.frame(df)) {
+        df <- data.frame(variable = I(df))
+    }
+
     validate_input_crosstab_data(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name, new_var_col_name)
     grouped <- !is.null(cohort_col_name)
 
-
     # Add grouping column if it doesn't exist
     if (!grouped) {
-        cohort_col_name <- get_non_matching("cohort", names(df))
+        cohort_col_name <- get_non_matching("default_cohort", names(df))
         df[[cohort_col_name]] <- combined_cohort_name
     }
 

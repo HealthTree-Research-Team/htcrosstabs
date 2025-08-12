@@ -55,7 +55,7 @@ validate_input_to_long <- function(wide_df, description_col, cohorts_to, values_
     )
 }
 
-validate_input_add_rows <- function(ct, rows, index, index_from, table_name) {
+validate_input_add_rows <- function(ct, rows, index, index_from, section_name) {
     assert_crosstab(ct)
     assert_that(is.data.frame(rows))
 
@@ -69,7 +69,7 @@ validate_input_add_rows <- function(ct, rows, index, index_from, table_name) {
     assert_that(is.character(index_from))
     assert_that(length(index_from) == 1, msg = "index_from must only have one value")
     assert_that(index_from %in% c("top", "bottom"), msg = "index_from must be either \"top\" or \"bottom\"")
-    assert_that(is.null(table_name) | is.character(table_name), msg = "table_name must be either NULL or a character value")
+    assert_that(is.null(section_name) | is.character(section_name), msg = "section_name must be either NULL or a character value")
 }
 
 validate_input_col_names <- function(ct, long_out_col, long) {

@@ -523,22 +523,22 @@ test_that("add_rows() adds the row in the proper spot when ind is provided",{
         check.names = F
     )
 
-    expect_silent(add_rows(ct, new_rows, ind = 1, table_name = "new_table"))
-    result <- add_rows(ct, new_rows, ind = 1, table_name = "new_table")
+    expect_silent(add_rows(ct, new_rows, ind = 1, section_name = "new_table"))
+    result <- add_rows(ct, new_rows, ind = 1, section_name = "new_table")
     expect_equal(nrow(result), 11)
     expect_equal(result[1:3, , drop = F] |> data.frame(check.names = F), new_rows)
 
     expect_equal(sum(index(ct)) + 3, sum(index(result)))
 
-    expect_silent(add_rows(ct, new_rows, ind = NULL, index_from = "bottom", table_name = "new_table"))
-    result <- add_rows(ct, new_rows, ind = NULL, index_from = "bottom", table_name = "new_table")
+    expect_silent(add_rows(ct, new_rows, ind = NULL, index_from = "bottom", section_name = "new_table"))
+    result <- add_rows(ct, new_rows, ind = NULL, index_from = "bottom", section_name = "new_table")
     expect_equal(nrow(result), 11)
     expect_equal(result[1:3, , drop = F] |> data.frame(check.names = F), new_rows)
 
     expect_equal(sum(index(ct)) + 3, sum(index(result)))
 
-    expect_silent(add_rows(ct, new_rows, ind = 10, table_name = "new_table"))
-    result <- add_rows(ct, new_rows, ind = 10, table_name = "new_table")
+    expect_silent(add_rows(ct, new_rows, ind = 10, section_name = "new_table"))
+    result <- add_rows(ct, new_rows, ind = 10, section_name = "new_table")
     expect_equal(nrow(result), 11)
     expect_equal(result[9:11, , drop = F] |> data.frame(check.names = F, row.names = NULL), new_rows)
 

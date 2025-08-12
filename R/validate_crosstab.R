@@ -44,6 +44,16 @@ validate_input_table_id_getter <- function(ct, long) {
     assert_that(is.logical(long))
 }
 
+validate_input_table_name_getter <- function(ct, long) {
+    assert_crosstab(ct, strict = TRUE)
+    assert_that(is.logical(long))
+}
+
+validate_input_table_type_getter <- function(ct, long) {
+    assert_crosstab(ct, strict = TRUE)
+    assert_that(is.logical(long))
+}
+
 validate_input_data_table_setter <- function(ct, value) {
     assert_crosstab(ct, strict = TRUE)
     assert_crosstab_data(value)
@@ -95,7 +105,7 @@ validate_input_index_setter <- function(ct, value) {
         )
         assert_that(
             nrow(ct) == length(value),
-            msg = "length of new index must match the number of rows in ct"
+            msg = "Length of new index must match the number of rows in ct"
         )
     }
 }
@@ -109,7 +119,33 @@ validate_input_table_id_setter <- function(ct, value) {
     )
     assert_that(
         nrow(ct) == length(value),
-        msg = "length of new index must match the number of rows in ct"
+        msg = "Length of new index must match the number of rows in ct"
+    )
+}
+
+validate_input_table_name_setter <- function(ct, value) {
+    assert_crosstab(ct, strict = TRUE)
+    assert_that(is.atomic(value))
+    assert_that(
+        all(!is.na(value)),
+        msg = "Can not have NA values in table_name"
+    )
+    assert_that(
+        nrow(ct) == length(value),
+        msg = "length of the new table_name must match the number of rows in ct"
+    )
+}
+
+validate_input_table_type_setter <- function(ct, value) {
+    assert_crosstab(ct, strict = TRUE)
+    assert_that(is.atomic(value))
+    assert_that(
+        all(!is.na(value)),
+        msg = "Can not have NA values in table_type"
+    )
+    assert_that(
+        nrow(ct) == length(value),
+        msg = "length of the new table_type must match the number of rows in ct"
     )
 }
 

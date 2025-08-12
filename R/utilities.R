@@ -161,3 +161,12 @@ duplicated_vals <- function(obj) {
     repeated_vals <- obj[duplicated(obj)]
     obj %in% repeated_vals
 }
+
+get_crosstab_type <- function(ct) {
+    assert_crosstab(ct, strict = F)
+    if (is.crosstab.categorical(ct)) "Categorical"
+    else if (is.crosstab.numeric(ct)) "Numeric"
+    else if (is.crosstab.likert(ct)) "Likert"
+    else if (is.crosstab.multi(ct)) "Multi-Response"
+    else "Unknown Type"
+}

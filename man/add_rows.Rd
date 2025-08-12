@@ -4,7 +4,7 @@
 \alias{add_rows}
 \title{Add Rows to A Crosstab Object}
 \usage{
-add_rows(ct, rows, ind = NULL, index_from = "top", table_name = NULL)
+add_rows(ct, rows, ind = NULL, index_from = "top", section_name = NULL)
 }
 \arguments{
 \item{ct}{The crosstab to add to}
@@ -15,7 +15,7 @@ add_rows(ct, rows, ind = NULL, index_from = "top", table_name = NULL)
 
 \item{index_from}{(Optional) Either "top" or "bottom", whether to count the previously specified index from the top or bottom of the table}
 
-\item{table_name}{Pass a specific table name to tell `index()` that this is a new group of rows}
+\item{section_name}{Pass a specific table name to tell `index()` that this is a new group of rows}
 }
 \value{
 The crosstab passed in, but with the extra rows added and attributes updated.

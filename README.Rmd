@@ -206,7 +206,7 @@ Certain types of data have common types of rows you usually want, so we have pre
 
 ```{r}
 satisfaction_map <- c("very satisfied" = 3, "somewhat satisfied" = 2, "not satisfied" = 1)
-crosstab(satisfaction_by_company, "company", satisfaction_map) |> 
+crosstab(satisfaction_by_company, "company", satisfaction_map) |>
     add_likert_table()
 
 crosstab(allergies_by_school, "school") |> 

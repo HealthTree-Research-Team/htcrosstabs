@@ -136,7 +136,7 @@ to_long <- function(wide_df, description_col, cohorts_to, values_to) {
 #' @param rows The rows to add to the crosstab
 #' @param ind (Optional) The specific row index at which to add the row
 #' @param index_from (Optional) Either "top" or "bottom", whether to count the previously specified index from the top or bottom of the table
-#' @param table_name Pass a specific table name to tell `index()` that this is a new group of rows
+#' @param section_name Pass a specific table name to tell `index()` that this is a new group of rows
 #'
 #' @returns The crosstab passed in, but with the extra rows added and attributes updated.
 #' @export
@@ -155,8 +155,8 @@ to_long <- function(wide_df, description_col, cohorts_to, values_to) {
 #'     add_rows(mean_sd_row)
 #' num_ct
 #'
-add_rows <- function(ct, rows, ind = NULL, index_from = "top", table_name = NULL) {
-    validate_input_add_rows(ct, rows, ind, index_from, table_name)
+add_rows <- function(ct, rows, ind = NULL, index_from = "top", section_name = NULL) {
+    validate_input_add_rows(ct, rows, ind, index_from, section_name)
 
     to_character_cols <- function(df) {
         assert_that(is.data.frame(df))
@@ -198,16 +198,24 @@ add_rows <- function(ct, rows, ind = NULL, index_from = "top", table_name = NULL
     class(combined) <- orig_attrs[["class"]]
 
     # Get what to add to index
-    if (is.null(table_name) & is.crosstab(rows)) {
+    if (is.null(section_name) & is.crosstab(rows)) {
         new_index <- index(rows, long = TRUE)
-    } else if (is.null(table_name)) {
+    } else if (is.null(section_name)) {
         new_index <- rep(var_name(ct), nrow(rows))
     } else {
-        new_index <- rep(table_name, nrow(rows))
+        new_index <- rep(section_name, nrow(rows))
     }
 
     # Add the new index values to index
     index(combined) <- insert_at(index(combined, long = TRUE), ind, new_index)
+
+    # Update table_name
+    new_table_name <- rep(var_name(ct), nrow(rows))
+    table_name(combined) <- insert_at(table_name(combined, long = TRUE), ind, new_table_name)
+
+    # Update table_type
+    new_table_type <- rep(get_crosstab_type(ct), nrow(rows))
+    table_type(combined) <- insert_at(table_type(combined, long = TRUE), ind, new_table_type)
 
     # Extend table_id
     cur_id <- table_id(combined, long = TRUE)
@@ -969,7 +977,7 @@ add_anova_rows <- function(ct, cutoff = 0.05, round_to = 3) {
     anova_rows <- get_anova_rows(ct, cutoff = cutoff, round_to = round_to)
 
     ct <- add_anova_row_footnotes(ct, cutoff = cutoff)
-    ct <- add_rows(ct, anova_rows, table_name = "ANOVA Results")
+    ct <- add_rows(ct, anova_rows, section_name = "ANOVA Results")
     return(ct)
 }
 
@@ -1027,7 +1035,7 @@ add_chisq_rows <- function(ct, p.adj = TRUE, method = "BH", cutoff = 0.05, round
 
     ct <- add_chisq_row_footnotes(ct, p.adj = p.adj, method = method, cutoff = cutoff)
 
-    ct <- add_rows(ct, chisq_rows, table_name = "Pearson Chi-Square Results")
+    ct <- add_rows(ct, chisq_rows, section_name = "Pearson Chi-Square Results")
     return(ct)
 }
 
@@ -1076,6 +1084,6 @@ add_rao_scott_rows <- function(ct, p.adj = TRUE, method = "BH", cutoff = 0.05, r
 
     ct <- add_rao_scott_row_footnotes(ct, p.adj = p.adj, method = method, cutoff = cutoff)
 
-    ct <- add_rows(ct, rao_scott_rows, table_name = "Rao-Scott Chi-Square Results")
+    ct <- add_rows(ct, rao_scott_rows, section_name = "Rao-Scott Chi-Square Results")
     return(ct)
 }

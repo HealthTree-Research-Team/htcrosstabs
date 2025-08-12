@@ -1,8 +1,5 @@
 # CONSTRUCTORS ####
 new_crosstab <- function(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name, new_var_col_name = NULL) {
-    if (is.atomic(df))
-        df <- data.frame(variable = df)
-
     validate_input_new_crosstab(df, cohort_col_name, var_map, combined_cohort_name, desc_col_name)
 
     if (is.crosstab.data(df)) {
@@ -23,6 +20,8 @@ new_crosstab <- function(df, cohort_col_name, var_map, combined_cohort_name, des
         data = data,  # crosstab_data
         index = character(0),
         table_id = numeric(0),
+        table_name = character(0),
+        table_type = character(0),
         footnotes = list(),
         manual_escape = FALSE,
         class = c(CT_CLASS, class(data.frame()))
@@ -70,6 +69,12 @@ new_crosstab <- function(df, cohort_col_name, var_map, combined_cohort_name, des
 crosstab <- function(df, cohort_col_name = NULL, var_map = NULL, new_var_col_name = NULL, combined_cohort_name = "All", desc_col_name = "Description") {
     if (is.crosstab(df))
         return(df)
+
+    if (is.atomic(df)) {
+        df <- data.frame(variable = df)
+    } else if (is.list(df) & !is.data.frame(df)) {
+        df <- data.frame(variable = I(df))
+    }
 
     ct <- new_crosstab(
         df = df,
@@ -212,7 +217,34 @@ table_id <- function(ct, long = FALSE) {
         rle_result <- rle(out)
         return(stats::setNames(rle_result$lengths, rle_result$values))
     }
+}
 
+table_name <- function(ct, long = FALSE) {
+    validate_input_table_name_getter(ct, long)
+    out <- attr(ct, "table_name")
+
+    if (is.null(out) | long) {
+        return(out)
+    } else if (length(out) == 0) {
+        return(stats::setNames(character(0), character(0)))
+    } else {
+        rle_result <- rle(out)
+        return(stats::setNames(rle_result$lengths, rle_result$values))
+    }
+}
+
+table_type <- function(ct, long = FALSE) {
+    validate_input_table_type_getter(ct, long)
+    out <- attr(ct, "table_type")
+
+    if (is.null(out) | long) {
+        return(out)
+    } else if (length(out) == 0) {
+        return(stats::setNames(character(0), character(0)))
+    } else {
+        rle_result <- rle(out)
+        return(stats::setNames(rle_result$lengths, rle_result$values))
+    }
 }
 
 footnotes <- function(ct) {
@@ -370,6 +402,18 @@ set_new_data.data.frame <- function(ct, tbl, var_map = NULL) {
 `table_id<-` <- function(ct, value) {
     validate_input_table_id_setter(ct, value)
     attr(ct, "table_id") <- value
+    return(ct)
+}
+
+`table_name<-` <- function(ct, value) {
+    validate_input_table_name_setter(ct, value)
+    attr(ct, "table_name") <- value
+    return(ct)
+}
+
+`table_type<-` <- function(ct, value) {
+    validate_input_table_type_setter(ct, value)
+    attr(ct, "table_type") <- value
     return(ct)
 }
 

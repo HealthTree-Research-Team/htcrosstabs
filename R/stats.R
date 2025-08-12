@@ -143,6 +143,13 @@ get_rao_scott_p_value.crosstab_data <- function(data) {
 
 #' @noRd
 #' @export
+get_rao_scott_p_value.crosstab_data_num <- function(data) {
+    warning("Casting data to categorical before performing Rao-Scott adjusted chi-square test")
+    get_rao_scott_p_value(suppressWarnings(as.crosstab.multi(data)))
+}
+
+#' @noRd
+#' @export
 get_rao_scott_p_value.crosstab_data_multi <- function(data) {
     raw_data <- get_raw_data(data)
     get_rao_scott(raw_data, var_name(raw_data), cohort_name(raw_data))
@@ -206,6 +213,19 @@ get_tukey_posthoc.crosstab <- function(data) {
 #' @noRd
 #' @export
 get_tukey_posthoc.crosstab_data <- function(data) {
+    warning("Casting data to numeric before performing Tukey posthoc")
+    get_tukey_posthoc(as.crosstab.num(data))
+}
+
+#' @noRd
+#' @export
+get_tukey_posthoc.crosstab_data_likert <- function(data) {
+    get_tukey_posthoc(suppressWarnings(as.crosstab.num(data)))
+}
+
+#' @noRd
+#' @export
+get_tukey_posthoc.crosstab_data_num <- function(data) {
     tukey_formula <- as.formula(sprintf("`%s` ~ `%s`", var_name(data), cohort_name(data)))
     tukey_results <- rstatix::tukey_hsd(get_raw_data(data), tukey_formula)
 
@@ -327,6 +347,13 @@ get_rao_scott_posthoc.crosstab <- function(data, p.adj = TRUE, method = "BH") {
 #' @noRd
 #' @export
 get_rao_scott_posthoc.crosstab_data <- function(data, p.adj = TRUE, method = "BH") {
+    get_rao_scott_posthoc(suppressWarnings(as.crosstab.multi(data)), p.adj = p.adj, method = method)
+}
+
+#' @noRd
+#' @export
+get_rao_scott_posthoc.crosstab_data_num <- function(data, p.adj = TRUE, method = "BH") {
+    warning("Casting data to categorical before performing Rao-Scott adjusted chi-square test")
     get_rao_scott_posthoc(suppressWarnings(as.crosstab.multi(data)), p.adj = p.adj, method = method)
 }
 

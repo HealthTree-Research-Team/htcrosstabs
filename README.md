@@ -187,12 +187,14 @@ output column.
 ``` r
 new_crosstab <- crosstab(sports)
 data_table(new_crosstab) |> head(5)
-#>        sport cohort
-#> 1 basketball    All
-#> 2   baseball    All
-#> 3   baseball    All
-#> 4   football    All
-#> 5     tennis    All
+#> <Categorical Crosstab Data Object>
+#> # Variable name: sport
+#>        sport default_cohort
+#> 1 basketball            All
+#> 2   baseball            All
+#> 3   baseball            All
+#> 4   football            All
+#> 5     tennis            All
 ```
 
 You can extract useful values with the `get_*()` functions. You can get
@@ -285,10 +287,10 @@ get_anova_p_value(new_crosstab)
 #> [1] 2.856777e-91
 
 get_tukey_posthoc(new_crosstab)
-#>                  setosa   versicolor    virginica
-#> setosa     1.000000e+00 2.997602e-15 2.997602e-15
-#> versicolor 2.997602e-15 1.000000e+00 2.997602e-15
-#> virginica  2.997602e-15 2.997602e-15 1.000000e+00
+#>            setosa versicolor virginica
+#> setosa      1e+00      3e-15     3e-15
+#> versicolor  3e-15      1e+00     3e-15
+#> virginica   3e-15      3e-15     1e+00
 ```
 
 ## Adding Formatted Rows
@@ -307,21 +309,31 @@ crosstab(length_by_species, "species") |>
     add_complete_total_row() |> 
     add_mean_sd_row() |> 
     add_med_q1_q3_row()
-#>        Description            All         setosa   versicolor      virginica
-#> 1 Complete / Total      150 / 150        50 / 50      50 / 50        50 / 50
-#> 2        Mean ± SD      3.8 ± 1.8      1.5 ± 0.2    4.3 ± 0.5      5.6 ± 0.6
-#> 3     Med (Q1, Q3) 4.3 (1.6, 5.1) 1.5 (1.4, 1.6) 4.3 (4, 4.6) 5.6 (5.1, 5.9)
+#> <Crosstab object>
+#> # Contains 1 table, grouped_by species
+#> ===============================
+#>  Table: petal length [Numeric]
+#> ===============================
+#>          Description            All         setosa   versicolor      virginica
+#>   1 Complete / Total      150 / 150        50 / 50      50 / 50        50 / 50
+#>   2        Mean ± SD      3.8 ± 1.8      1.5 ± 0.2    4.3 ± 0.5      5.6 ± 0.6
+#>   3     Med (Q1, Q3) 4.3 (1.6, 5.1) 1.5 (1.4, 1.6) 4.3 (4, 4.6) 5.6 (5.1, 5.9)
 
 crosstab(sports_by_age, "age") |> 
     add_complete_total_row() |> 
     add_count_rows()
-#>        Description       All     child      teen     adult    senior
-#> 1 Complete / Total 400 / 400 100 / 100 100 / 100 100 / 100 100 / 100
-#> 2       basketball        77        21        22        24        10
-#> 3         baseball        81        33        12        22        14
-#> 4         football        60        15        21         9        15
-#> 5           tennis       102        23        27        20        32
-#> 6             golf        80         8        18        25        29
+#> <Crosstab object>
+#> # Contains 1 table, grouped_by age
+#> ============================
+#>  Table: sport [Categorical]
+#> ============================
+#>          Description       All     child      teen     adult    senior
+#>   1 Complete / Total 400 / 400 100 / 100 100 / 100 100 / 100 100 / 100
+#>   2       basketball        77        21        22        24        10
+#>   3         baseball        81        33        12        22        14
+#>   4         football        60        15        21         9        15
+#>   5           tennis       102        23        27        20        32
+#>   6             golf        80         8        18        25        29
 ```
 
 ## Adding Pre-Built Tables
@@ -331,45 +343,67 @@ have preset templates you can use with `add_*_table()`.
 
 ``` r
 satisfaction_map <- c("very satisfied" = 3, "somewhat satisfied" = 2, "not satisfied" = 1)
-crosstab(satisfaction_by_company, "company", satisfaction_map) |> 
+crosstab(satisfaction_by_company, "company", satisfaction_map) |>
     add_likert_table()
-#>           Description       All     Apple     Amazon    Google  Microsoft
-#> 1    Complete / Total 400 / 400 100 / 100  100 / 100 100 / 100  100 / 100
-#> 2           Mean ± SD 2.1 ± 0.8 2.1 ± 0.9  1.9 ± 0.8 2.6 ± 0.5  1.9 ± 0.8
-#> 3      very satisfied 155 (39%)  43 (43%)   23 (23%)  62 (62%)   27 (27%)
-#> 4  somewhat satisfied 141 (35%)  25 (25%)   39 (39%)  38 (38%)   39 (39%)
-#> 5       not satisfied 104 (26%)  32 (32%)   38 (38%)    0 (0%)   34 (34%)
-#> 6          Dif. Apple         -         - NS (0.064)   < 0.001 NS (0.314)
-#> 7         Dif. Amazon         -         -          -   < 0.001  NS (0.87)
-#> 8         Dif. Google         -         -          -         -    < 0.001
-#> 9             Overall   < 0.001         -          -         -          -
-#> 10         Dif. Apple         -         -      0.012   < 0.001       0.04
-#> 11        Dif. Amazon         -         -          -   < 0.001 NS (0.763)
-#> 12        Dif. Google         -         -          -         -    < 0.001
-#> 13            Overall   < 0.001         -          -         -          -
+#> <Crosstab object>
+#> # Contains 1 table, grouped_by company
+#> ==============================
+#>  Table: satisfaction [Likert]
+#> ==============================
+#>             Description       All     Apple     Amazon    Google  Microsoft
+#>   1    Complete / Total 400 / 400 100 / 100  100 / 100 100 / 100  100 / 100
+#>   2           Mean ± SD 2.1 ± 0.8 2.1 ± 0.9  1.9 ± 0.8 2.6 ± 0.5  1.9 ± 0.8
+#>   3      very satisfied 155 (39%)  43 (43%)   23 (23%)  62 (62%)   27 (27%)
+#>   4  somewhat satisfied 141 (35%)  25 (25%)   39 (39%)  38 (38%)   39 (39%)
+#>   5       not satisfied 104 (26%)  32 (32%)   38 (38%)    0 (0%)   34 (34%)
+#> 
+#>   ANOVA Results:
+#>             Description       All     Apple     Amazon    Google  Microsoft
+#>   6          Dif. Apple         -         - NS (0.064)   < 0.001 NS (0.314)
+#>   7         Dif. Amazon         -         -          -   < 0.001  NS (0.87)
+#>   8         Dif. Google         -         -          -         -    < 0.001
+#>   9             Overall   < 0.001         -          -         -          -
+#> 
+#>   Pearson Chi-Square Results:
+#>             Description       All     Apple     Amazon    Google  Microsoft
+#>   10         Dif. Apple         -         -      0.012   < 0.001       0.04
+#>   11        Dif. Amazon         -         -          -   < 0.001 NS (0.763)
+#>   12        Dif. Google         -         -          -         -    < 0.001
+#>   13            Overall   < 0.001         -          -         -          -
 
 crosstab(allergies_by_school, "school") |> 
     add_categorical_table()
-#>            Description       All Brighton High Cottonwood High Olympus High
-#> 1     Complete / Total 400 / 400     100 / 100       100 / 100    100 / 100
-#> 2               gluten 141 (35%)      38 (38%)        36 (36%)     32 (32%)
-#> 3                 nuts 123 (31%)      34 (34%)        36 (36%)     24 (24%)
-#> 4                 eggs  68 (17%)      24 (24%)          9 (9%)     17 (17%)
-#> 5                 milk  75 (19%)      17 (17%)        22 (22%)     26 (26%)
-#> 6   Dif. Brighton High         -             -           0.007         0.03
-#> 7 Dif. Cottonwood High         -             -               -        0.019
-#> 8    Dif. Olympus High         -             -               -            -
-#> 9              Overall   < 0.001             -               -            -
-#>    Alta High
-#> 1  100 / 100
-#> 2   35 (35%)
-#> 3   29 (29%)
-#> 4   18 (18%)
-#> 5   10 (10%)
-#> 6 NS (0.575)
-#> 7      0.007
-#> 8      0.007
-#> 9          -
+#> <Crosstab object>
+#> # Contains 1 table, grouped_by school
+#> ===================================
+#>  Table: allergies [Multi-Response]
+#> ===================================
+#>              Description       All Brighton High Cottonwood High Olympus High
+#>   1     Complete / Total 204 / 400      51 / 100        51 / 100     50 / 100
+#>   2               gluten 141 (69%)      38 (75%)        36 (71%)     32 (64%)
+#>   3                 nuts 123 (60%)      34 (67%)        36 (71%)     24 (48%)
+#>   4                 eggs  68 (33%)      24 (47%)         9 (18%)     17 (34%)
+#>   5                 milk  75 (37%)      17 (33%)        22 (43%)     26 (52%)
+#> 
+#>      Alta High
+#>   1   52 / 100
+#>   2   35 (67%)
+#>   3   29 (56%)
+#>   4   18 (35%)
+#>   5   10 (19%)
+#> 
+#>   Rao-Scott Chi-Square Results:
+#>              Description       All Brighton High Cottonwood High Olympus High
+#>   6   Dif. Brighton High         -             -           0.007        0.029
+#>   7 Dif. Cottonwood High         -             -               -        0.018
+#>   8    Dif. Olympus High         -             -               -            -
+#>   9              Overall   < 0.001             -               -            -
+#> 
+#>      Alta High
+#>   6 NS (0.573)
+#>   7      0.007
+#>   8      0.007
+#>   9          -
 ```
 
 You can also choose `add_default_table()` and it will decide
@@ -378,27 +412,43 @@ automatically based on the data you passed in.
 ``` r
 crosstab(length_by_species, "species") |> 
     add_default_table()
-#>        Description            All         setosa   versicolor      virginica
-#> 1 Complete / Total      150 / 150        50 / 50      50 / 50        50 / 50
-#> 2        Mean ± SD      3.8 ± 1.8      1.5 ± 0.2    4.3 ± 0.5      5.6 ± 0.6
-#> 3     Med (Q1, Q3) 4.3 (1.6, 5.1) 1.5 (1.4, 1.6) 4.3 (4, 4.6) 5.6 (5.1, 5.9)
-#> 4      Dif. setosa              -              -      < 0.001        < 0.001
-#> 5  Dif. versicolor              -              -            -        < 0.001
-#> 6          Overall        < 0.001              -            -              -
+#> <Crosstab object>
+#> # Contains 1 table, grouped_by species
+#> ===============================
+#>  Table: petal length [Numeric]
+#> ===============================
+#>          Description            All         setosa   versicolor      virginica
+#>   1 Complete / Total      150 / 150        50 / 50      50 / 50        50 / 50
+#>   2        Mean ± SD      3.8 ± 1.8      1.5 ± 0.2    4.3 ± 0.5      5.6 ± 0.6
+#>   3     Med (Q1, Q3) 4.3 (1.6, 5.1) 1.5 (1.4, 1.6) 4.3 (4, 4.6) 5.6 (5.1, 5.9)
+#> 
+#>   ANOVA Results:
+#>          Description            All         setosa   versicolor      virginica
+#>   4      Dif. setosa              -              -      < 0.001        < 0.001
+#>   5  Dif. versicolor              -              -            -        < 0.001
+#>   6          Overall        < 0.001              -            -              -
 
 crosstab(sports_by_age, "age") |> 
     add_default_table()
-#>         Description       All     child      teen     adult    senior
-#> 1  Complete / Total 400 / 400 100 / 100 100 / 100 100 / 100 100 / 100
-#> 2        basketball  77 (19%)  21 (21%)  22 (22%)  24 (24%)  10 (10%)
-#> 3          baseball  81 (20%)  33 (33%)  12 (12%)  22 (22%)  14 (14%)
-#> 4          football  60 (15%)  15 (15%)  21 (21%)    9 (9%)  15 (15%)
-#> 5            tennis 102 (26%)  23 (23%)  27 (27%)  20 (20%)  32 (32%)
-#> 6              golf  80 (20%)    8 (8%)  18 (18%)  25 (25%)  29 (29%)
-#> 7        Dif. child         -         -     0.014     0.024   < 0.001
-#> 8         Dif. teen         -         -         -     0.048 NS (0.07)
-#> 9        Dif. adult         -         -         -         -     0.025
-#> 10          Overall   < 0.001         -         -         -         -
+#> <Crosstab object>
+#> # Contains 1 table, grouped_by age
+#> ============================
+#>  Table: sport [Categorical]
+#> ============================
+#>           Description       All     child      teen     adult    senior
+#>   1  Complete / Total 400 / 400 100 / 100 100 / 100 100 / 100 100 / 100
+#>   2        basketball  77 (19%)  21 (21%)  22 (22%)  24 (24%)  10 (10%)
+#>   3          baseball  81 (20%)  33 (33%)  12 (12%)  22 (22%)  14 (14%)
+#>   4          football  60 (15%)  15 (15%)  21 (21%)    9 (9%)  15 (15%)
+#>   5            tennis 102 (26%)  23 (23%)  27 (27%)  20 (20%)  32 (32%)
+#>   6              golf  80 (20%)    8 (8%)  18 (18%)  25 (25%)  29 (29%)
+#> 
+#>   Pearson Chi-Square Results:
+#>           Description       All     child      teen     adult    senior
+#>   7        Dif. child         -         -     0.014     0.024   < 0.001
+#>   8         Dif. teen         -         -         -     0.048 NS (0.07)
+#>   9        Dif. adult         -         -         -         -     0.025
+#>   10          Overall   < 0.001         -         -         -         -
 ```
 
 ## Stacking Crosstabs
@@ -426,19 +476,39 @@ ct4 <- iris[, c("Petal.Width", "Species")] |>
     add_default_table(anova = F)
 
 stack_crosstabs(ct1, ct2, ct3, ct4)
-#>         Description            All         setosa     versicolor      virginica
-#> 1  Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
-#> 2         Mean ± SD      5.8 ± 0.8        5 ± 0.4      5.9 ± 0.5      6.6 ± 0.6
-#> 3      Med (Q1, Q3) 5.8 (5.1, 6.4)   5 (4.8, 5.2) 5.9 (5.6, 6.3) 6.5 (6.2, 6.9)
-#> 4  Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
-#> 5         Mean ± SD      3.8 ± 1.8      1.5 ± 0.2      4.3 ± 0.5      5.6 ± 0.6
-#> 6      Med (Q1, Q3) 4.3 (1.6, 5.1) 1.5 (1.4, 1.6)   4.3 (4, 4.6) 5.6 (5.1, 5.9)
-#> 7  Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
-#> 8         Mean ± SD      3.1 ± 0.4      3.4 ± 0.4      2.8 ± 0.3        3 ± 0.3
-#> 9      Med (Q1, Q3)   3 (2.8, 3.3) 3.4 (3.2, 3.7)   2.8 (2.5, 3)   3 (2.8, 3.2)
-#> 10 Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
-#> 11        Mean ± SD      1.2 ± 0.8      0.2 ± 0.1      1.3 ± 0.2        2 ± 0.3
-#> 12     Med (Q1, Q3) 1.3 (0.3, 1.8) 0.2 (0.2, 0.3) 1.3 (1.2, 1.5)   2 (1.8, 2.3)
+#> <Crosstab object>
+#> # Contains 4 tables, grouped_by Species
+#> ===============================
+#>  Table: Sepal.Length [Numeric]
+#> ===============================
+#>           Description            All         setosa     versicolor      virginica
+#>   1  Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
+#>   2         Mean ± SD      5.8 ± 0.8        5 ± 0.4      5.9 ± 0.5      6.6 ± 0.6
+#>   3      Med (Q1, Q3) 5.8 (5.1, 6.4)   5 (4.8, 5.2) 5.9 (5.6, 6.3) 6.5 (6.2, 6.9)
+#> 
+#> ===============================
+#>  Table: Petal.Length [Numeric]
+#> ===============================
+#>           Description            All         setosa     versicolor      virginica
+#>   4  Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
+#>   5         Mean ± SD      3.8 ± 1.8      1.5 ± 0.2      4.3 ± 0.5      5.6 ± 0.6
+#>   6      Med (Q1, Q3) 4.3 (1.6, 5.1) 1.5 (1.4, 1.6)   4.3 (4, 4.6) 5.6 (5.1, 5.9)
+#> 
+#> ==============================
+#>  Table: Sepal.Width [Numeric]
+#> ==============================
+#>           Description            All         setosa     versicolor      virginica
+#>   7  Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
+#>   8         Mean ± SD      3.1 ± 0.4      3.4 ± 0.4      2.8 ± 0.3        3 ± 0.3
+#>   9      Med (Q1, Q3)   3 (2.8, 3.3) 3.4 (3.2, 3.7)   2.8 (2.5, 3)   3 (2.8, 3.2)
+#> 
+#> ==============================
+#>  Table: Petal.Width [Numeric]
+#> ==============================
+#>           Description            All         setosa     versicolor      virginica
+#>   10 Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
+#>   11        Mean ± SD      1.2 ± 0.8      0.2 ± 0.1      1.3 ± 0.2        2 ± 0.3
+#>   12     Med (Q1, Q3) 1.3 (0.3, 1.8) 0.2 (0.2, 0.3) 1.3 (1.2, 1.5)   2 (1.8, 2.3)
 ```
 
 The second is to call `crosstab_stacked()` which runs through a data
@@ -446,19 +516,39 @@ frame and automatically applies the default table format.
 
 ``` r
 crosstab_stacked(iris, "Species", anova = F)
-#>         Description            All         setosa     versicolor      virginica
-#> 1  Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
-#> 2         Mean ± SD      5.8 ± 0.8        5 ± 0.4      5.9 ± 0.5      6.6 ± 0.6
-#> 3      Med (Q1, Q3) 5.8 (5.1, 6.4)   5 (4.8, 5.2) 5.9 (5.6, 6.3) 6.5 (6.2, 6.9)
-#> 4  Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
-#> 5         Mean ± SD      3.1 ± 0.4      3.4 ± 0.4      2.8 ± 0.3        3 ± 0.3
-#> 6      Med (Q1, Q3)   3 (2.8, 3.3) 3.4 (3.2, 3.7)   2.8 (2.5, 3)   3 (2.8, 3.2)
-#> 7  Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
-#> 8         Mean ± SD      3.8 ± 1.8      1.5 ± 0.2      4.3 ± 0.5      5.6 ± 0.6
-#> 9      Med (Q1, Q3) 4.3 (1.6, 5.1) 1.5 (1.4, 1.6)   4.3 (4, 4.6) 5.6 (5.1, 5.9)
-#> 10 Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
-#> 11        Mean ± SD      1.2 ± 0.8      0.2 ± 0.1      1.3 ± 0.2        2 ± 0.3
-#> 12     Med (Q1, Q3) 1.3 (0.3, 1.8) 0.2 (0.2, 0.3) 1.3 (1.2, 1.5)   2 (1.8, 2.3)
+#> <Crosstab object>
+#> # Contains 4 tables, grouped_by Species
+#> ===============================
+#>  Table: Sepal.Length [Numeric]
+#> ===============================
+#>           Description            All         setosa     versicolor      virginica
+#>   1  Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
+#>   2         Mean ± SD      5.8 ± 0.8        5 ± 0.4      5.9 ± 0.5      6.6 ± 0.6
+#>   3      Med (Q1, Q3) 5.8 (5.1, 6.4)   5 (4.8, 5.2) 5.9 (5.6, 6.3) 6.5 (6.2, 6.9)
+#> 
+#> ==============================
+#>  Table: Sepal.Width [Numeric]
+#> ==============================
+#>           Description            All         setosa     versicolor      virginica
+#>   4  Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
+#>   5         Mean ± SD      3.1 ± 0.4      3.4 ± 0.4      2.8 ± 0.3        3 ± 0.3
+#>   6      Med (Q1, Q3)   3 (2.8, 3.3) 3.4 (3.2, 3.7)   2.8 (2.5, 3)   3 (2.8, 3.2)
+#> 
+#> ===============================
+#>  Table: Petal.Length [Numeric]
+#> ===============================
+#>           Description            All         setosa     versicolor      virginica
+#>   7  Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
+#>   8         Mean ± SD      3.8 ± 1.8      1.5 ± 0.2      4.3 ± 0.5      5.6 ± 0.6
+#>   9      Med (Q1, Q3) 4.3 (1.6, 5.1) 1.5 (1.4, 1.6)   4.3 (4, 4.6) 5.6 (5.1, 5.9)
+#> 
+#> ==============================
+#>  Table: Petal.Width [Numeric]
+#> ==============================
+#>           Description            All         setosa     versicolor      virginica
+#>   10 Complete / Total      150 / 150        50 / 50        50 / 50        50 / 50
+#>   11        Mean ± SD      1.2 ± 0.8      0.2 ± 0.1      1.3 ± 0.2        2 ± 0.3
+#>   12     Med (Q1, Q3) 1.3 (0.3, 1.8) 0.2 (0.2, 0.3) 1.3 (1.2, 1.5)   2 (1.8, 2.3)
 ```
 
 If you have two likert columns, you can pass multiple maps into
@@ -496,36 +586,49 @@ crosstab_stacked(
     anova = F,
     chisq = F
 )
-#>                Description         All      UCLA  Berkeley  Stanford      Yale
-#> 1         Complete / Total 3500 / 3500 500 / 500 500 / 500 500 / 500 500 / 500
-#> 2                Mean ± SD   0.8 ± 1.3 0.6 ± 1.5 0.4 ± 1.2 1.2 ± 1.2 1.1 ± 1.1
-#> 3  overwhelmingly positive  1343 (38%) 218 (44%)  90 (18%) 289 (58%) 230 (46%)
-#> 4        somewhat positive   849 (24%)  68 (14%) 160 (32%)  94 (19%) 160 (32%)
-#> 5                  neutral   752 (21%) 109 (22%) 150 (30%)  62 (12%)  57 (11%)
-#> 6        somewhat negative    277 (8%)   25 (5%)  51 (10%)   30 (6%)   23 (5%)
-#> 7  overwhelmingly negative    279 (8%)  80 (16%)  49 (10%)   25 (5%)   30 (6%)
-#> 8         Complete / Total 3500 / 3500 500 / 500 500 / 500 500 / 500 500 / 500
-#> 9                Mean ± SD     3 ± 1.2 3.2 ± 1.3 2.8 ± 1.2 3.4 ± 1.1 3.2 ± 1.1
-#> 10         very supportive  1714 (49%) 292 (58%) 193 (39%) 332 (66%) 247 (49%)
-#> 11     somewhat supportive   836 (24%) 105 (21%) 112 (22%)  79 (16%) 159 (32%)
-#> 12               apathetic   466 (13%)   34 (7%) 118 (24%)   42 (8%)   41 (8%)
-#> 13      somewhat demeaning    271 (8%)   29 (6%)   47 (9%)   29 (6%)   30 (6%)
-#> 14          very demeaning    213 (6%)   40 (8%)   30 (6%)   18 (4%)   23 (5%)
-#>          MIT Texas Tech   Alabama
-#> 1  500 / 500  500 / 500 500 / 500
-#> 2  0.5 ± 1.3  0.7 ± 1.2 0.9 ± 1.1
-#> 3  143 (29%)  168 (34%) 205 (41%)
-#> 4   99 (20%)  139 (28%) 129 (26%)
-#> 5  162 (32%)  111 (22%) 101 (20%)
-#> 6    47 (9%)   51 (10%)  50 (10%)
-#> 7   49 (10%)    31 (6%)   15 (3%)
-#> 8  500 / 500  500 / 500 500 / 500
-#> 9  2.7 ± 1.3    3 ± 1.2   3 ± 1.2
-#> 10 172 (34%)  245 (49%) 233 (47%)
-#> 11 138 (28%)  115 (23%) 128 (26%)
-#> 12  89 (18%)   65 (13%)  77 (15%)
-#> 13  52 (10%)   52 (10%)   32 (6%)
-#> 14  49 (10%)    23 (5%)   30 (6%)
+#> <Crosstab object>
+#> # Contains 2 tables, grouped_by university
+#> ================================
+#>  Table: uni_perception [Likert]
+#> ================================
+#>                  Description         All      UCLA  Berkeley  Stanford      Yale
+#>   1         Complete / Total 3500 / 3500 500 / 500 500 / 500 500 / 500 500 / 500
+#>   2                Mean ± SD   0.8 ± 1.3 0.6 ± 1.5 0.4 ± 1.2 1.2 ± 1.2 1.1 ± 1.1
+#>   3  overwhelmingly positive  1343 (38%) 218 (44%)  90 (18%) 289 (58%) 230 (46%)
+#>   4        somewhat positive   849 (24%)  68 (14%) 160 (32%)  94 (19%) 160 (32%)
+#>   5                  neutral   752 (21%) 109 (22%) 150 (30%)  62 (12%)  57 (11%)
+#>   6        somewhat negative    277 (8%)   25 (5%)  51 (10%)   30 (6%)   23 (5%)
+#>   7  overwhelmingly negative    279 (8%)  80 (16%)  49 (10%)   25 (5%)   30 (6%)
+#> 
+#>            MIT Texas Tech   Alabama
+#>   1  500 / 500  500 / 500 500 / 500
+#>   2  0.5 ± 1.3  0.7 ± 1.2 0.9 ± 1.1
+#>   3  143 (29%)  168 (34%) 205 (41%)
+#>   4   99 (20%)  139 (28%) 129 (26%)
+#>   5  162 (32%)  111 (22%) 101 (20%)
+#>   6    47 (9%)   51 (10%)  50 (10%)
+#>   7   49 (10%)    31 (6%)   15 (3%)
+#> 
+#> ==============================
+#>  Table: prof_support [Likert]
+#> ==============================
+#>                  Description         All      UCLA  Berkeley  Stanford      Yale
+#>   8         Complete / Total 3500 / 3500 500 / 500 500 / 500 500 / 500 500 / 500
+#>   9                Mean ± SD     3 ± 1.2 3.2 ± 1.3 2.8 ± 1.2 3.4 ± 1.1 3.2 ± 1.1
+#>   10         very supportive  1714 (49%) 292 (58%) 193 (39%) 332 (66%) 247 (49%)
+#>   11     somewhat supportive   836 (24%) 105 (21%) 112 (22%)  79 (16%) 159 (32%)
+#>   12               apathetic   466 (13%)   34 (7%) 118 (24%)   42 (8%)   41 (8%)
+#>   13      somewhat demeaning    271 (8%)   29 (6%)   47 (9%)   29 (6%)   30 (6%)
+#>   14          very demeaning    213 (6%)   40 (8%)   30 (6%)   18 (4%)   23 (5%)
+#> 
+#>            MIT Texas Tech   Alabama
+#>   8  500 / 500  500 / 500 500 / 500
+#>   9  2.7 ± 1.3    3 ± 1.2   3 ± 1.2
+#>   10 172 (34%)  245 (49%) 233 (47%)
+#>   11 138 (28%)  115 (23%) 128 (26%)
+#>   12  89 (18%)   65 (13%)  77 (15%)
+#>   13  52 (10%)   52 (10%)   32 (6%)
+#>   14  49 (10%)    23 (5%)   30 (6%)
 ```
 
 ## Printable Output
