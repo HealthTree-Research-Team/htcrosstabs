@@ -214,7 +214,8 @@ apply_footnotes <- function(kable_input, ct) {
                 number = saved_footnotes[["number"]],
                 alphabet = saved_footnotes[["alphabet"]],
                 footnote_order = c("symbol", "alphabet", "number"),
-                title_format = "bold"
+                title_format = "bold",
+                threeparttable = TRUE
             )
     }
 
@@ -229,7 +230,8 @@ apply_footnotes <- function(kable_input, ct) {
             kableExtra::footnote(
                 general_title = "Statistical Testing Methods: ",
                 title_format = "bold",
-                general = general
+                general = general,
+                threeparttable = TRUE
             )
     }
 
@@ -240,7 +242,8 @@ apply_footnotes <- function(kable_input, ct) {
             kableExtra::footnote(
                 general_title = "Likert Map: ",
                 title_format = "bold",
-                general = likert
+                general = likert,
+                threeparttable = TRUE
             )
     }
 
