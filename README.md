@@ -14,7 +14,7 @@ data frames.
 You can install the development version of htcrosstabs like so:
 
 ``` r
-devtools::install_github("HealthTree-Research-Team/htcrosstabs")
+devtools::install_github("HealthTree/htcrosstabs")
 ```
 
 And you can load it like so:
