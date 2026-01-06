@@ -226,7 +226,7 @@ get_tukey_posthoc.crosstab_data_likert <- function(data) {
 #' @noRd
 #' @export
 get_tukey_posthoc.crosstab_data_num <- function(data) {
-    tukey_formula <- as.formula(sprintf("`%s` ~ `%s`", var_name(data), cohort_name(data)))
+    tukey_formula <- stats::as.formula(sprintf("`%s` ~ `%s`", var_name(data), cohort_name(data)))
     tukey_results <- rstatix::tukey_hsd(get_raw_data(data), tukey_formula)
 
     all_cohorts <- cohort_levels(data, raw = TRUE)

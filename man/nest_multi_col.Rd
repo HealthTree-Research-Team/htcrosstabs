@@ -4,20 +4,29 @@
 \alias{nest_multi_col}
 \title{Nest Column to List of Atomic Vectors}
 \usage{
-nest_multi_col(df, multi_col_name)
+nest_multi_col(df, multi_col_name, group_cols = NULL)
 }
 \arguments{
 \item{df}{A data frame to nest}
 
-\item{multi_col_name}{The name of the column to nest}
+\item{multi_col_name}{The name of the column to nest (must be a single column name)}
+
+\item{group_cols}{Optional character vector of column names to group by. If NULL
+(default), groups by all columns except `multi_col_name`. Multiple columns can
+be specified to create groupings based on combinations of those columns.}
 }
 \value{
-A data frame with nested atomic vectors in the specified column
+A data frame with the same columns in the same order as the input, but
+  with `multi_col_name` converted to a list-column where each element contains
+  the collapsed values from rows sharing the same grouping column values. The
+  number of rows will equal the number of unique combinations of all columns
+  except `multi_col_name` (or the specified `group_cols` if provided).
 }
 \description{
-[tidyr::nest()] Condenses rows into lists of tibbles, but we need a list of
-atomic vectors. This function does just that. It groups by every other column
-and then collapses the duplicates.
+[tidyr::nest()] condenses rows into lists of tibbles, but we need a list of
+atomic vectors. This function groups rows by specified columns (or all other
+columns if none specified) and collapses duplicate rows in the target column
+into list entries.
 }
 \examples{
 # Create unnested data
@@ -26,8 +35,17 @@ unnested_df[["id"]] <- 1:nrow(unnested_df)
 unnested_df <- tidyr::unnest(unnested_df, allergies)
 head(unnested_df, 5)
 
-# Nest data
+# Nest data using default grouping (all columns except allergies)
 nested_df <- nest_multi_col(unnested_df, "allergies")
 head(nested_df, 5)
+
+# Nest data using specific grouping columns
+nested_df <- nest_multi_col(unnested_df, "allergies", group_cols = c("id", "school"))
+head(nested_df, 5)
+
+# Single column dataframe - wraps each value in a list
+single_col <- data.frame(allergies = c("nuts", "eggs", "milk"))
+nested_single <- nest_multi_col(single_col, "allergies")
+nested_single
 
 }

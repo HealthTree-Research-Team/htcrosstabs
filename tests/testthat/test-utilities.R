@@ -117,7 +117,7 @@ test_that("determine_col_type() returns the proper types", {
     expect_equal(determine_col_type(list(), map),   CT_DATA_CLASS_MULTI)
 })
 
-test_that("nest_multi_col works with repeated rows", {
+test_that("nest_multi_col works with repeated rows (default grouping)", {
     df <- data.frame(
         id = c(1, 1, 2, 2, 2),
         allergy = c("peanuts", "shellfish", "gluten", "soy", "peanuts"),
@@ -134,15 +134,59 @@ test_that("nest_multi_col works with repeated rows", {
     expect_true(all(vapply(nested$allergy, is.atomic, logical(1))))
 })
 
-test_that("nest_multi_col works with only one grouping column", {
-    df <- data.frame(allergy = c("a", "b", "c", "a", "b"))
+test_that("nest_multi_col works with explicit group_cols", {
+    df <- data.frame(
+        id = c(1, 1, 2, 2, 2),
+        school = c("A", "A", "B", "B", "B"),
+        allergy = c("peanuts", "shellfish", "gluten", "soy", "peanuts"),
+        stringsAsFactors = FALSE
+    )
+
+    nested <- nest_multi_col(df, "allergy", group_cols = "id")
+
+    expect_equal(nrow(nested), 2)
+    expect_equal(nested$allergy[[1]], c("peanuts", "shellfish"))
+    expect_equal(nested$allergy[[2]], c("gluten", "soy", "peanuts"))
+    expect_true(all(c("id", "school", "allergy") %in% names(nested)))
+})
+
+test_that("nest_multi_col works with multiple group_cols", {
+    df <- data.frame(
+        id = c(1, 1, 1, 2, 2),
+        school = c("A", "A", "B", "A", "A"),
+        allergy = c("nuts", "dairy", "soy", "gluten", "eggs"),
+        stringsAsFactors = FALSE
+    )
+
+    nested <- nest_multi_col(df, "allergy", group_cols = c("id", "school"))
+
+    expect_equal(nrow(nested), 3)
+    expect_equal(nested$allergy[[1]], c("nuts", "dairy"))
+    expect_equal(nested$allergy[[2]], c("soy"))
+    expect_equal(nested$allergy[[3]], c("gluten", "eggs"))
+})
+
+test_that("nest_multi_col preserves column order", {
+    df <- data.frame(
+        school = c("A", "A", "B", "B"),
+        student = c("x", "x", "y", "y"),
+        allergy = c("nuts", "dairy", "soy", "gluten"),
+        age = c(10, 10, 11, 11)
+    )
 
     result <- nest_multi_col(df, "allergy")
 
-    expect_equal(nrow(result), 1)
-    expect_true("allergy" %in% names(result))
+    expect_equal(names(result), c("school", "student", "allergy", "age"))
+})
+
+test_that("nest_multi_col handles single column dataframe", {
+    df <- data.frame(allergy = c("nuts", "dairy", "soy"))
+
+    result <- nest_multi_col(df, "allergy")
+
+    expect_equal(nrow(result), 3)
     expect_true(is.list(result$allergy))
-    expect_true(all(vapply(result$allergy, is.atomic, logical(1))))
+    expect_equal(result$allergy[[1]], "nuts")
 })
 
 test_that("nest_multi_col errors if input is not a data frame", {
@@ -152,6 +196,18 @@ test_that("nest_multi_col errors if input is not a data frame", {
 test_that("nest_multi_col errors if column name not found", {
     df <- data.frame(x = 1:3, y = 4:6)
     expect_error(nest_multi_col(df, "z"))
+})
+
+test_that("nest_multi_col errors if group_cols not found", {
+    df <- data.frame(x = 1:3, y = 4:6)
+    expect_error(nest_multi_col(df, "x", group_cols = "z"))
+})
+
+test_that("nest_multi_col errors if multi_col_name is already a list", {
+    df <- data.frame(x = 1:3)
+    df$y <- list(c(1, 2), c(3), c(4, 5))
+
+    expect_error(nest_multi_col(df, "y"))
 })
 
 test_that("nest_multi_col preserves other columns", {

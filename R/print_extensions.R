@@ -38,7 +38,7 @@ print.crosstab <- function(x, ...) {
         return(invisible(x))
     }
 
-    lines <- capture.output(print.data.frame(x))
+    lines <- utils::capture.output(print.data.frame(x))
     lines <- sub("^", "  ", lines)  # two spaces
 
     col_names_ind <- 1
@@ -55,12 +55,12 @@ print.crosstab <- function(x, ...) {
             section_name = index(x, long = TRUE),
             table_name = table_name(x, long = TRUE),
             table_type = table_type(x, long = TRUE),
-            row_number = 1:nrow(x)
+            row_num = 1:nrow(x)
         ) |>
         dplyr::group_by(table_id, table_name, section_name) |>
         dplyr::summarise(
             num_rows = dplyr::n(),
-            start_index = min(row_number),
+            start_index = min(.data$row_num),
             table_type = utils::head(table_type, 1),
             .groups = "drop"
         ) |>
@@ -147,9 +147,9 @@ print.crosstab_data <- function(x, n = NULL, raw = NULL, ...) {
         cur_var <- lapply(cur_var, as.character)
 
         temp[[var_col_name]] <- cur_var
-        print.data.frame(head(temp, n))
+        print.data.frame(utils::head(temp, n))
     } else {
-        print.data.frame(head(x, n))
+        print.data.frame(utils::head(x, n))
     }
 
 

@@ -1,7 +1,7 @@
 Package: htcrosstabs
 Type: Package
 Title: Generate simple crosstabs (HealthTree Foundation)
-Version: 1.0.1
+Version: 1.1.0
 Authors@R: person(
     "Alex", "Brown",
     role = c("aut", "cre"),

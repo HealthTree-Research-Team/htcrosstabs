@@ -112,14 +112,22 @@ escape_table = function(table) {
 
 #' Nest Column to List of Atomic Vectors
 #'
-#' [tidyr::nest()] Condenses rows into lists of tibbles, but we need a list of
-#' atomic vectors. This function does just that. It groups by every other column
-#' and then collapses the duplicates.
+#' [tidyr::nest()] condenses rows into lists of tibbles, but we need a list of
+#' atomic vectors. This function groups rows by specified columns (or all other
+#' columns if none specified) and collapses duplicate rows in the target column
+#' into list entries.
 #'
 #' @param df A data frame to nest
-#' @param multi_col_name The name of the column to nest
+#' @param multi_col_name The name of the column to nest (must be a single column name)
+#' @param group_cols Optional character vector of column names to group by. If NULL
+#'   (default), groups by all columns except `multi_col_name`. Multiple columns can
+#'   be specified to create groupings based on combinations of those columns.
 #'
-#' @returns A data frame with nested atomic vectors in the specified column
+#' @returns A data frame with the same columns in the same order as the input, but
+#'   with `multi_col_name` converted to a list-column where each element contains
+#'   the collapsed values from rows sharing the same grouping column values. The
+#'   number of rows will equal the number of unique combinations of all columns
+#'   except `multi_col_name` (or the specified `group_cols` if provided).
 #'
 #' @export
 #' @importFrom rlang !!
@@ -133,28 +141,87 @@ escape_table = function(table) {
 #' unnested_df <- tidyr::unnest(unnested_df, allergies)
 #' head(unnested_df, 5)
 #'
-#' # Nest data
+#' # Nest data using default grouping (all columns except allergies)
 #' nested_df <- nest_multi_col(unnested_df, "allergies")
 #' head(nested_df, 5)
 #'
-nest_multi_col <- function(df, multi_col_name) {
-    assert_that(is.data.frame(df))
-    assert_that(is.character(multi_col_name))
-    assert_that(
-        multi_col_name %in% names(df),
-        msg = sprintf("\"%s\" not found in df")
-    )
+#' # Nest data using specific grouping columns
+#' nested_df <- nest_multi_col(unnested_df, "allergies", group_cols = c("id", "school"))
+#' head(nested_df, 5)
+#'
+#' # Single column dataframe - wraps each value in a list
+#' single_col <- data.frame(allergies = c("nuts", "eggs", "milk"))
+#' nested_single <- nest_multi_col(single_col, "allergies")
+#' nested_single
+#'
+nest_multi_col <- function(df, multi_col_name, group_cols = NULL) {
 
-    if (ncol(df) > 1) {
-        other_col_names <- names(df)[names(df) != multi_col_name]
-        df <- dplyr::group_by(df, !!!rlang::syms(other_col_names))
+    # Input checks
+    assert_that(is.data.frame(df))
+
+    assert_that(is.character(multi_col_name))
+    assert_that(length(multi_col_name) == 1, msg = "multi_col_name must have 1 value")
+    assert_that(multi_col_name %in% names(df), msg = sprintf("`%s` not found in df", multi_col_name))
+
+    assert_that(!is.list(df[[multi_col_name]]), msg = sprintf(
+        "Column `%s` is already of type list; nest_multi_col expects an atomic vector column to nest into a list",
+        multi_col_name
+    ))
+
+    if (!is.null(group_cols)) {
+        assert_that(is.character(group_cols))
+        assert_that(length(group_cols) > 0, msg = "group_cols cannot be a 0-length vector")
+        assert_that(all(group_cols %in% names(df)), msg = sprintf(
+            "The following group_cols were not found in df: %s",
+            paste0("`", setdiff(group_cols, names(df)), "`", collapse = "`, `")
+        ))
     }
 
-    df |>
-        dplyr::summarise(
-            !!rlang::sym(multi_col_name) := list(!!rlang::sym(multi_col_name)),
-            .groups = "drop"
-        )
+    # Store original column order
+    original_col_order <- names(df)
+
+    # If no grouping columns specified, use all other columns
+    if (is.null(group_cols) && (ncol(df) > 1)) {
+        group_cols <- names(df)[names(df) != multi_col_name]
+    }
+
+    # Separate out the multi_col_name column and the grouping columns
+    grouped_df <- df[, c(multi_col_name, group_cols), drop = FALSE]
+
+    if (ncol(grouped_df) == 1) {
+
+        # If there are no grouping columns, just wrap each value in a list
+        df[[multi_col_name]] <- as.list(df[[multi_col_name]])
+
+    } else {
+
+        # Group by the grouping columns
+        grouped_df <- dplyr::group_by(grouped_df, !!!rlang::syms(group_cols))
+
+        grouped_df <- grouped_df |>
+            dplyr::summarise(
+                !!rlang::sym(multi_col_name) := list(!!rlang::sym(multi_col_name)),
+                .groups = "drop"
+            )
+
+        other_col_names <- setdiff(names(df), c(multi_col_name, group_cols))
+
+        # Join back any other columns that were not part of the grouping, so any
+        # rows which happen to have differing values in those columns will be duplicated
+        if (length(other_col_names) > 0) {
+            other_cols_df <- df[, c(other_col_names, group_cols), drop = FALSE] |>
+                dplyr::distinct()
+
+            df <- dplyr::left_join(other_cols_df, grouped_df, by = group_cols)
+        } else {
+            df <- grouped_df
+        }
+    }
+
+    # Restore original column order
+    df <- df[, original_col_order, drop = FALSE]
+
+    return(df)
 }
 
 duplicated_vals <- function(obj) {
