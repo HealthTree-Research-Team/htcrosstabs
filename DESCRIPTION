@@ -5,7 +5,7 @@ Version: 1.1.0
 Authors@R: person(
     "Alex", "Brown",
     role = c("aut", "cre"),
-    email = "alexb@healthtree.org",
+    email = c("alexb@healthtree.org", "alexbrownbass@gmail.com"),
     comment = NULL
   )
 Description: Creating crosstabs in the way that HealthTree Foundation likes
